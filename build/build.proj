@@ -73,7 +73,7 @@
     <Warning Condition=" '$(CommitHash)' == '' "
         Text="Skipping GitLink because CommitHash was not specified." />
     <Exec Condition=" '$(CommitHash)' != '' "
-        Command='$(SolutionDir)\packages\gitlink\lib\net45\GitLink.exe $(MSBuildThisFileDirectory) -f $(SolutionDir)\$(SolutionName) -u https://github.com/CenturyLinkCloud/Orchestrate-.NET-SDK -s $(CommitHash)' IgnoreExitCode='true' />
+        Command='$(SolutionDir)\packages\gitlink\lib\net45\GitLink.exe $(SolutionDir) -f $(SolutionDir)\$(SolutionName) -u https://github.com/CenturyLinkCloud/Orchestrate-.NET-SDK -s $(CommitHash)' />
   </Target>
 
   <Target Name='Packages'>
