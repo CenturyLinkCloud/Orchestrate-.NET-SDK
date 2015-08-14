@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2011/10/nuspec.xsd">
+  <metadata minClientVersion="2.8.5">
+    <id>orchestrate.io</id>
+    <version>99.99.99-dev</version>
+    <title>Orchestrate.Io .NET SDK</title>
+    <authors>CenturyLinkCloud</authors>
+    <description>.NET SDK for Orchestrate.Io</description>
+    <language>en-US</language>
+    <projectUrl>https://github.com/CenturyLinkCloud/Orchestrate-.NET-SDK</projectUrl>
+    <iconUrl>https://avatars1.githubusercontent.com/u/5995824</iconUrl>
+    <licenseUrl>https://raw.githubusercontent.com/CenturyLinkCloud/Orchestrate-.NET-SDK/master/LICENSE</licenseUrl>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <dependencies>
+      <dependency id="Microsoft.AspNet.WebApi.Client" version="5.2.3" />
+      <dependency id="Newtonsoft.Json" version="7.0.1" />
+    </dependencies>
+  </metadata>
+  <files>
+    <file src="bin\Release\Orchestrate.dll" target="lib\net45\" />
+    <file src="bin\Release\Orchestrate.pdb" target="lib\net45\" />
+  </files>
+</package>

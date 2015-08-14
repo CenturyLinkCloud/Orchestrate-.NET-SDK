@@ -1,8 +1,8 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 2013
-VisualStudioVersion = 12.0.30501.0
-MinimumVisualStudioVersion = 10.0.40219.1
+# Visual Studio 14
+VisualStudioVersion = 14.0.23107.0
+MinimumVisualStudioVersion = 14.0.23107.0
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Orchestrate", "Orchestrate\Orchestrate.csproj", "{8EBDBDBD-697C-4157-BF5B-F3826E2014D2}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Orchestrate.Tests", "Orchestrate.Tests\Orchestrate.Tests.csproj", "{2CABA886-8B8B-4522-8FEC-17E577F406C8}"
