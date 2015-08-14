@@ -15,7 +15,7 @@ public class AddorUpdateTests : IClassFixture<TestFixture>
     [Fact]
     public async void Guards()
     {
-        var client = new Client(TestHelper.ApiKey);
+        var client = new Client(TestUtility.ApplicationKey);
         var collection = client.GetCollection(collectionName);
 
         var exception = await Assert.ThrowsAsync<ArgumentException>(
@@ -37,7 +37,7 @@ public class AddorUpdateTests : IClassFixture<TestFixture>
     [Fact]
     public async void AddSuccess()
     {
-        Client client = new Client(TestHelper.ApiKey);
+        Client client = new Client(TestUtility.ApplicationKey);
         var collection = client.GetCollection(collectionName);
 
         var item = new TestData { Id = 3, Value = "Added Object" };
@@ -53,7 +53,7 @@ public class AddorUpdateTests : IClassFixture<TestFixture>
     [Fact]
     public async void UpdateSuccess()
     {
-        var client = new Client(TestHelper.ApiKey);
+        var client = new Client(TestUtility.ApplicationKey);
         var collection = client.GetCollection(collectionName);
 
         var kvObject = await collection.GetAsync<TestData>("1");

@@ -9,7 +9,7 @@ public class TestFixture : IDisposable
 
     public TestFixture()
     {
-        Client = new Client(TestHelper.ApiKey);
+        Client = new Client(TestUtility.ApplicationKey);
         var item = new TestData { Id = 1, Value = "Initial Test Data" };
        
         CollectionName = Path.GetRandomFileName();

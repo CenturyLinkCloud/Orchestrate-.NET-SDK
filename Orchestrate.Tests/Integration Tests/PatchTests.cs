@@ -16,7 +16,7 @@ public class PatchTests : IClassFixture<TestFixture>
     [Fact]
     public async void Guards()
     {
-        var client = new Client(TestHelper.ApiKey);
+        var client = new Client(TestUtility.ApplicationKey);
         var collection = client.GetCollection(collectionName);
 
         var exception = await Assert.ThrowsAsync<ArgumentException>(
@@ -38,7 +38,7 @@ public class PatchTests : IClassFixture<TestFixture>
     [Fact]
     public async void PatchSuccess()
     {
-        var client = new Client(TestHelper.ApiKey);
+        var client = new Client(TestUtility.ApplicationKey);
         var collection = client.GetCollection(collectionName);
 
         List<PatchOperation> patchOperations = new List<PatchOperation>();
@@ -60,7 +60,7 @@ public class PatchTests : IClassFixture<TestFixture>
     [Fact]
     public async void InvalidPathThrowsPatchConflictException()
     {
-        var client = new Client(TestHelper.ApiKey);
+        var client = new Client(TestUtility.ApplicationKey);
         var collection = client.GetCollection(collectionName);
 
         List<PatchOperation> patchOperations = new List<PatchOperation>();
@@ -79,7 +79,7 @@ public class PatchTests : IClassFixture<TestFixture>
     [Fact]
     public async void InvalidOperationThrowsBadRequestException()
     {
-        var client = new Client(TestHelper.ApiKey);
+        var client = new Client(TestUtility.ApplicationKey);
         var collection = client.GetCollection(collectionName);
 
         List<PatchOperation> patchOperations = new List<PatchOperation>();
@@ -98,7 +98,7 @@ public class PatchTests : IClassFixture<TestFixture>
     [Fact]
     public async void NonExistantKeyThrowsNotFoundException()
     {
-        Client client = new Client(TestHelper.ApiKey);
+        Client client = new Client(TestUtility.ApplicationKey);
         var collection = client.GetCollection(collectionName);
 
         var exception = await Assert.ThrowsAsync<NotFoundException>(

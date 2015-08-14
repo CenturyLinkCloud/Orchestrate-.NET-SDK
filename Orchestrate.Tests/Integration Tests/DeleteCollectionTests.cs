@@ -10,7 +10,7 @@ public class DeleteCollectionTests
     [Fact]
     public async void Guards()
     {
-        var client = new Client(TestHelper.ApiKey);
+        var client = new Client(TestUtility.ApplicationKey);
 
         var exception = await Assert.ThrowsAsync<ArgumentException>(
             () => client.DeleteCollectionAsync(string.Empty)
@@ -26,7 +26,7 @@ public class DeleteCollectionTests
     [Fact]
     public async void DeleteSuccess()
     {
-        var client = new Client(TestHelper.ApiKey);
+        var client = new Client(TestUtility.ApplicationKey);
 
         var item = new TestData { Id = 1, Value = "DeleteCollection" };
         await client.CreateCollectionAsync(collectionName, Guid.NewGuid().ToString(), item);
@@ -51,7 +51,7 @@ public class DeleteCollectionTests
     [Fact]
     public async void DeleteNonExistantCollectionSuccess()
     {
-        var client = new Client(TestHelper.ApiKey);
+        var client = new Client(TestUtility.ApplicationKey);
 
         await client.DeleteCollectionAsync("NonExistantCollection");
     }

@@ -7,7 +7,7 @@ public class CollectionTests
     [Fact]
     public void Guards()
     {
-        Client client = new Client(TestHelper.ApiKey);
+        Client client = new Client(TestUtility.ApplicationKey);
 
         var exception = Assert.Throws<ArgumentException>(
             () => client.GetCollection(string.Empty)

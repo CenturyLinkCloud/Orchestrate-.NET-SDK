@@ -7,7 +7,7 @@ public class PingTests
     [Fact]
     public async void PingSuccess()
     {
-        var client = new Client(TestHelper.ApiKey);
+        var client = new Client(TestUtility.ApplicationKey);
 
         await client.PingAsync();
     }

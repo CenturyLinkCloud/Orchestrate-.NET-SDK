@@ -15,7 +15,7 @@ public class MergeTests : IClassFixture<TestFixture>
     [Fact]
     public async void Guards()
     {
-        var client = new Client(TestHelper.ApiKey);
+        var client = new Client(TestUtility.ApplicationKey);
         var collection = client.GetCollection(collectionName);
 
         var exception = await Assert.ThrowsAsync<ArgumentException>(
@@ -37,7 +37,7 @@ public class MergeTests : IClassFixture<TestFixture>
     [Fact]
     public async void MergeSuccess()
     {
-        var client = new Client(TestHelper.ApiKey);
+        var client = new Client(TestUtility.ApplicationKey);
         var collection = client.GetCollection(collectionName);
 
         var testData = await collection.GetAsync<TestData>("1");
@@ -60,7 +60,7 @@ public class MergeTests : IClassFixture<TestFixture>
     [Fact]
     public async void NonExistantKeyThrowsNotFoundException()
     {
-        Client client = new Client(TestHelper.ApiKey);
+        Client client = new Client(TestUtility.ApplicationKey);
         var collection = client.GetCollection(collectionName);
 
         var exception = await Assert.ThrowsAsync<NotFoundException>(

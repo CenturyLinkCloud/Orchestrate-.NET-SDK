@@ -15,7 +15,7 @@ public class UpdateTests : IClassFixture<TestFixture>
     [Fact]
     public async void Guards()
     {
-        var client = new Client(TestHelper.ApiKey);
+        var client = new Client(TestUtility.ApplicationKey);
         var collection = client.GetCollection(collectionName);
 
         var exception = await Assert.ThrowsAsync<ArgumentException>(
@@ -37,7 +37,7 @@ public class UpdateTests : IClassFixture<TestFixture>
     [Fact]
     public async void UpdateSuccess()
     {
-        var client = new Client(TestHelper.ApiKey);
+        var client = new Client(TestUtility.ApplicationKey);
         var collection = client.GetCollection(collectionName);
 
         var kvObject = await collection.GetAsync<TestData>("1");
@@ -72,7 +72,7 @@ public class UpdateTests : IClassFixture<TestFixture>
     [Fact]
     public async void ThrowsNotFOundExceptionIfKeyIsNotPresent()
     {
-        var client = new Client(TestHelper.ApiKey);
+        var client = new Client(TestUtility.ApplicationKey);
         var collection = client.GetCollection(collectionName);
 
         var kvObject = await collection.GetAsync<TestData>("1");
@@ -89,7 +89,7 @@ public class UpdateTests : IClassFixture<TestFixture>
     [Fact]
     public async void ThrowsRequestFoundExceptionWhenPassingInvalidReference()
     {
-        var client = new Client(TestHelper.ApiKey);
+        var client = new Client(TestUtility.ApplicationKey);
         var collection = client.GetCollection(collectionName);
 
         var kvObject = await collection.GetAsync<TestData>("1");

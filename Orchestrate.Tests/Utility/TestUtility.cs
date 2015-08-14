@@ -1,8 +1,8 @@
 ﻿using System;
 
-public static class TestHelper
+public static class TestUtility
 {
-    public static string ApiKey
+    public static string ApplicationKey
     {
         get
         {

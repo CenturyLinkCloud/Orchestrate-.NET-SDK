@@ -10,7 +10,7 @@ public class CreateCollectionTests
     [Fact]
     public async void Guards()
     {
-        var client = new Client(TestHelper.ApiKey);
+        var client = new Client(TestUtility.ApplicationKey);
 
         var exception = await Assert.ThrowsAsync<ArgumentException>(
             () => client.CreateCollectionAsync(string.Empty, string.Empty, string.Empty)
@@ -41,7 +41,7 @@ public class CreateCollectionTests
     [Fact]
     public async void CreateCollectionSuccess()
     {
-        var client = new Client(TestHelper.ApiKey);
+        var client = new Client(TestUtility.ApplicationKey);
 
         try
         {

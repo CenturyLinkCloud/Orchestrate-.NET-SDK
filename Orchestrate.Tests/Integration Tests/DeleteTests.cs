@@ -15,7 +15,7 @@ public class DeleteTests : IClassFixture<TestFixture>
     [Fact]
     public async void Guards()
     {
-        var client = new Client(TestHelper.ApiKey);
+        var client = new Client(TestUtility.ApplicationKey);
         var collection = client.GetCollection(collectionName);
 
         var exception = await Assert.ThrowsAsync<ArgumentException>(
@@ -32,7 +32,7 @@ public class DeleteTests : IClassFixture<TestFixture>
     [Fact]
     public async void DeleteSuccessPurge()
     {
-        var client = new Client(TestHelper.ApiKey);
+        var client = new Client(TestUtility.ApplicationKey);
         var collection = client.GetCollection(collectionName);
 
         var item = new TestData { Id = 3, Value = "A successful object PUT" };
@@ -52,7 +52,7 @@ public class DeleteTests : IClassFixture<TestFixture>
     [Fact]
     public async void DeleteSuccessNoPurge()
     {
-        var client = new Client(TestHelper.ApiKey);
+        var client = new Client(TestUtility.ApplicationKey);
         var collection = client.GetCollection(collectionName);
 
         var item = new TestData { Id = 3, Value = "A successful object PUT" };
@@ -67,7 +67,7 @@ public class DeleteTests : IClassFixture<TestFixture>
     [Fact]
     public async void DeleteNonExistantKeySuccess()
     {
-        var client = new Client(TestHelper.ApiKey);
+        var client = new Client(TestUtility.ApplicationKey);
         var collection = client.GetCollection(collectionName);
 
         await collection.DeleteAsync("9999");
@@ -89,7 +89,7 @@ public class DeleteTests : IClassFixture<TestFixture>
     [Fact]
     public async void DeleteWithVersionNoPurge()
     {
-        var client = new Client(TestHelper.ApiKey);
+        var client = new Client(TestUtility.ApplicationKey);
         var collection = client.GetCollection(collectionName);
 
         var item = new TestData { Id = 4, Value = "A successful object PUT" };
@@ -107,7 +107,7 @@ public class DeleteTests : IClassFixture<TestFixture>
     [Fact]
     public async void DeleteThrowsRequestExceptionWhenVersionReferenceDoesNotMatch()
     {
-        var client = new Client(TestHelper.ApiKey);
+        var client = new Client(TestUtility.ApplicationKey);
         var collection = client.GetCollection(collectionName);
 
         var kvObject = await collection.GetAsync<TestData>("1");

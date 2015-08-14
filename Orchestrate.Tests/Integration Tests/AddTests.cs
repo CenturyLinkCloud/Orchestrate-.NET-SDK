@@ -15,7 +15,7 @@ public class AddTests : IClassFixture<TestFixture>
     [Fact]
     public async void Guards()
     {
-        Client client = new Client(TestHelper.ApiKey);
+        Client client = new Client(TestUtility.ApplicationKey);
         var collection = client.GetCollection(collectionName);
 
         var exception = await Assert.ThrowsAsync<ArgumentNullException>(
@@ -27,7 +27,7 @@ public class AddTests : IClassFixture<TestFixture>
     [Fact]
     public async void AddSuccess()
     {
-        var client = new Client(TestHelper.ApiKey);
+        var client = new Client(TestUtility.ApplicationKey);
         var collection = client.GetCollection(collectionName);
 
         var item = new TestData { Id = 3, Value = "A successful object Add" };
