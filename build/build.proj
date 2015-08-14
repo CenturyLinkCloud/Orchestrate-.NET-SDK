@@ -6,7 +6,7 @@
       AssemblyFile="..\packages\xunit.buildtasks\tools\CodePlex.MSBuildTasks.dll"
       TaskName="CodePlex.MSBuildTasks.Zip"/>
   <UsingTask
-      AssemblyFile="..\packages\xunit.runner.msbuild\build\portable-net45+win+wpa81+wp80+monotouch+monoandroid+Xamarin.iOS\xunit.runner.msbuild.dll"
+      AssemblyFile="..\packages\xunit.runner.msbuild\build\portable-net45+netcore45+wp8+wpa81\xunit.runner.msbuild.dll"
       TaskName="Xunit.Runner.MSBuild.Xunit"/>
 
   <!-- Settings -->
@@ -35,7 +35,7 @@
   <Target Name="PackageRestore" DependsOnTargets="_DownloadNuGet">
     <Message Text="Restoring NuGet packages..." Importance="High" />
     <Exec Command="&quot;$(NuGetExePath)&quot; install xunit.buildtasks -Source @(PackageSource) -SolutionDir &quot;$(SolutionDir)&quot; -Verbosity quiet -ExcludeVersion" Condition="!Exists('$(SolutionDir)\packages\xunit.buildtasks\')" />
-    <Exec Command="&quot;$(NuGetExePath)&quot; install xunit.runner.msbuild -Source @(PackageSource) -SolutionDir &quot;$(SolutionDir)&quot; -Verbosity quiet -ExcludeVersion" Condition="!Exists('$(SolutionDir)\packages\xunit.runner.msbuild\')" />
+    <Exec Command="&quot;$(NuGetExePath)&quot; install xunit.runner.msbuild -Source @(PackageSource) -SolutionDir &quot;$(SolutionDir)&quot; -Verbosity quiet -ExcludeVersion -Pre" Condition="!Exists('$(SolutionDir)\packages\xunit.runner.msbuild\')" />
     <Exec Command="&quot;$(NuGetExePath)&quot; install gitlink -SolutionDir &quot;$(SolutionDir)&quot; -Verbosity quiet -ExcludeVersion" Condition="!Exists('$(SolutionDir)\packages\gitlink\')" />
     <Exec Command="&quot;$(NuGetExePath)&quot; restore &quot;$(SolutionDir)\$(SolutionName)&quot; -NonInteractive -Source @(PackageSource) -Verbosity quiet" />
   </Target>
