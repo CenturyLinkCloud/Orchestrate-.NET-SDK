@@ -9,10 +9,10 @@ namespace Orchestrate.Io
         readonly string baseUrl;
 
         public Client(string apiKey,
-                      string baseUrl = "https://api.orchestrate.io/v0/")
+                      string baseUrl = "https://api.orchestrate.io/")
         {
             this.apiKey = apiKey;
-            this.baseUrl = baseUrl;
+            this.baseUrl = baseUrl + "v0/";
         }
 
         public Collection GetCollection(string collectionName)

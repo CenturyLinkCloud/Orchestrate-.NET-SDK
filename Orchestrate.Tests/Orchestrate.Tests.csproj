@@ -62,6 +62,7 @@
     <Compile Include="Integration Tests\ConditionalMergeTests.cs" />
     <Compile Include="Integration Tests\ConditionalPatchTests.cs" />
     <Compile Include="Integration Tests\ConditionalAddorUpdateTests.cs" />
+    <Compile Include="Integration Tests\DataCenterTests.cs" />
     <Compile Include="Integration Tests\MergeTests.cs" />
     <Compile Include="Integration Tests\PingTests.cs" />
     <Compile Include="Integration Tests\TryAddTests.cs" />
