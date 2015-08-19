@@ -31,7 +31,7 @@ public class DeleteTests : IClassFixture<TestFixture>
     public async void DeleteSuccessPurge()
     {
         var item = new TestData { Id = 3, Value = "A successful object PUT" };
-        var kvMetaData = await testFixture.Collection.AddorUpdateAsync("3", item);
+        var kvMetaData = await testFixture.Collection.AddOrUpdateAsync("3", item);
 
         await testFixture.Collection.DeleteAsync("3");
 
@@ -48,7 +48,7 @@ public class DeleteTests : IClassFixture<TestFixture>
     public async void DeleteSuccessNoPurge()
     {
         var item = new TestData { Id = 3, Value = "A successful object PUT" };
-        var kvMetaData = await testFixture.Collection.AddorUpdateAsync("3", item);
+        var kvMetaData = await testFixture.Collection.AddOrUpdateAsync("3", item);
 
         await testFixture.Collection.DeleteAsync("3", purge: false);
 
@@ -83,7 +83,7 @@ public class DeleteTests : IClassFixture<TestFixture>
     public async void DeleteWithVersionNoPurge()
     {
         var item = new TestData { Id = 4, Value = "A successful object PUT" };
-        await testFixture.Collection.AddorUpdateAsync("4", item);
+        await testFixture.Collection.AddOrUpdateAsync("4", item);
         var kvObject = await testFixture.Collection.GetAsync<TestData>("4");
 
         await testFixture.Collection.DeleteAsync("4", 

@@ -16,7 +16,7 @@ public class ConditionalAddOrUpdateTests : IClassFixture<TestFixture>
     {
         var kvObject = await testFixture.Collection.GetAsync<TestData>("1");
         var updatedItem = new TestData { Id = 1, Value = "New and improved value!" };
-        var kvMetaData = await testFixture.Collection.AddorUpdateAsync<TestData>("1", updatedItem, kvObject.VersionReference);
+        var kvMetaData = await testFixture.Collection.AddOrUpdateAsync<TestData>("1", updatedItem, kvObject.VersionReference);
 
         Assert.Equal(testFixture.CollectionName, kvMetaData.CollectionName);
         Assert.Equal("1", kvMetaData.Key);
@@ -35,7 +35,7 @@ public class ConditionalAddOrUpdateTests : IClassFixture<TestFixture>
         var updatedItem = new TestData { Id = 1, Value = "New and improved value!" };
 
         var exception = await Assert.ThrowsAsync<RequestException>(
-            () => testFixture.Collection.AddorUpdateAsync("2", updatedItem, kvObject.VersionReference)
+            () => testFixture.Collection.AddOrUpdateAsync("2", updatedItem, kvObject.VersionReference)
         );
 
         Assert.Equal(HttpStatusCode.PreconditionFailed, exception.StatusCode);

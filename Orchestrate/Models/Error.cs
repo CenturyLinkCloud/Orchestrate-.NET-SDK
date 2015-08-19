@@ -1,8 +1,13 @@
-﻿namespace Orchestrate.Io
+﻿using Newtonsoft.Json;
+
+namespace Orchestrate.Io
 {
     public class Error
     {
-        public string code { get; set; }
-        public string message { get; set; }
+        [JsonProperty("code")]
+        public string Code { get; set; }
+
+        [JsonProperty("message")]
+        public string Message { get; set; }
     }
 }

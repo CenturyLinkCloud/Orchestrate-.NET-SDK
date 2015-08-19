@@ -40,7 +40,7 @@ namespace Orchestrate.Io
             }
         }
 
-        public async Task<KvMetaData> AddorUpdateAsync<T>(string key,
+        public async Task<KvMetaData> AddOrUpdateAsync<T>(string key,
                                                           T item, 
                                                           string reference = null)
         {

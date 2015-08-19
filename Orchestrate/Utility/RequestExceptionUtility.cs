@@ -15,13 +15,13 @@ namespace Orchestrate.Io
             var error = JsonConvert.DeserializeObject<Error>(rawJson);
             if (error != null)
             {
-                if (error.code.Equals("items_not_found"))
+                if (error.Code.Equals("items_not_found"))
                     return new NotFoundException(response.StatusCode, rawJson, requestId);
 
-                if (error.code.Equals("api_bad_request"))
+                if (error.Code.Equals("api_bad_request"))
                     return new BadRequestException(response.StatusCode, rawJson, requestId);
 
-                if (error.code.Equals("patch_conflict"))
+                if (error.Code.Equals("patch_conflict"))
                     return new PatchConflictException(response.StatusCode, rawJson, requestId);
             }
 

@@ -35,7 +35,9 @@ namespace Orchestrate.Io
             }
         }
 
-        public async Task<KvMetaData> CreateCollectionAsync<T>(string collectionName, string key, T item)
+        public async Task<KvMetaData> CreateCollectionAsync<T>(string collectionName, 
+                                                               string key, 
+                                                               T item)
         {
             Guard.ArgumentNotNullOrEmpty("collectionName", collectionName);
             Guard.ArgumentNotNullOrEmpty("key", key);
