@@ -5,30 +5,27 @@ namespace Orchestrate.Io
 {
     public class Client
     {
-        readonly string apiKey;
-        readonly string baseUrl;
+        readonly IApplication application;
 
-        public Client(string apiKey,
-                      string baseUrl = "https://api.orchestrate.io/")
+        public Client(IApplication application)
         {
-            this.apiKey = apiKey;
-            this.baseUrl = baseUrl + "v0/";
+            this.application = application;
         }
 
         public Collection GetCollection(string collectionName)
         {
             Guard.ArgumentNotNullOrEmpty("collectionName", collectionName);
 
-            return new Collection(collectionName, apiKey, baseUrl);
+            return new Collection(collectionName, application.Key, application.V0ApiUrl);
         }
 
         public async Task PingAsync()
         {
-            HttpUrlBuilder uri = new HttpUrlBuilder(baseUrl);
+            HttpUrlBuilder uri = new HttpUrlBuilder(application.V0ApiUrl);
 
             using (var httpClient = new HttpClient())
             {
-                httpClient.AddAuthenticaion(apiKey);
+                httpClient.AddAuthenticaion(application.Key);
 
                 HttpRequestMessage message = new HttpRequestMessage(HttpMethod.Head, uri.ToString());
                 var response = await httpClient.SendAsync(message);
@@ -44,13 +41,13 @@ namespace Orchestrate.Io
             Guard.ArgumentNotNullOrEmpty("key", key);
             Guard.ArgumentNotNull("item", item);
 
-            HttpUrlBuilder uri = new HttpUrlBuilder(baseUrl)
+            HttpUrlBuilder uri = new HttpUrlBuilder(application.V0ApiUrl)
                                         .AppendPath(collectionName)
                                         .AppendPath(key);
 
             using (var httpClient = new HttpClient())
             {
-                httpClient.AddAuthenticaion(apiKey);
+                httpClient.AddAuthenticaion(application.Key);
                 var response = await httpClient.PutAsJsonAsync(uri.ToString(), item);
 
                 if (response.IsSuccessStatusCode)
@@ -64,13 +61,13 @@ namespace Orchestrate.Io
         {
             Guard.ArgumentNotNullOrEmpty("collectionName", collectionName);
 
-            HttpUrlBuilder uri = new HttpUrlBuilder(baseUrl)
+            HttpUrlBuilder uri = new HttpUrlBuilder(application.V0ApiUrl)
                                         .AppendPath(collectionName)
                                         .AddQuery("force", "true");
 
             using (var httpClient = new HttpClient())
             {
-                httpClient.AddAuthenticaion(apiKey);
+                httpClient.AddAuthenticaion(application.Key);
                 var response = await httpClient.DeleteAsync(uri.ToString());
 
                 if (!response.IsSuccessStatusCode)

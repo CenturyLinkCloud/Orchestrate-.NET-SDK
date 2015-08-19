@@ -7,7 +7,8 @@ public class CollectionTests
     [Fact]
     public void Guards()
     {
-        Client client = new Client(TestUtility.ApplicationKey);
+        Application application = new Application("OrchestrateApiKey");
+        Client client = new Client(application);
 
         var exception = Assert.Throws<ArgumentException>(
             () => client.GetCollection(string.Empty)
@@ -19,5 +20,4 @@ public class CollectionTests
             );
         Assert.Equal("collectionName", exception.ParamName);
     }
-
 }

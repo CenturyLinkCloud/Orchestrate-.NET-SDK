@@ -2,30 +2,27 @@
 using Orchestrate.Io;
 using System.Net;
 
-public class ConditionalAddorUpdateTests : IClassFixture<TestFixture>
+public class ConditionalAddOrUpdateTests : IClassFixture<TestFixture>
 {
-    readonly string collectionName;
+    TestFixture testFixture; 
 
-    public ConditionalAddorUpdateTests(TestFixture testFixture)
+    public ConditionalAddOrUpdateTests(TestFixture testFixture)
     {
-        collectionName = testFixture.CollectionName;
+        this.testFixture = testFixture;
     }
 
     [Fact]
     public async void AddOrUpdateWithVersionReferenceSucceeds()
     {
-        var client = new Client(TestUtility.ApplicationKey);
-        var collection = client.GetCollection(collectionName);
-
-        var kvObject = await collection.GetAsync<TestData>("1");
+        var kvObject = await testFixture.Collection.GetAsync<TestData>("1");
         var updatedItem = new TestData { Id = 1, Value = "New and improved value!" };
-        var kvMetaData = await collection.AddorUpdateAsync<TestData>("1", updatedItem, kvObject.VersionReference);
+        var kvMetaData = await testFixture.Collection.AddorUpdateAsync<TestData>("1", updatedItem, kvObject.VersionReference);
 
-        Assert.Equal(collectionName, kvMetaData.CollectionName);
+        Assert.Equal(testFixture.CollectionName, kvMetaData.CollectionName);
         Assert.Equal("1", kvMetaData.Key);
         Assert.True(kvMetaData.VersionReference.Length > 0);
 
-        var updatedObject = await collection.GetAsync<TestData>("1");
+        var updatedObject = await testFixture.Collection.GetAsync<TestData>("1");
         TestData testData = updatedObject.Value;
         Assert.Equal(1, testData.Id);
         Assert.Equal("New and improved value!", testData.Value);
@@ -34,14 +31,11 @@ public class ConditionalAddorUpdateTests : IClassFixture<TestFixture>
     [Fact]
     public async void AddOrUpdateWithVersionReferenceThrowsWithInvalidReference()
     {
-        var client = new Client(TestUtility.ApplicationKey);
-        var collection = client.GetCollection(collectionName);
-
-        var kvObject = await collection.GetAsync<TestData>("1");
+        var kvObject = await testFixture.Collection.GetAsync<TestData>("1");
         var updatedItem = new TestData { Id = 1, Value = "New and improved value!" };
 
         var exception = await Assert.ThrowsAsync<RequestException>(
-            () => collection.AddorUpdateAsync("2", updatedItem, kvObject.VersionReference)
+            () => testFixture.Collection.AddorUpdateAsync("2", updatedItem, kvObject.VersionReference)
         );
 
         Assert.Equal(HttpStatusCode.PreconditionFailed, exception.StatusCode);

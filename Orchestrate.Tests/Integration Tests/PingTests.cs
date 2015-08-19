@@ -1,4 +1,5 @@
-﻿using Orchestrate.Io;
+﻿using NSubstitute;
+using Orchestrate.Io;
 using System.Net;
 using Xunit;
 
@@ -7,7 +8,8 @@ public class PingTests
     [Fact]
     public async void PingSuccess()
     {
-        var client = new Client(TestUtility.ApplicationKey);
+        Application application = new Application("OrchestrateApiKey");
+        var client = new Client(application);
 
         await client.PingAsync();
     }
@@ -15,7 +17,11 @@ public class PingTests
     [Fact]
     public async void InvalidCredentialsThrowsRequestException()
     {
-        var client = new Client("ApiKey");
+        var application = Substitute.For<IApplication>();
+        application.Key.Returns("HaHa");
+        application.V0ApiUrl.Returns("https://api.orchestrate.io/v0");
+
+        var client = new Client(application);
 
         var exception = await Assert.ThrowsAsync<RequestException>(
                                 () => client.PingAsync());

@@ -2,6 +2,7 @@
 using Orchestrate.Io;
 using Xunit;
 using System.Net;
+using NSubstitute;
 
 public class DeleteCollectionTests
 {
@@ -10,7 +11,8 @@ public class DeleteCollectionTests
     [Fact]
     public async void Guards()
     {
-        var client = new Client(TestUtility.ApplicationKey);
+        Application application = new Application("OrchestrateApiKey");
+        var client = new Client(application);
 
         var exception = await Assert.ThrowsAsync<ArgumentException>(
             () => client.DeleteCollectionAsync(string.Empty)
@@ -26,7 +28,8 @@ public class DeleteCollectionTests
     [Fact]
     public async void DeleteSuccess()
     {
-        var client = new Client(TestUtility.ApplicationKey);
+        Application application = new Application("OrchestrateApiKey");
+        var client = new Client(application);
 
         var item = new TestData { Id = 1, Value = "DeleteCollection" };
         await client.CreateCollectionAsync(collectionName, Guid.NewGuid().ToString(), item);
@@ -37,7 +40,11 @@ public class DeleteCollectionTests
     [Fact]
     public async void InvalidCredentialsThrowsRequestException()
     {
-        var client = new Client("haha");
+        var application = Substitute.For<IApplication>();
+        application.Key.Returns("HaHa");
+        application.V0ApiUrl.Returns("https://api.orchestrate.io/v0");
+
+        var client = new Client(application);
 
         var exception = await Assert.ThrowsAsync<RequestException>(
             () => client.DeleteCollectionAsync(collectionName)
@@ -51,7 +58,8 @@ public class DeleteCollectionTests
     [Fact]
     public async void DeleteNonExistantCollectionSuccess()
     {
-        var client = new Client(TestUtility.ApplicationKey);
+        Application application = new Application("OrchestrateApiKey");
+        var client = new Client(application);
 
         await client.DeleteCollectionAsync("NonExistantCollection");
     }

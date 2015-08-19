@@ -2,34 +2,32 @@
 using Xunit;
 using Orchestrate.Io;
 using System.Net;
+using NSubstitute;
 
-public class AddorUpdateTests : IClassFixture<TestFixture>
+public class AddOrUpdateTests : IClassFixture<TestFixture>
 {
-    static string collectionName;
+    TestFixture testFixture;
 
-    public AddorUpdateTests(TestFixture testFixture)
+    public AddOrUpdateTests(TestFixture testFixture)
     {
-        collectionName = testFixture.CollectionName;
+        this.testFixture = testFixture;
     }
 
     [Fact]
     public async void Guards()
     {
-        var client = new Client(TestUtility.ApplicationKey);
-        var collection = client.GetCollection(collectionName);
-
         var exception = await Assert.ThrowsAsync<ArgumentException>(
-            () => collection.AddorUpdateAsync<object>(string.Empty, null)
+            () => testFixture.Collection.AddorUpdateAsync<object>(string.Empty, null)
         );
         Assert.Equal("key", exception.ParamName);
 
         exception = await Assert.ThrowsAsync<ArgumentNullException>(
-            () => collection.AddorUpdateAsync<object>(null, null)
+            () => testFixture.Collection.AddorUpdateAsync<object>(null, null)
         );
         Assert.Equal("key", exception.ParamName);
 
         exception = await Assert.ThrowsAsync<ArgumentNullException>(
-            () => collection.AddorUpdateAsync<object>("jguids", null)
+            () => testFixture.Collection.AddorUpdateAsync<object>("jguids", null)
         );
         Assert.Equal("item", exception.ParamName);
     }
@@ -37,15 +35,12 @@ public class AddorUpdateTests : IClassFixture<TestFixture>
     [Fact]
     public async void AddSuccess()
     {
-        Client client = new Client(TestUtility.ApplicationKey);
-        var collection = client.GetCollection(collectionName);
-
         var item = new TestData { Id = 3, Value = "Added Object" };
         var key = Guid.NewGuid().ToString();
 
-        var kvMetaData = await collection.AddorUpdateAsync<TestData>(key, item);
+        var kvMetaData = await testFixture.Collection.AddorUpdateAsync<TestData>(key, item);
 
-        Assert.Equal(collectionName, kvMetaData.CollectionName);
+        Assert.Equal(testFixture.CollectionName, kvMetaData.CollectionName);
         Assert.Equal(key, kvMetaData.Key);
         Assert.True(kvMetaData.VersionReference.Length > 0);
     }
@@ -53,22 +48,19 @@ public class AddorUpdateTests : IClassFixture<TestFixture>
     [Fact]
     public async void UpdateSuccess()
     {
-        var client = new Client(TestUtility.ApplicationKey);
-        var collection = client.GetCollection(collectionName);
-
-        var kvObject = await collection.GetAsync<TestData>("1");
+        var kvObject = await testFixture.Collection.GetAsync<TestData>("1");
         var testData = kvObject.Value;
         Assert.Equal("Initial Test Data", testData.Value);
         testData.Value = "Updated Test Data";
 
-        var kvMetaData = await collection.AddorUpdateAsync<TestData>("1", testData);
+        var kvMetaData = await testFixture.Collection.AddorUpdateAsync<TestData>("1", testData);
 
-        Assert.Equal(collectionName, kvMetaData.CollectionName);
+        Assert.Equal(testFixture.CollectionName, kvMetaData.CollectionName);
         Assert.Equal("1", kvMetaData.Key);
         Assert.True(kvMetaData.VersionReference.Length > 0);
         Assert.Contains(kvMetaData.VersionReference, kvMetaData.Location);
 
-        kvObject = await collection.GetAsync<TestData>("1");
+        kvObject = await testFixture.Collection.GetAsync<TestData>("1");
         testData = kvObject.Value;
         Assert.Equal("Updated Test Data", testData.Value);
     }
@@ -76,8 +68,12 @@ public class AddorUpdateTests : IClassFixture<TestFixture>
     [Fact]
     public async void InvalidCredentialsThrowsRequestException()
     {
-        var client = new Client("ApiKey");
-        var collection = client.GetCollection(collectionName);
+        var application = Substitute.For<IApplication>();
+        application.Key.Returns("HaHa");
+        application.V0ApiUrl.Returns("https://api.orchestrate.io/v0");
+
+        var client = new Client(application);
+        var collection = client.GetCollection(testFixture.CollectionName);        
 
         var execption = await Assert.ThrowsAsync<RequestException>(
                                 () => collection.AddorUpdateAsync<object>("key", string.Empty));

@@ -2,34 +2,32 @@
 using Xunit;
 using Orchestrate.Io;
 using System.Net;
+using NSubstitute;
 
 public class MergeTests : IClassFixture<TestFixture>
 {
-    static string collectionName;
+    TestFixture testFixture; 
 
     public MergeTests(TestFixture testFixture)
     {
-        collectionName = testFixture.CollectionName;
+        this.testFixture = testFixture; 
     }
 
     [Fact]
     public async void Guards()
     {
-        var client = new Client(TestUtility.ApplicationKey);
-        var collection = client.GetCollection(collectionName);
-
         var exception = await Assert.ThrowsAsync<ArgumentException>(
-            () => collection.MergeAsync<object>(string.Empty, null)
+            () => testFixture.Collection.MergeAsync<object>(string.Empty, null)
         );
         Assert.Equal("key", exception.ParamName);
 
         exception = await Assert.ThrowsAsync<ArgumentNullException>(
-            () => collection.MergeAsync<object>(null, null)
+            () => testFixture.Collection.MergeAsync<object>(null, null)
         );
         Assert.Equal("key", exception.ParamName);
 
         exception = await Assert.ThrowsAsync<ArgumentNullException>(
-            () => collection.MergeAsync<object>("jguids", null)
+            () => testFixture.Collection.MergeAsync<object>("jguids", null)
         );
         Assert.Equal("item", exception.ParamName);
     }
@@ -37,38 +35,32 @@ public class MergeTests : IClassFixture<TestFixture>
     [Fact]
     public async void MergeSuccess()
     {
-        var client = new Client(TestUtility.ApplicationKey);
-        var collection = client.GetCollection(collectionName);
-
-        var testData = await collection.GetAsync<TestData>("1");
+        var testData = await testFixture.Collection.GetAsync<TestData>("1");
 
         var item = new MergeTestData
         { MergeValue = "Merge Value" };
 
-        var kvMetaData = await collection.MergeAsync(testData.Key, item);
+        var kvMetaData = await testFixture.Collection.MergeAsync(testData.Key, item);
 
-        Assert.Equal(collectionName, kvMetaData.CollectionName);
+        Assert.Equal(testFixture.CollectionName, kvMetaData.CollectionName);
         Assert.Contains(kvMetaData.Key, kvMetaData.Location);
         Assert.True(kvMetaData.VersionReference.Length > 0);
         Assert.Contains(kvMetaData.VersionReference, kvMetaData.Location);
 
-        var kvObject = await collection.GetAsync<TestData>("1");
+        var kvObject = await testFixture.Collection.GetAsync<TestData>("1");
 
         Assert.Contains("MergeValue", kvObject.RawValue);
     }
 
     [Fact]
-    public async void NonExistantKeyThrowsNotFoundException()
+    public async void NonExistentKeyThrowsNotFoundException()
     {
-        Client client = new Client(TestUtility.ApplicationKey);
-        var collection = client.GetCollection(collectionName);
-
         var exception = await Assert.ThrowsAsync<NotFoundException>(
-            () => collection.MergeAsync<string>("9999", "item")
+            () => testFixture.Collection.MergeAsync<string>("9999", "item")
         );
 
         Assert.Equal(HttpStatusCode.NotFound, exception.StatusCode);
-        string expected = String.Format("Key: {0} was not found in collection: {1}", "9999", collectionName);
+        string expected = String.Format("Key: {0} was not found in collection: {1}", "9999", testFixture.CollectionName);
         Assert.Equal(expected, exception.Message);
     }
 
@@ -76,8 +68,12 @@ public class MergeTests : IClassFixture<TestFixture>
     [Fact]
     public async void InvalidCredentialsThrowsRequestException()
     {
-        var client = new Client("ApiKey");
-        var collection = client.GetCollection(collectionName);
+        var application = Substitute.For<IApplication>();
+        application.Key.Returns("HaHa");
+        application.V0ApiUrl.Returns("https://api.orchestrate.io/v0");
+
+        var client = new Client(application);
+        var collection = client.GetCollection(testFixture.CollectionName);
 
         var execption = await Assert.ThrowsAsync<RequestException>(
                                 () => collection.MergeAsync<object>("key", "item"));

@@ -2,29 +2,27 @@
 using Xunit;
 using Orchestrate.Io;
 using System.Net;
+using NSubstitute;
 
 public class GetTests : IClassFixture<TestFixture>
 {
-    static string collectionName;
+    TestFixture testFixture;
 
     public GetTests(TestFixture testFixture)
     {
-        collectionName = testFixture.CollectionName;
+        this.testFixture = testFixture;
     }
 
     [Fact]
     public async void Guards()
     {
-        var client = new Client(TestUtility.ApplicationKey);
-        var collection = client.GetCollection(collectionName);
-
         var exception = await Assert.ThrowsAsync<ArgumentException>(
-            () => collection.GetAsync<object>(string.Empty)
+            () => testFixture.Collection.GetAsync<object>(string.Empty)
         );
         Assert.Equal("key", exception.ParamName);
 
         exception = await Assert.ThrowsAsync<ArgumentNullException>(
-            () => collection.GetAsync<object>(null)
+            () => testFixture.Collection.GetAsync<object>(null)
         );
         Assert.Equal("key", exception.ParamName);
     }
@@ -32,12 +30,9 @@ public class GetTests : IClassFixture<TestFixture>
     [Fact]
     public async void GetSuccess()
     {
-        Client client = new Client(TestUtility.ApplicationKey);
-        var collection = client.GetCollection(collectionName);
+        var kvObject = await testFixture.Collection.GetAsync<TestData>("1");
 
-        var kvObject = await collection.GetAsync<TestData>("1");
-
-        Assert.Equal(collectionName, kvObject.CollectionName);
+        Assert.Equal(testFixture.CollectionName, kvObject.CollectionName);
         Assert.Equal("1", kvObject.Key);
         Assert.True(kvObject.VersionReference.Length > 0);
         Assert.Empty(kvObject.Location);
@@ -50,23 +45,24 @@ public class GetTests : IClassFixture<TestFixture>
     [Fact]
     public async void NonExistantKeyThrowsNotFoundException()
     {
-        Client client = new Client(TestUtility.ApplicationKey);
-        var collection = client.GetCollection(collectionName);
-
         var exception = await Assert.ThrowsAsync<NotFoundException>(
-            () => collection.GetAsync<object>("9999")
+            () => testFixture.Collection.GetAsync<object>("9999")
         );
 
         Assert.Equal(HttpStatusCode.NotFound, exception.StatusCode);
-        string expected = String.Format("Key: {0} was not found in collection: {1}", "9999", collectionName);
+        string expected = String.Format("Key: {0} was not found in collection: {1}", "9999", testFixture.CollectionName);
         Assert.Equal(expected, exception.Message);
     }
 
     [Fact]
     public async void InvalidCredentialsThrowsRequestException()
     {
-        var client = new Client("ApiKey");
-        var collection = client.GetCollection(collectionName);
+        var application = Substitute.For<IApplication>();
+        application.Key.Returns("HaHa");
+        application.V0ApiUrl.Returns("https://api.orchestrate.io/v0");
+
+        var client = new Client(application);
+        var collection = client.GetCollection(testFixture.CollectionName);
 
         var execption = await Assert.ThrowsAsync<RequestException>(
                                 () => collection.GetAsync<object>("key"));

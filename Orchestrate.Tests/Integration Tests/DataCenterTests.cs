@@ -4,10 +4,10 @@ using Xunit;
 public class DataCenterTests
 {
     [Fact]
-    public async void SpecifiyDataCenter()
+    public async void SpecifyDataCenter()
     {
-        var client = new Client(TestUtility.ApplicationKey,
-                                DataCenter.AmazonUsEast.ApiUrl);
+        Application application = new Application("OrchestrateApiKey", DataCenter.AmazonUsEast);
+        var client = new Client(application);
 
         await client.PingAsync();
     }

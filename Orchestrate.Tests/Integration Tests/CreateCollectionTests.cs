@@ -2,6 +2,7 @@
 using Xunit;
 using Orchestrate.Io;
 using System.Net;
+using NSubstitute;
 
 public class CreateCollectionTests
 {
@@ -10,7 +11,8 @@ public class CreateCollectionTests
     [Fact]
     public async void Guards()
     {
-        var client = new Client(TestUtility.ApplicationKey);
+        Application application = new Application("OrchestrateApiKey");
+        var client = new Client(application);
 
         var exception = await Assert.ThrowsAsync<ArgumentException>(
             () => client.CreateCollectionAsync(string.Empty, string.Empty, string.Empty)
@@ -41,7 +43,8 @@ public class CreateCollectionTests
     [Fact]
     public async void CreateCollectionSuccess()
     {
-        var client = new Client(TestUtility.ApplicationKey);
+        Application application = new Application("OrchestrateApiKey");
+        var client = new Client(application);
 
         try
         {
@@ -63,7 +66,11 @@ public class CreateCollectionTests
     [Fact]
     public async void InvalidCredentialsThrowsRequestException()
     {
-        var client = new Client("HaHa");
+        var application = Substitute.For<IApplication>();
+        application.Key.Returns("HaHa");
+        application.V0ApiUrl.Returns("https://api.orchestrate.io/v0");
+
+        var client = new Client(application);
 
         var exception = await Assert.ThrowsAsync<RequestException>(
             () => client.CreateCollectionAsync(collectionName, "key", "item")
