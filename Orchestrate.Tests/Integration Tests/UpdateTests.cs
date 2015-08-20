@@ -56,7 +56,7 @@ public class UpdateTests : IClassFixture<TestFixture>
     {
         var application = Substitute.For<IApplication>();
         application.Key.Returns("HaHa");
-        application.V0ApiUrl.Returns("https://api.orchestrate.io/v0");
+        application.HostUrl.Returns("https://api.orchestrate.io/v0");
 
         var client = new Client(application);
         var collection = client.GetCollection(testFixture.CollectionName);

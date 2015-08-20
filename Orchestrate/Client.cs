@@ -16,12 +16,12 @@ namespace Orchestrate.Io
         {
             Guard.ArgumentNotNullOrEmpty("collectionName", collectionName);
 
-            return new Collection(collectionName, application.Key, application.V0ApiUrl);
+            return new Collection(collectionName, application.Key, application.HostUrl);
         }
 
         public async Task PingAsync()
         {
-            HttpUrlBuilder uri = new HttpUrlBuilder(application.V0ApiUrl);
+            HttpUrlBuilder uri = new HttpUrlBuilder(application.HostUrl);
 
             using (var httpClient = new HttpClient())
             {
@@ -43,7 +43,7 @@ namespace Orchestrate.Io
             Guard.ArgumentNotNullOrEmpty("key", key);
             Guard.ArgumentNotNull("item", item);
 
-            HttpUrlBuilder uri = new HttpUrlBuilder(application.V0ApiUrl)
+            HttpUrlBuilder uri = new HttpUrlBuilder(application.HostUrl)
                                         .AppendPath(collectionName)
                                         .AppendPath(key);
 
@@ -63,7 +63,7 @@ namespace Orchestrate.Io
         {
             Guard.ArgumentNotNullOrEmpty("collectionName", collectionName);
 
-            HttpUrlBuilder uri = new HttpUrlBuilder(application.V0ApiUrl)
+            HttpUrlBuilder uri = new HttpUrlBuilder(application.HostUrl)
                                         .AppendPath(collectionName)
                                         .AddQuery("force", "true");
 

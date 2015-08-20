@@ -5,12 +5,12 @@ namespace Orchestrate.Io
     public class Application : IApplication
     {
         string applicationKey;
-        string apiUrl;  
+        string host;  
 
-        public Application(string applicationKey, string apiUrl = "https://api.orchestrate.io/")
+        public Application(string applicationKey, string host = "https://api.orchestrate.io/")
         {
             this.applicationKey = applicationKey;
-            this.apiUrl = apiUrl;
+            this.host = host;
         }
 
         public string Key
@@ -25,9 +25,9 @@ namespace Orchestrate.Io
             }
         }
 
-        public string V0ApiUrl
+        public string HostUrl
         {
-            get { return apiUrl + "v0/"; }
+            get { return host + "v0/"; }
         }
     }
 }

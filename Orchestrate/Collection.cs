@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
 using System.Threading.Tasks;
@@ -7,25 +8,46 @@ namespace Orchestrate.Io
 {
     public class Collection
     {
-        string baseUrl;
+        string host;
         string apiKey;
 
         public string CollectionName { get; private set; }
 
         public Collection(string collectionName, 
                           string apiKey,
-                          string baseUrl = "https://api.orchestrate.io/v0/")
+                          string host)
         {
             this.apiKey = apiKey;
-            this.baseUrl = baseUrl;
+            this.host = host;
             CollectionName = collectionName; 
+        }
+
+        public async Task<KvList<T>> ListAsync<T>(int limit = 100)
+        {
+            if (limit < 1 || limit > 100)
+                throw new ArgumentOutOfRangeException("limit", "limit must be between 1 and 100");
+
+            HttpUrlBuilder uri = new HttpUrlBuilder(host)
+                                                   .AppendPath(CollectionName)
+                                                   .AddQuery("limit", limit.ToString());
+
+            using (var httpClient = new HttpClient())
+            {
+                httpClient.AddAuthenticaion(apiKey);
+                var response = await httpClient.GetAsync(uri.ToString());
+
+                if (response.IsSuccessStatusCode)
+                    return await response.Content.ReadAsAsync<KvList<T>>();
+                else
+                    throw await RequestExceptionUtility.Make(response);
+            }
         }
 
         public async Task<KvMetaData> AddAsync<T>(T item)
         {
             Guard.ArgumentNotNull("item", item);
 
-            HttpUrlBuilder uri = new HttpUrlBuilder(baseUrl)
+            HttpUrlBuilder uri = new HttpUrlBuilder(host)
                                         .AppendPath(CollectionName);
 
             using (var httpClient = new HttpClient())
@@ -40,6 +62,65 @@ namespace Orchestrate.Io
             }
         }
 
+        public async Task<KvList<T>> ExclusiveListAsync<T>(int limit = 100,
+                                                           string afterKey = null,
+                                                           string beforeKey = null)
+        {
+            if (limit < 1 || limit > 100)
+                throw new ArgumentOutOfRangeException("limit", "limit must be between 1 and 100");
+
+            HttpUrlBuilder uri = new HttpUrlBuilder(host)
+                                                   .AppendPath(CollectionName)
+                                                   .AddQuery("limit", limit.ToString());
+
+            if (!string.IsNullOrEmpty(beforeKey))
+                uri.AddQuery("beforeKey", beforeKey);
+
+            if (!string.IsNullOrEmpty(afterKey))
+                uri.AddQuery("afterKey", afterKey);
+
+            using (var httpClient = new HttpClient())
+            {
+                httpClient.AddAuthenticaion(apiKey);
+                var response = await httpClient.GetAsync(uri.ToString());
+
+                if (response.IsSuccessStatusCode)
+                    return await response.Content.ReadAsAsync<KvList<T>>();
+                else
+                    throw await RequestExceptionUtility.Make(response);
+            }
+        }
+
+
+        public async Task<KvList<T>> InclusiveListAsync<T>(int limit = 100, 
+                                                           string startKey = null, 
+                                                           string endKey = null)
+        {
+            if (limit < 1 || limit > 100)
+                throw new ArgumentOutOfRangeException("limit", "limit must be between 1 and 100");
+
+            HttpUrlBuilder uri = new HttpUrlBuilder(host)
+                                                   .AppendPath(CollectionName)
+                                                   .AddQuery("limit", limit.ToString());
+
+            if (!string.IsNullOrEmpty(startKey))
+                uri.AddQuery("startKey", startKey);
+
+            if (!string.IsNullOrEmpty(endKey))
+                uri.AddQuery("endKey", endKey);
+
+            using (var httpClient = new HttpClient())
+            {
+                httpClient.AddAuthenticaion(apiKey);
+                var response = await httpClient.GetAsync(uri.ToString());
+
+                if (response.IsSuccessStatusCode)
+                    return await response.Content.ReadAsAsync<KvList<T>>();
+                else
+                    throw await RequestExceptionUtility.Make(response);
+            }
+        }
+
         public async Task<KvMetaData> AddOrUpdateAsync<T>(string key,
                                                           T item, 
                                                           string reference = null)
@@ -47,7 +128,7 @@ namespace Orchestrate.Io
             Guard.ArgumentNotNullOrEmpty("key", key);
             Guard.ArgumentNotNull("item", item);
 
-            HttpUrlBuilder uri = new HttpUrlBuilder(baseUrl)
+            HttpUrlBuilder uri = new HttpUrlBuilder(host)
                                         .AppendPath(CollectionName)
                                         .AppendPath(key);
 
@@ -78,7 +159,7 @@ namespace Orchestrate.Io
             Guard.ArgumentNotNullOrEmpty("key", key);
             Guard.ArgumentNotNull("item", item);
 
-            HttpUrlBuilder uri = new HttpUrlBuilder(baseUrl)
+            HttpUrlBuilder uri = new HttpUrlBuilder(host)
                                         .AppendPath(CollectionName)
                                         .AppendPath(key);
 
@@ -105,7 +186,7 @@ namespace Orchestrate.Io
         {
             Guard.ArgumentNotNullOrEmpty("key", key);
 
-            HttpUrlBuilder uri = new HttpUrlBuilder(baseUrl)
+            HttpUrlBuilder uri = new HttpUrlBuilder(host)
                                         .AppendPath(CollectionName)
                                         .AppendPath(key);
             if (purge)
@@ -132,7 +213,7 @@ namespace Orchestrate.Io
         {
             Guard.ArgumentNotNullOrEmpty("key", key);
 
-            HttpUrlBuilder uri = new HttpUrlBuilder(baseUrl)
+            HttpUrlBuilder uri = new HttpUrlBuilder(host)
                                         .AppendPath(CollectionName)
                                         .AppendPath(key);
 
@@ -167,7 +248,7 @@ namespace Orchestrate.Io
             Guard.ArgumentNotNullOrEmpty("key", key);
             Guard.ArgumentNotNull("item", item);
 
-            HttpUrlBuilder uri = new HttpUrlBuilder(baseUrl)
+            HttpUrlBuilder uri = new HttpUrlBuilder(host)
                                         .AppendPath(CollectionName)
                                         .AppendPath(key);
 
@@ -198,7 +279,7 @@ namespace Orchestrate.Io
             Guard.ArgumentNotNullOrEmpty("key", key);
             Guard.ArgumentNotNull("operations", patchOperations);
 
-            HttpUrlBuilder uri = new HttpUrlBuilder(baseUrl)
+            HttpUrlBuilder uri = new HttpUrlBuilder(host)
                                         .AppendPath(CollectionName)
                                         .AppendPath(key);
 
@@ -238,7 +319,7 @@ namespace Orchestrate.Io
                 throw exception;
             }
 
-            HttpUrlBuilder uri = new HttpUrlBuilder(baseUrl)
+            HttpUrlBuilder uri = new HttpUrlBuilder(host)
                                         .AppendPath(CollectionName)
                                         .AppendPath(key);
 

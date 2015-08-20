@@ -56,9 +56,12 @@
     <Compile Include="Exceptions\PatchConflictException.cs" />
     <Compile Include="Exceptions\RequestException.cs" />
     <Compile Include="IApplication.cs" />
+    <Compile Include="Models\KvList.cs" />
+    <Compile Include="Models\ListItem.cs" />
     <Compile Include="Models\NotFoundData.cs" />
     <Compile Include="Models\PatchConflict.cs" />
     <Compile Include="Models\PatchOperation.cs" />
+    <Compile Include="Models\OrchestratePath.cs" />
     <Compile Include="Utility\HttpClientExtensions.cs" />
     <Compile Include="Utility\Guard.cs" />
     <Compile Include="Utility\HttpMessageExtensions.cs" />

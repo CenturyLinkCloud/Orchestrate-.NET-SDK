@@ -68,6 +68,10 @@
     <Compile Include="Integration Tests\ConditionalPatchTests.cs" />
     <Compile Include="Integration Tests\ConditionalAddOrUpdateTests.cs" />
     <Compile Include="Integration Tests\DataCenterTests.cs" />
+    <Compile Include="Integration Tests\ExclusiveListTests.cs" />
+    <Compile Include="Integration Tests\InclusiveListTests.cs" />
+    <Compile Include="Integration Tests\ListTestFixture.cs" />
+    <Compile Include="Integration Tests\ListTests.cs" />
     <Compile Include="Integration Tests\MergeTests.cs" />
     <Compile Include="Integration Tests\PingTests.cs" />
     <Compile Include="Integration Tests\TryAddTests.cs" />

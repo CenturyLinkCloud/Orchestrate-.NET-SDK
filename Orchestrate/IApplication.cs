@@ -3,6 +3,6 @@
     public interface IApplication
     {
         string Key { get; }
-        string V0ApiUrl { get; }
+        string HostUrl { get; }
     }
 }
