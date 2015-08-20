@@ -21,9 +21,9 @@ public class ListTestFixture : IDisposable
         Collection = Client.GetCollection(CollectionName);
 
         var item2 = new TestData { Id = 2, Value = "Initial Test Item #2" };
-        AsyncHelper.RunSync(() => Collection.TryAdd("2", item2));
+        AsyncHelper.RunSync(() => Collection.TryAddAsync("2", item2));
         var item3 = new TestData { Id = 3, Value = "Initial Test Item #3" };
-        AsyncHelper.RunSync(() => Collection.TryAdd("3", item3));
+        AsyncHelper.RunSync(() => Collection.TryAddAsync("3", item3));
     }
 
     public void Dispose()

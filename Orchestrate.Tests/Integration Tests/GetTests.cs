@@ -4,25 +4,37 @@ using Orchestrate.Io;
 using System.Net;
 using NSubstitute;
 
-public class GetTests : IClassFixture<TestFixture>
+[Collection("Integration Test")]
+public class GetTests : IDisposable
 {
-    TestFixture testFixture;
+    CollectionTestFixture testFixture;
+    Collection collection;
+    TestData testData;
 
-    public GetTests(TestFixture testFixture)
+    public GetTests(CollectionTestFixture testFixture)
     {
         this.testFixture = testFixture;
+        collection = testFixture.Client.GetCollection(testFixture.CollectionName);
+
+        testData = new TestData { Id = 1, Value = "Initial Test Data" };
+        AsyncHelper.RunSync(() => collection.TryAddAsync("1", testData));
+    }
+
+    public async void Dispose()
+    {
+        await collection.DeleteAsync("1");
     }
 
     [Fact]
     public async void Guards()
     {
         var exception = await Assert.ThrowsAsync<ArgumentException>(
-            () => testFixture.Collection.GetAsync<object>(string.Empty)
+            () => collection.GetAsync<object>(string.Empty)
         );
         Assert.Equal("key", exception.ParamName);
 
         exception = await Assert.ThrowsAsync<ArgumentNullException>(
-            () => testFixture.Collection.GetAsync<object>(null)
+            () => collection.GetAsync<object>(null)
         );
         Assert.Equal("key", exception.ParamName);
     }
@@ -30,23 +42,23 @@ public class GetTests : IClassFixture<TestFixture>
     [Fact]
     public async void GetSuccess()
     {
-        var kvObject = await testFixture.Collection.GetAsync<TestData>("1");
+        var kvObject = await collection.GetAsync<TestData>("1");
 
         Assert.Equal(testFixture.CollectionName, kvObject.CollectionName);
         Assert.Equal("1", kvObject.Key);
         Assert.True(kvObject.VersionReference.Length > 0);
         Assert.Empty(kvObject.Location);
 
-        TestData testData = kvObject.Value;
-        Assert.Equal(1, testData.Id);
-        Assert.Equal("Initial Test Data", testData.Value);
+        TestData actualTestData = kvObject.Value;
+        Assert.Equal(testData.Id, actualTestData.Id);
+        Assert.Equal(testData.Value, actualTestData.Value);
     }
 
     [Fact]
     public async void NonExistantKeyThrowsNotFoundException()
     {
         var exception = await Assert.ThrowsAsync<NotFoundException>(
-            () => testFixture.Collection.GetAsync<object>("9999")
+            () => collection.GetAsync<object>("9999")
         );
 
         Assert.Equal(HttpStatusCode.NotFound, exception.StatusCode);

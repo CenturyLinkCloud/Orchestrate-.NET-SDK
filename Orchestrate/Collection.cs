@@ -153,8 +153,8 @@ namespace Orchestrate.Io
             }
         }
 
-        public async Task<KvMetaData> TryAdd<T>(string key,
-                                                T item)
+        public async Task<KvMetaData> TryAddAsync<T>(string key,
+                                                     T item)
         {
             Guard.ArgumentNotNullOrEmpty("key", key);
             Guard.ArgumentNotNull("item", item);

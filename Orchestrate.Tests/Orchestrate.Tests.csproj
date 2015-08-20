@@ -63,6 +63,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="HttpUrlBuilderTests.cs" />
+    <Compile Include="Integration Tests\CollectionTestFixture.cs" />
     <Compile Include="Integration Tests\CollectionTests.cs" />
     <Compile Include="Integration Tests\ConditionalMergeTests.cs" />
     <Compile Include="Integration Tests\ConditionalPatchTests.cs" />
@@ -70,6 +71,7 @@
     <Compile Include="Integration Tests\DataCenterTests.cs" />
     <Compile Include="Integration Tests\ExclusiveListTests.cs" />
     <Compile Include="Integration Tests\InclusiveListTests.cs" />
+    <Compile Include="Integration Tests\IntegrationTestCollection.cs" />
     <Compile Include="Integration Tests\ListTestFixture.cs" />
     <Compile Include="Integration Tests\ListTests.cs" />
     <Compile Include="Integration Tests\MergeTests.cs" />

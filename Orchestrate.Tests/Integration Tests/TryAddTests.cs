@@ -17,17 +17,17 @@ public class TryAddTests : IClassFixture<TestFixture>
     public async void Guards()
     {
         var exception = await Assert.ThrowsAsync<ArgumentException>(
-            () => testFixture.Collection.TryAdd<object>(string.Empty, null)
+            () => testFixture.Collection.TryAddAsync<object>(string.Empty, null)
         );
         Assert.Equal("key", exception.ParamName);
 
         exception = await Assert.ThrowsAsync<ArgumentNullException>(
-            () => testFixture.Collection.TryAdd<object>(null, null)
+            () => testFixture.Collection.TryAddAsync<object>(null, null)
         );
         Assert.Equal("key", exception.ParamName);
 
         exception = await Assert.ThrowsAsync<ArgumentNullException>(
-            () => testFixture.Collection.TryAdd<object>("jguids", null)
+            () => testFixture.Collection.TryAddAsync<object>("jguids", null)
         );
         Assert.Equal("item", exception.ParamName);
     }
@@ -38,7 +38,7 @@ public class TryAddTests : IClassFixture<TestFixture>
     {
         var item = new TestData { Id = 88, Value = "Test Value 88" };
 
-        var kvMetaData = await testFixture.Collection.TryAdd<TestData>("88", item);
+        var kvMetaData = await testFixture.Collection.TryAddAsync<TestData>("88", item);
 
         Assert.Equal(testFixture.CollectionName, kvMetaData.CollectionName);
         Assert.Equal("88", kvMetaData.Key);
@@ -51,7 +51,7 @@ public class TryAddTests : IClassFixture<TestFixture>
         var item = new TestData { Id = 88, Value = "Test Value 88" };
 
         var exception = await Assert.ThrowsAsync<RequestException>(
-            () => testFixture.Collection.TryAdd<TestData>("1", item));
+            () => testFixture.Collection.TryAddAsync<TestData>("1", item));
 
         Assert.Equal(HttpStatusCode.PreconditionFailed, exception.StatusCode);
     }
@@ -67,7 +67,7 @@ public class TryAddTests : IClassFixture<TestFixture>
         var collection = client.GetCollection(testFixture.CollectionName);
 
         var execption = await Assert.ThrowsAsync<RequestException>(
-                                () => collection.TryAdd<object>("key", string.Empty));
+                                () => collection.TryAddAsync<object>("key", string.Empty));
 
         Assert.Equal(HttpStatusCode.Unauthorized, execption.StatusCode);
         Assert.Equal("Valid credentials are required.", execption.Message);
