@@ -4,25 +4,18 @@ using Orchestrate.Io;
 using System.Net;
 using NSubstitute;
 
-[Collection("Integration Test")]
-public class GetTests : IDisposable
+public class GetTests : IClassFixture<TestFixture>
 {
-    CollectionTestFixture testFixture;
+    string collectionName; 
     Collection collection;
-    TestData testData;
+    TestData testData; 
 
-    public GetTests(CollectionTestFixture testFixture)
+    public GetTests(TestFixture testFixture)
     {
-        this.testFixture = testFixture;
+        collectionName = testFixture.CollectionName;
+        testData = testFixture.TestData;
+
         collection = testFixture.Client.GetCollection(testFixture.CollectionName);
-
-        testData = new TestData { Id = 1, Value = "Initial Test Data" };
-        AsyncHelper.RunSync(() => collection.TryAddAsync("1", testData));
-    }
-
-    public async void Dispose()
-    {
-        await collection.DeleteAsync("1");
     }
 
     [Fact]
@@ -44,7 +37,7 @@ public class GetTests : IDisposable
     {
         var kvObject = await collection.GetAsync<TestData>("1");
 
-        Assert.Equal(testFixture.CollectionName, kvObject.CollectionName);
+        Assert.Equal(collectionName, kvObject.CollectionName);
         Assert.Equal("1", kvObject.Key);
         Assert.True(kvObject.VersionReference.Length > 0);
         Assert.Empty(kvObject.Location);
@@ -62,7 +55,7 @@ public class GetTests : IDisposable
         );
 
         Assert.Equal(HttpStatusCode.NotFound, exception.StatusCode);
-        string expected = String.Format("Key: {0} was not found in collection: {1}", "9999", testFixture.CollectionName);
+        string expected = String.Format("Key: {0} was not found in collection: {1}", "9999", collectionName);
         Assert.Equal(expected, exception.Message);
     }
 
@@ -74,7 +67,7 @@ public class GetTests : IDisposable
         application.HostUrl.Returns("https://api.orchestrate.io/v0");
 
         var client = new Client(application);
-        var collection = client.GetCollection(testFixture.CollectionName);
+        var collection = client.GetCollection(collectionName);
 
         var execption = await Assert.ThrowsAsync<RequestException>(
                                 () => collection.GetAsync<object>("key"));

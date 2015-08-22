@@ -1,24 +1,28 @@
 ﻿using System;
+using Orchestrate.Io;
 using Xunit;
 
 public class ExclusiveListTests : IClassFixture<ListTestFixture>
 {
+    Collection collection; 
     ListTestFixture listTestFixture;
 
     public ExclusiveListTests(ListTestFixture listTestFixture)
     {
         this.listTestFixture = listTestFixture;
+
+        collection = listTestFixture.Client.GetCollection(listTestFixture.CollectionName);
     }
 
     [Fact]
     public async void Guards()
     {
         var exception = await Assert.ThrowsAsync<ArgumentOutOfRangeException>(
-            () => listTestFixture.Collection.ExclusiveListAsync<TestData>(-1));
+            () => collection.ExclusiveListAsync<TestData>(-1));
         Assert.Equal("limit", exception.ParamName);
 
         exception = await Assert.ThrowsAsync<ArgumentOutOfRangeException>(
-            () => listTestFixture.Collection.ExclusiveListAsync<TestData>(101));
+            () => collection.ExclusiveListAsync<TestData>(101));
         Assert.Equal("limit", exception.ParamName);
     }
 
@@ -26,7 +30,7 @@ public class ExclusiveListTests : IClassFixture<ListTestFixture>
     public async void AfterKeyAsync()
     {
         var listResult =
-            await listTestFixture.Collection.ExclusiveListAsync<TestData>(afterKey: "1");
+            await collection.ExclusiveListAsync<TestData>(afterKey: "1");
 
         Assert.Collection(listResult.Items,
             result =>
@@ -48,7 +52,7 @@ public class ExclusiveListTests : IClassFixture<ListTestFixture>
     public async void BeforeKeyAsync()
     {
         var listResult =
-            await listTestFixture.Collection.ExclusiveListAsync<TestData>(beforeKey: "2");
+            await collection.ExclusiveListAsync<TestData>(beforeKey: "2");
 
         Assert.Collection(listResult.Items,
             result =>
@@ -65,8 +69,8 @@ public class ExclusiveListTests : IClassFixture<ListTestFixture>
     public async void AfterKeyandBeforeKeyAsync()
     {
         var listResult =
-            await listTestFixture.Collection.ExclusiveListAsync<TestData>(afterKey: "1",
-                                                                          beforeKey: "3");
+            await collection.ExclusiveListAsync<TestData>(afterKey: "1",
+                                                          beforeKey: "3");
 
         Assert.Collection(listResult.Items,
             result =>
@@ -83,7 +87,7 @@ public class ExclusiveListTests : IClassFixture<ListTestFixture>
     public async void AfterKeyGreaterThanExistingKeysAsync()
     {
         var listResult =
-            await listTestFixture.Collection.ExclusiveListAsync<TestData>(afterKey: "4");
+            await collection.ExclusiveListAsync<TestData>(afterKey: "4");
 
         Assert.Equal(0, listResult.Count);
         Assert.Null(listResult.Next);
@@ -93,8 +97,8 @@ public class ExclusiveListTests : IClassFixture<ListTestFixture>
     public async void InvalidKeysAsync()
     {
         var listResult =
-            await listTestFixture.Collection.ExclusiveListAsync<TestData>(afterKey: "3",
-                                                                          beforeKey: "1");
+            await collection.ExclusiveListAsync<TestData>(afterKey: "3",
+                                                          beforeKey: "1");
 
         Assert.Equal(0, listResult.Count);
         Assert.Null(listResult.Next);
