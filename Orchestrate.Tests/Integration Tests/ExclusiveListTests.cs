@@ -4,13 +4,10 @@ using Xunit;
 
 public class ExclusiveListTests : IClassFixture<ListTestFixture>
 {
-    Collection collection; 
-    ListTestFixture listTestFixture;
+    Collection collection;
 
     public ExclusiveListTests(ListTestFixture listTestFixture)
     {
-        this.listTestFixture = listTestFixture;
-
         collection = listTestFixture.Client.GetCollection(listTestFixture.CollectionName);
     }
 

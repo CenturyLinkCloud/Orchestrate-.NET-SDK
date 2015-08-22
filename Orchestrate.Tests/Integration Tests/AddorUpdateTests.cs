@@ -6,28 +6,31 @@ using NSubstitute;
 
 public class AddOrUpdateTests : IClassFixture<TestFixture>
 {
-    TestFixture testFixture;
+    string collectionName;
+    Collection collection;
 
     public AddOrUpdateTests(TestFixture testFixture)
     {
-        this.testFixture = testFixture;
+        collectionName = testFixture.CollectionName;
+
+        collection = testFixture.Client.GetCollection(testFixture.CollectionName);
     }
 
     [Fact]
     public async void Guards()
     {
         var exception = await Assert.ThrowsAsync<ArgumentException>(
-            () => testFixture.Collection.AddOrUpdateAsync<object>(string.Empty, null)
+            () => collection.AddOrUpdateAsync<object>(string.Empty, null)
         );
         Assert.Equal("key", exception.ParamName);
 
         exception = await Assert.ThrowsAsync<ArgumentNullException>(
-            () => testFixture.Collection.AddOrUpdateAsync<object>(null, null)
+            () => collection.AddOrUpdateAsync<object>(null, null)
         );
         Assert.Equal("key", exception.ParamName);
 
         exception = await Assert.ThrowsAsync<ArgumentNullException>(
-            () => testFixture.Collection.AddOrUpdateAsync<object>("jguids", null)
+            () => collection.AddOrUpdateAsync<object>("jguids", null)
         );
         Assert.Equal("item", exception.ParamName);
     }
@@ -38,9 +41,9 @@ public class AddOrUpdateTests : IClassFixture<TestFixture>
         var item = new TestData { Id = 3, Value = "Added Object" };
         var key = Guid.NewGuid().ToString();
 
-        var kvMetaData = await testFixture.Collection.AddOrUpdateAsync<TestData>(key, item);
+        var kvMetaData = await collection.AddOrUpdateAsync<TestData>(key, item);
 
-        Assert.Equal(testFixture.CollectionName, kvMetaData.CollectionName);
+        Assert.Equal(collectionName, kvMetaData.CollectionName);
         Assert.Equal(key, kvMetaData.Key);
         Assert.True(kvMetaData.VersionReference.Length > 0);
     }
@@ -48,19 +51,19 @@ public class AddOrUpdateTests : IClassFixture<TestFixture>
     [Fact]
     public async void UpdateSuccess()
     {
-        var kvObject = await testFixture.Collection.GetAsync<TestData>("1");
+        var kvObject = await collection.GetAsync<TestData>("1");
         var testData = kvObject.Value;
         Assert.Equal("Initial Test Data", testData.Value);
         testData.Value = "Updated Test Data";
 
-        var kvMetaData = await testFixture.Collection.AddOrUpdateAsync<TestData>("1", testData);
+        var kvMetaData = await collection.AddOrUpdateAsync<TestData>("1", testData);
 
-        Assert.Equal(testFixture.CollectionName, kvMetaData.CollectionName);
+        Assert.Equal(collectionName, kvMetaData.CollectionName);
         Assert.Equal("1", kvMetaData.Key);
         Assert.True(kvMetaData.VersionReference.Length > 0);
         Assert.Contains(kvMetaData.VersionReference, kvMetaData.Location);
 
-        kvObject = await testFixture.Collection.GetAsync<TestData>("1");
+        kvObject = await collection.GetAsync<TestData>("1");
         testData = kvObject.Value;
         Assert.Equal("Updated Test Data", testData.Value);
     }
@@ -73,7 +76,7 @@ public class AddOrUpdateTests : IClassFixture<TestFixture>
         application.HostUrl.Returns("https://api.orchestrate.io/v0");
 
         var client = new Client(application);
-        var collection = client.GetCollection(testFixture.CollectionName);        
+        var collection = client.GetCollection(collectionName);        
 
         var execption = await Assert.ThrowsAsync<RequestException>(
                                 () => collection.AddOrUpdateAsync<object>("key", string.Empty));

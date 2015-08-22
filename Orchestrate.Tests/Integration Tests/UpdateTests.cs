@@ -6,28 +6,31 @@ using NSubstitute;
 
 public class UpdateTests : IClassFixture<TestFixture>
 {
-    TestFixture testFixture;
+    string collectionName;
+    Collection collection;
 
     public UpdateTests(TestFixture testFixture)
     {
-        this.testFixture = testFixture;
+        collectionName = testFixture.CollectionName;
+
+        collection = testFixture.Client.GetCollection(testFixture.CollectionName);
     }
 
     [Fact]
     public async void Guards()
     {
         var exception = await Assert.ThrowsAsync<ArgumentException>(
-            () => testFixture.Collection.UpdateAsync<object>(string.Empty, null)
+            () => collection.UpdateAsync<object>(string.Empty, null)
         );
         Assert.Equal("key", exception.ParamName);
 
         exception = await Assert.ThrowsAsync<ArgumentNullException>(
-            () => testFixture.Collection.UpdateAsync<object>(null, null)
+            () => collection.UpdateAsync<object>(null, null)
         );
         Assert.Equal("key", exception.ParamName);
 
         exception = await Assert.ThrowsAsync<ArgumentNullException>(
-            () => testFixture.Collection.UpdateAsync<object>("jguids", null)
+            () => collection.UpdateAsync<object>("jguids", null)
         );
         Assert.Equal("item", exception.ParamName);
     }
@@ -35,18 +38,18 @@ public class UpdateTests : IClassFixture<TestFixture>
     [Fact]
     public async void UpdateSuccess()
     {
-        var kvObject = await testFixture.Collection.GetAsync<TestData>("1");
+        var kvObject = await collection.GetAsync<TestData>("1");
         var testData = kvObject.Value;
         testData.Value = "Updated Test Data";
 
-        var kvMetaData = await testFixture.Collection.UpdateAsync("1", testData);
+        var kvMetaData = await collection.UpdateAsync("1", testData);
 
-        Assert.Equal(testFixture.CollectionName, kvMetaData.CollectionName);
+        Assert.Equal(collectionName, kvMetaData.CollectionName);
         Assert.Equal("1", kvMetaData.Key);
         Assert.True(kvMetaData.VersionReference.Length > 0);
         Assert.Contains(kvMetaData.VersionReference, kvMetaData.Location);
 
-        kvObject = await testFixture.Collection.GetAsync<TestData>("1");
+        kvObject = await collection.GetAsync<TestData>("1");
         testData = kvObject.Value;
         Assert.Equal("Updated Test Data", testData.Value);
     }
@@ -59,7 +62,7 @@ public class UpdateTests : IClassFixture<TestFixture>
         application.HostUrl.Returns("https://api.orchestrate.io/v0");
 
         var client = new Client(application);
-        var collection = client.GetCollection(testFixture.CollectionName);
+        var collection = client.GetCollection(collectionName);
 
         var execption = await Assert.ThrowsAsync<RequestException>(
                                 () => collection.UpdateAsync<object>("key", string.Empty));
@@ -71,12 +74,12 @@ public class UpdateTests : IClassFixture<TestFixture>
     [Fact]
     public async void ThrowsNotFoundExceptionIfKeyIsNotPresent()
     {
-        var kvObject = await testFixture.Collection.GetAsync<TestData>("1");
+        var kvObject = await collection.GetAsync<TestData>("1");
         var testData = kvObject.Value;
         testData.Value = "Updated Test Data";
 
         var exception = await Assert.ThrowsAsync<NotFoundException>(
-            () => testFixture.Collection.UpdateAsync("2", testData)
+            () => collection.UpdateAsync("2", testData)
         );
 
         Assert.Equal(HttpStatusCode.NotFound, exception.StatusCode);
@@ -85,12 +88,12 @@ public class UpdateTests : IClassFixture<TestFixture>
     [Fact]
     public async void ThrowsRequestFoundExceptionWhenPassingInvalidReference()
     {
-        var kvObject = await testFixture.Collection.GetAsync<TestData>("1");
+        var kvObject = await collection.GetAsync<TestData>("1");
         var testData = kvObject.Value;
         testData.Value = "Updated Test Data";
 
         var exception = await Assert.ThrowsAsync<RequestException>(
-            () => testFixture.Collection.UpdateAsync("1", testData, "86754321")
+            () => collection.UpdateAsync("1", testData, "86754321")
         );
 
         Assert.Equal(HttpStatusCode.PreconditionFailed, exception.StatusCode);

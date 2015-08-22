@@ -6,23 +6,26 @@ using NSubstitute;
 
 public class DeleteTests : IClassFixture<TestFixture>
 {
-    TestFixture testFixture; 
+    string collectionName;
+    Collection collection;
 
     public DeleteTests(TestFixture testFixture)
     {
-        this.testFixture = testFixture;
+        collectionName = testFixture.CollectionName;
+
+        collection = testFixture.Client.GetCollection(testFixture.CollectionName);
     }
 
     [Fact]
     public async void Guards()
     {
         var exception = await Assert.ThrowsAsync<ArgumentException>(
-            () => testFixture.Collection.DeleteAsync(string.Empty)
+            () => collection.DeleteAsync(string.Empty)
         );
         Assert.Equal("key", exception.ParamName);
 
         exception = await Assert.ThrowsAsync<ArgumentNullException>(
-            () => testFixture.Collection.DeleteAsync(null)
+            () => collection.DeleteAsync(null)
         );
         Assert.Equal("key", exception.ParamName);
     }
@@ -31,16 +34,16 @@ public class DeleteTests : IClassFixture<TestFixture>
     public async void DeleteSuccessPurge()
     {
         var item = new TestData { Id = 3, Value = "A successful object PUT" };
-        var kvMetaData = await testFixture.Collection.AddOrUpdateAsync("3", item);
+        var kvMetaData = await collection.AddOrUpdateAsync("3", item);
 
-        await testFixture.Collection.DeleteAsync("3");
+        await collection.DeleteAsync("3");
 
         var exception = await Assert.ThrowsAsync<NotFoundException>(
-                                () => testFixture.Collection.GetAsync<object>("3", kvMetaData.VersionReference)
+                                () => collection.GetAsync<object>("3", kvMetaData.VersionReference)
         );
 
         Assert.Equal(HttpStatusCode.NotFound, exception.StatusCode);
-        string expected = String.Format("Key: {0} was not found in collection: {1}", "3", testFixture.CollectionName);
+        string expected = String.Format("Key: {0} was not found in collection: {1}", "3", collectionName);
         Assert.Equal(expected, exception.Message);
     }
 
@@ -48,18 +51,18 @@ public class DeleteTests : IClassFixture<TestFixture>
     public async void DeleteSuccessNoPurge()
     {
         var item = new TestData { Id = 3, Value = "A successful object PUT" };
-        var kvMetaData = await testFixture.Collection.AddOrUpdateAsync("3", item);
+        var kvMetaData = await collection.AddOrUpdateAsync("3", item);
 
-        await testFixture.Collection.DeleteAsync("3", purge: false);
+        await collection.DeleteAsync("3", purge: false);
 
-        var old = await testFixture.Collection.GetAsync<TestData>("3", kvMetaData.VersionReference);
+        var old = await collection.GetAsync<TestData>("3", kvMetaData.VersionReference);
         Assert.Equal(3, old.Value.Id);
     }
 
     [Fact]
     public async void DeleteNonExistantKeySuccess()
     {
-        await testFixture.Collection.DeleteAsync("9999");
+        await collection.DeleteAsync("9999");
     }
 
     [Fact]
@@ -70,7 +73,7 @@ public class DeleteTests : IClassFixture<TestFixture>
         application.HostUrl.Returns("https://api.orchestrate.io/v0");
 
         var client = new Client(application);
-        var collection = client.GetCollection(testFixture.CollectionName);
+        var collection = client.GetCollection(collectionName);
 
         var execption = await Assert.ThrowsAsync<RequestException>(
                                 () => collection.DeleteAsync("key"));
@@ -83,25 +86,25 @@ public class DeleteTests : IClassFixture<TestFixture>
     public async void DeleteWithVersionNoPurge()
     {
         var item = new TestData { Id = 4, Value = "A successful object PUT" };
-        await testFixture.Collection.AddOrUpdateAsync("4", item);
-        var kvObject = await testFixture.Collection.GetAsync<TestData>("4");
+        await collection.AddOrUpdateAsync("4", item);
+        var kvObject = await collection.GetAsync<TestData>("4");
 
-        await testFixture.Collection.DeleteAsync("4", 
-                                                 reference: kvObject.VersionReference, 
-                                                 purge: false);
+        await collection.DeleteAsync("4", 
+                                     reference: kvObject.VersionReference, 
+                                     purge: false);
 
-        var graveyard = await testFixture.Collection.GetAsync<TestData>("4", kvObject.VersionReference);
+        var graveyard = await collection.GetAsync<TestData>("4", kvObject.VersionReference);
         Assert.NotNull(graveyard.Value);
     }
 
     [Fact]
     public async void DeleteThrowsRequestExceptionWhenVersionReferenceDoesNotMatch()
     {
-        var kvObject = await testFixture.Collection.GetAsync<TestData>("1");
+        var kvObject = await collection.GetAsync<TestData>("1");
 
         var exception = await Assert.ThrowsAsync<RequestException>(
-            () => testFixture.Collection.DeleteAsync("2",
-                                                     reference: kvObject.VersionReference)
+            () => collection.DeleteAsync("2",
+                                         reference: kvObject.VersionReference)
         );
 
         Assert.Equal(HttpStatusCode.PreconditionFailed, exception.StatusCode);

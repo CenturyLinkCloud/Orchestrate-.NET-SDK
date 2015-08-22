@@ -5,12 +5,9 @@ using Xunit;
 public class ListTests : IClassFixture<ListTestFixture>
 {
     Collection collection;
-    ListTestFixture listTestFixture;
 
     public ListTests(ListTestFixture listTestFixture)
     {
-        this.listTestFixture = listTestFixture;
-
         collection = listTestFixture.Client.GetCollection(listTestFixture.CollectionName);
     }
 

@@ -5,12 +5,9 @@ using Xunit;
 public class InclusiveListTests : IClassFixture<ListTestFixture>
 {
     Collection collection;
-    ListTestFixture listTestFixture;
 
     public InclusiveListTests(ListTestFixture listTestFixture)
     {
-        this.listTestFixture = listTestFixture;
-
         collection = listTestFixture.Client.GetCollection(listTestFixture.CollectionName);
     }
 

@@ -6,28 +6,31 @@ using NSubstitute;
 
 public class TryAddTests : IClassFixture<TestFixture>
 {
-    TestFixture testFixture;
+    string collectionName;
+    Collection collection;
 
     public TryAddTests(TestFixture testFixture)
     {
-        this.testFixture = testFixture;
+        collectionName = testFixture.CollectionName;
+
+        collection = testFixture.Client.GetCollection(testFixture.CollectionName);
     }
 
     [Fact]
     public async void Guards()
     {
         var exception = await Assert.ThrowsAsync<ArgumentException>(
-            () => testFixture.Collection.TryAddAsync<object>(string.Empty, null)
+            () => collection.TryAddAsync<object>(string.Empty, null)
         );
         Assert.Equal("key", exception.ParamName);
 
         exception = await Assert.ThrowsAsync<ArgumentNullException>(
-            () => testFixture.Collection.TryAddAsync<object>(null, null)
+            () => collection.TryAddAsync<object>(null, null)
         );
         Assert.Equal("key", exception.ParamName);
 
         exception = await Assert.ThrowsAsync<ArgumentNullException>(
-            () => testFixture.Collection.TryAddAsync<object>("jguids", null)
+            () => collection.TryAddAsync<object>("jguids", null)
         );
         Assert.Equal("item", exception.ParamName);
     }
@@ -38,9 +41,9 @@ public class TryAddTests : IClassFixture<TestFixture>
     {
         var item = new TestData { Id = 88, Value = "Test Value 88" };
 
-        var kvMetaData = await testFixture.Collection.TryAddAsync<TestData>("88", item);
+        var kvMetaData = await collection.TryAddAsync<TestData>("88", item);
 
-        Assert.Equal(testFixture.CollectionName, kvMetaData.CollectionName);
+        Assert.Equal(collectionName, kvMetaData.CollectionName);
         Assert.Equal("88", kvMetaData.Key);
         Assert.True(kvMetaData.VersionReference.Length > 0);
     }
@@ -51,7 +54,7 @@ public class TryAddTests : IClassFixture<TestFixture>
         var item = new TestData { Id = 88, Value = "Test Value 88" };
 
         var exception = await Assert.ThrowsAsync<RequestException>(
-            () => testFixture.Collection.TryAddAsync<TestData>("1", item));
+            () => collection.TryAddAsync<TestData>("1", item));
 
         Assert.Equal(HttpStatusCode.PreconditionFailed, exception.StatusCode);
     }
@@ -64,7 +67,7 @@ public class TryAddTests : IClassFixture<TestFixture>
         application.HostUrl.Returns("https://api.orchestrate.io/v0");
 
         var client = new Client(application);
-        var collection = client.GetCollection(testFixture.CollectionName);
+        var collection = client.GetCollection(collectionName);
 
         var execption = await Assert.ThrowsAsync<RequestException>(
                                 () => collection.TryAddAsync<object>("key", string.Empty));

@@ -7,28 +7,31 @@ using NSubstitute;
 
 public class PatchTests : IClassFixture<TestFixture>
 {
-    TestFixture testFixture;
+    string collectionName;
+    Collection collection;
 
     public PatchTests(TestFixture testFixture)
     {
-        this.testFixture = testFixture;
+        collectionName = testFixture.CollectionName;
+
+        collection = testFixture.Client.GetCollection(testFixture.CollectionName);
     }
 
     [Fact]
     public async void Guards()
     {
         var exception = await Assert.ThrowsAsync<ArgumentException>(
-            () => testFixture.Collection.PatchAsync(string.Empty, null)
+            () => collection.PatchAsync(string.Empty, null)
         );
         Assert.Equal("key", exception.ParamName);
 
         exception = await Assert.ThrowsAsync<ArgumentNullException>(
-            () => testFixture.Collection.PatchAsync(null, null)
+            () => collection.PatchAsync(null, null)
         );
         Assert.Equal("key", exception.ParamName);
 
         exception = await Assert.ThrowsAsync<ArgumentNullException>(
-            () => testFixture.Collection.PatchAsync("jguids", null)
+            () => collection.PatchAsync("jguids", null)
         );
         Assert.Equal("operations", exception.ParamName);
     }
@@ -40,14 +43,14 @@ public class PatchTests : IClassFixture<TestFixture>
         patchOperations.Add(new PatchOperation<string>
         { Operation = "replace", Path = "/Value", Value = "Replaced Test Data" });
 
-        var kvMetaData = await testFixture.Collection.PatchAsync("1", patchOperations);
+        var kvMetaData = await collection.PatchAsync("1", patchOperations);
 
-        Assert.Equal(testFixture.CollectionName, kvMetaData.CollectionName);
+        Assert.Equal(collectionName, kvMetaData.CollectionName);
         Assert.Contains(kvMetaData.Key, kvMetaData.Location);
         Assert.True(kvMetaData.VersionReference.Length > 0);
         Assert.Contains(kvMetaData.VersionReference, kvMetaData.Location);
 
-        var kvObject = await testFixture.Collection.GetAsync<TestData>("1");
+        var kvObject = await collection.GetAsync<TestData>("1");
         var testData = kvObject.Value;
         Assert.Equal("Replaced Test Data", testData.Value);
     }
@@ -60,7 +63,7 @@ public class PatchTests : IClassFixture<TestFixture>
         { Operation = "replace", Path = "/Huh", Value = "Replaced Test Data" });
 
         var exception = await Assert.ThrowsAsync<PatchConflictException>(
-            () => testFixture.Collection.PatchAsync("1", patchOperations)
+            () => collection.PatchAsync("1", patchOperations)
         );
 
         Assert.Equal(HttpStatusCode.Conflict, exception.StatusCode);
@@ -76,7 +79,7 @@ public class PatchTests : IClassFixture<TestFixture>
         { Operation = "huh", Path = "/Value", Value = "Replaced Test Data" });
 
         var exception = await Assert.ThrowsAsync<BadRequestException>(
-            () => testFixture.Collection.PatchAsync("1", patchOperations)
+            () => collection.PatchAsync("1", patchOperations)
         );
 
         Assert.Equal(HttpStatusCode.BadRequest, exception.StatusCode);
@@ -88,11 +91,11 @@ public class PatchTests : IClassFixture<TestFixture>
     public async void NonExistantKeyThrowsNotFoundException()
     {
         var exception = await Assert.ThrowsAsync<NotFoundException>(
-            () => testFixture.Collection.PatchAsync("9999", new List<PatchOperation>())
+            () => collection.PatchAsync("9999", new List<PatchOperation>())
         );
 
         Assert.Equal(HttpStatusCode.NotFound, exception.StatusCode);
-        string expected = String.Format("Key: {0} was not found in collection: {1}", "9999", testFixture.CollectionName);
+        string expected = String.Format("Key: {0} was not found in collection: {1}", "9999", collectionName);
         Assert.Equal(expected, exception.Message);
     }
 
@@ -105,7 +108,7 @@ public class PatchTests : IClassFixture<TestFixture>
         application.HostUrl.Returns("https://api.orchestrate.io/v0");
 
         var client = new Client(application);
-        var collection = client.GetCollection(testFixture.CollectionName);
+        var collection = client.GetCollection(collectionName);
 
         var execption = await Assert.ThrowsAsync<RequestException>(
                                 () => collection.PatchAsync("key", new List<PatchOperation>()));

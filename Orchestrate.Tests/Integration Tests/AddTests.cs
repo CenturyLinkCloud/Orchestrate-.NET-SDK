@@ -6,18 +6,21 @@ using Xunit;
 
 public class AddTests : IClassFixture<TestFixture>
 {
-    TestFixture testFixture; 
+    string collectionName;
+    Collection collection;
 
     public AddTests(TestFixture testFixture)
     {
-        this.testFixture = testFixture;
+        collectionName = testFixture.CollectionName;
+
+        collection = testFixture.Client.GetCollection(testFixture.CollectionName);
     }
 
     [Fact]
     public async void Guards()
     {
         var exception = await Assert.ThrowsAsync<ArgumentNullException>(
-            () => testFixture.Collection.AddAsync<object>(null)
+            () => collection.AddAsync<object>(null)
             );
         Assert.Equal("item", exception.ParamName);
     }
@@ -26,14 +29,14 @@ public class AddTests : IClassFixture<TestFixture>
     public async void AddSuccess()
     {
         var item = new TestData { Id = 3, Value = "A successful object Add" };
-        var kvMetaData = await testFixture.Collection.AddAsync(item);
+        var kvMetaData = await collection.AddAsync(item);
 
-        Assert.Equal(testFixture.CollectionName, kvMetaData.CollectionName);
+        Assert.Equal(collectionName, kvMetaData.CollectionName);
         Assert.Contains(kvMetaData.Key, kvMetaData.Location);
         Assert.True(kvMetaData.VersionReference.Length > 0);
         Assert.Contains(kvMetaData.VersionReference, kvMetaData.Location);
 
-        var kvObject = await testFixture.Collection.GetAsync<TestData>(kvMetaData.Key);
+        var kvObject = await collection.GetAsync<TestData>(kvMetaData.Key);
 
         TestData testData = kvObject.Value;
         Assert.Equal(3, testData.Id);
@@ -48,7 +51,7 @@ public class AddTests : IClassFixture<TestFixture>
         application.HostUrl.Returns("https://api.orchestrate.io/v0");
 
         var client = new Client(application);
-        var collection = client.GetCollection(testFixture.CollectionName);
+        var collection = client.GetCollection(collectionName);
 
         var execption = await Assert.ThrowsAsync<RequestException>(
                                 () => collection.AddAsync<object>("item"));
