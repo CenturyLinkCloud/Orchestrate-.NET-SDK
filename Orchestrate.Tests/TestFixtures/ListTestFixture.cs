@@ -23,8 +23,8 @@ public class ListTestFixture : IDisposable
         AsyncHelper.RunSync(() => collection.TryAddAsync("3", item3));
     }
 
-    public async void Dispose()
+    public void Dispose()
     {
-        await Client.DeleteCollectionAsync(CollectionName);
+        AsyncHelper.RunSync(() => Client.DeleteCollectionAsync(CollectionName));
     }
 }

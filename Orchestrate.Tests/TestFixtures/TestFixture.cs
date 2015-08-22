@@ -22,8 +22,8 @@ public class TestFixture : IDisposable
         Collection = Client.GetCollection(CollectionName);
     }
 
-    public async void Dispose()
+    public void Dispose()
     {
-        await Client.DeleteCollectionAsync(CollectionName);
+        AsyncHelper.RunSync(() => Client.DeleteCollectionAsync(CollectionName));
     }
 }
