@@ -61,7 +61,7 @@
     <Compile Include="Models\NotFoundData.cs" />
     <Compile Include="Models\PatchConflict.cs" />
     <Compile Include="Models\PatchOperation.cs" />
-    <Compile Include="Models\OrchestratePath.cs" />
+    <Compile Include="Models\PathMetadata.cs" />
     <Compile Include="Utility\HttpClientExtensions.cs" />
     <Compile Include="Utility\Guard.cs" />
     <Compile Include="Utility\HttpMessageExtensions.cs" />

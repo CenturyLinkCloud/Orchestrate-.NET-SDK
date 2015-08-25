@@ -2,7 +2,7 @@
 
 namespace Orchestrate.Io
 {
-    public class OrchestratePath
+    public class PathMetadata
     {
         [JsonProperty("collection")]
         public string Collection { get; set; }

@@ -35,7 +35,7 @@ namespace Orchestrate.Io
             }
         }
 
-        public async Task<KvMetaData> CreateCollectionAsync<T>(string collectionName, 
+        public async Task<KvMetadata> CreateCollectionAsync<T>(string collectionName, 
                                                                string key, 
                                                                T item)
         {
@@ -53,7 +53,7 @@ namespace Orchestrate.Io
                 var response = await httpClient.PutAsJsonAsync(uri.ToString(), item);
 
                 if (response.IsSuccessStatusCode)
-                    return KvMetaData.Make(collectionName, response);
+                    return KvMetadata.Make(collectionName, response);
                 else
                     throw await RequestExceptionUtility.Make(response);
             }

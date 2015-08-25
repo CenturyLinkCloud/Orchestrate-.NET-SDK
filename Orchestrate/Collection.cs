@@ -22,6 +22,13 @@ namespace Orchestrate.Io
             CollectionName = collectionName; 
         }
 
+        public Task<KvList<T>> SearchAsync<T>(string query)
+        {
+            Guard.ArgumentNotNullOrEmpty("query", query);
+
+            throw new NotImplementedException();
+        }
+
         public async Task<KvList<T>> ListAsync<T>(int limit = 100)
         {
             if (limit < 1 || limit > 100)
@@ -43,7 +50,7 @@ namespace Orchestrate.Io
             }
         }
 
-        public async Task<KvMetaData> AddAsync<T>(T item)
+        public async Task<KvMetadata> AddAsync<T>(T item)
         {
             Guard.ArgumentNotNull("item", item);
 
@@ -56,7 +63,7 @@ namespace Orchestrate.Io
                 var response = await httpClient.PostAsJsonAsync(uri.ToString(), item);
 
                 if (response.IsSuccessStatusCode)
-                    return KvMetaData.Make(CollectionName, response);
+                    return KvMetadata.Make(CollectionName, response);
                 else
                     throw await RequestExceptionUtility.Make(response);
             }
@@ -121,7 +128,7 @@ namespace Orchestrate.Io
             }
         }
 
-        public async Task<KvMetaData> AddOrUpdateAsync<T>(string key,
+        public async Task<KvMetadata> AddOrUpdateAsync<T>(string key,
                                                           T item, 
                                                           string reference = null)
         {
@@ -147,13 +154,13 @@ namespace Orchestrate.Io
                 var response = await httpClient.SendAsync(message);
 
                 if (response.IsSuccessStatusCode)
-                    return KvMetaData.Make(CollectionName, response);
+                    return KvMetadata.Make(CollectionName, response);
                 else
                     throw await RequestExceptionUtility.Make(response);
             }
         }
 
-        public async Task<KvMetaData> TryAddAsync<T>(string key,
+        public async Task<KvMetadata> TryAddAsync<T>(string key,
                                                      T item)
         {
             Guard.ArgumentNotNullOrEmpty("key", key);
@@ -175,7 +182,7 @@ namespace Orchestrate.Io
                 var response = await httpClient.SendAsync(message);
 
                 if (response.IsSuccessStatusCode)
-                    return KvMetaData.Make(CollectionName, response);
+                    return KvMetadata.Make(CollectionName, response);
                 else
                     throw await RequestExceptionUtility.Make(response);
             }
@@ -241,7 +248,7 @@ namespace Orchestrate.Io
         }
 
 
-        public async Task<KvMetaData> MergeAsync<T>(string key,
+        public async Task<KvMetadata> MergeAsync<T>(string key,
                                                     T item, 
                                                     string reference = null)
         {
@@ -265,14 +272,14 @@ namespace Orchestrate.Io
                 var response = await httpClient.SendAsync(message);
 
                 if (response.IsSuccessStatusCode)
-                    return KvMetaData.Make(CollectionName, response);
+                    return KvMetadata.Make(CollectionName, response);
                 else
                     throw await RequestExceptionUtility.Make(response);
             }
         }
 
 
-        public async Task<KvMetaData> PatchAsync(string key,
+        public async Task<KvMetadata> PatchAsync(string key,
                                                  IEnumerable<PatchOperation> patchOperations, 
                                                  string reference = null)
         {
@@ -297,13 +304,13 @@ namespace Orchestrate.Io
                 var response = await httpClient.SendAsync(message);
 
                 if (response.IsSuccessStatusCode)
-                    return KvMetaData.Make(CollectionName, response);
+                    return KvMetadata.Make(CollectionName, response);
                 else
                     throw await RequestExceptionUtility.Make(response);
             }
         }
 
-        public async Task<KvMetaData> UpdateAsync<T>(string key,
+        public async Task<KvMetadata> UpdateAsync<T>(string key,
                                                           T item,
                                                           string reference = null)
         {
@@ -337,7 +344,7 @@ namespace Orchestrate.Io
                 var response = await httpClient.SendAsync(message);
 
                 if (response.IsSuccessStatusCode)
-                    return KvMetaData.Make(CollectionName, response);
+                    return KvMetadata.Make(CollectionName, response);
                 else
                     throw await RequestExceptionUtility.Make(response);
             }

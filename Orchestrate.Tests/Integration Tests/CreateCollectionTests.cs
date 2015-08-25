@@ -50,7 +50,7 @@ public class CreateCollectionTests
         {
             var item = new TestData { Id = 1, Value = "CreateCollectionWithItemAsObject" };
             string guid = Guid.NewGuid().ToString();
-            KvMetaData metaData = await client.CreateCollectionAsync(collectionName, guid, item);
+            KvMetadata metaData = await client.CreateCollectionAsync(collectionName, guid, item);
 
             Assert.Equal(collectionName, metaData.CollectionName);
             Assert.Equal(guid, metaData.Key);

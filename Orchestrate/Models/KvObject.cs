@@ -2,7 +2,7 @@
 
 namespace Orchestrate.Io
 {
-    public class KvObject<T> : KvMetaData
+    public class KvObject<T> : KvMetadata
     {
         public string RawValue { get; private set; }
 

@@ -5,7 +5,7 @@ namespace Orchestrate.Io
     public class ListItem<T>
     {
         [JsonProperty("path")]
-        public OrchestratePath OrchestratePath { get; set; }
+        public PathMetadata OrchestratePath { get; set; }
 
         [JsonProperty("value")]
         public T Value { get; set; }
