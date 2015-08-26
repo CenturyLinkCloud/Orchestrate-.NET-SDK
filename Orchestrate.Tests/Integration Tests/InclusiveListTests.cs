@@ -32,17 +32,17 @@ public class InclusiveListTests : IClassFixture<ListTestFixture>
         Assert.Collection(listResult.Items,
             result =>
             {
-                Assert.Equal(result.Value.Id, 1);
+                Assert.Equal(1, result.Value.Id);
                 Assert.Equal("1", result.OrchestratePath.Key);
             },
             result =>
             {
-                Assert.Equal(result.Value.Id, 2);
+                Assert.Equal(2, result.Value.Id);
                 Assert.Equal("2", result.OrchestratePath.Key);
             },
             result =>
             {
-                Assert.Equal(result.Value.Id, 3);
+                Assert.Equal(3, result.Value.Id);
                 Assert.Equal("3", result.OrchestratePath.Key);
             }
         );
@@ -59,12 +59,12 @@ public class InclusiveListTests : IClassFixture<ListTestFixture>
         Assert.Collection(listResult.Items,
             result =>
             {
-                Assert.Equal(result.Value.Id, 1);
+                Assert.Equal(1, result.Value.Id);
                 Assert.Equal("1", result.OrchestratePath.Key);
             },
             result =>
             {
-                Assert.Equal(result.Value.Id, 2);
+                Assert.Equal(2, result.Value.Id);
                 Assert.Equal("2", result.OrchestratePath.Key);
             }
         );
@@ -82,12 +82,12 @@ public class InclusiveListTests : IClassFixture<ListTestFixture>
         Assert.Collection(listResult.Items,
             result =>
             {
-                Assert.Equal(result.Value.Id, 1);
+                Assert.Equal(1, result.Value.Id);
                 Assert.Equal("1", result.OrchestratePath.Key);
             },
             result =>
             {
-                Assert.Equal(result.Value.Id, 2);
+                Assert.Equal(2, result.Value.Id);
                 Assert.Equal("2", result.OrchestratePath.Key);
             }
         );

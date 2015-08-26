@@ -31,17 +31,17 @@ public class ListTests : IClassFixture<ListTestFixture>
         Assert.Collection(listResult.Items,
             result =>
             {
-                Assert.Equal(result.Value.Id, 1);
+                Assert.Equal(1, result.Value.Id);
                 Assert.Equal("1", result.OrchestratePath.Key);
             },
             result =>
             {
-                Assert.Equal(result.Value.Id, 2);
+                Assert.Equal(2, result.Value.Id);
                 Assert.Equal("2", result.OrchestratePath.Key);
             },
             result =>
             {
-                Assert.Equal(result.Value.Id, 3);
+                Assert.Equal(3, result.Value.Id);
                 Assert.Equal("3", result.OrchestratePath.Key);
             }
         );
@@ -55,8 +55,8 @@ public class ListTests : IClassFixture<ListTestFixture>
         var listResult = await collection.ListAsync<TestData>(2);
 
         Assert.Collection(listResult.Items,
-            result => Assert.Equal(result.Value.Id, 1),
-            result => Assert.Equal(result.Value.Id, 2)
+            result => Assert.Equal(1, result.Value.Id),
+            result => Assert.Equal(2, result.Value.Id)
         );
 
         Assert.Contains("afterKey=2", listResult.Next);

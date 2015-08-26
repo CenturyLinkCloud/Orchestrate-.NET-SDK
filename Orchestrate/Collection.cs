@@ -22,14 +22,32 @@ namespace Orchestrate.Io
             CollectionName = collectionName; 
         }
 
-        public Task<KvList<T>> SearchAsync<T>(string query)
+        public async Task<SearchResults<T>> SearchAsync<T>(string query, string sort = null)
         {
             Guard.ArgumentNotNullOrEmpty("query", query);
 
-            throw new NotImplementedException();
+            HttpUrlBuilder uri = new HttpUrlBuilder(host)
+                                                   .AppendPath(CollectionName)
+                                                   .AddQuery("query", query);
+
+            if (sort != null)
+                uri.AddQuery("sort", sort);
+
+            using (var httpClient = new HttpClient())
+            {
+                httpClient.AddAuthenticaion(apiKey);
+                var response = await httpClient.GetAsync(uri.ToString());
+
+                if (response.IsSuccessStatusCode)
+                {
+                    return await response.Content.ReadAsAsync<SearchResults<T>>();
+                }
+                else
+                    throw await RequestExceptionUtility.Make(response);
+            }
         }
 
-        public async Task<KvList<T>> ListAsync<T>(int limit = 100)
+        public async Task<ListResults<T>> ListAsync<T>(int limit = 100)
         {
             if (limit < 1 || limit > 100)
                 throw new ArgumentOutOfRangeException("limit", "limit must be between 1 and 100");
@@ -44,7 +62,7 @@ namespace Orchestrate.Io
                 var response = await httpClient.GetAsync(uri.ToString());
 
                 if (response.IsSuccessStatusCode)
-                    return await response.Content.ReadAsAsync<KvList<T>>();
+                    return await response.Content.ReadAsAsync<ListResults<T>>();
                 else
                     throw await RequestExceptionUtility.Make(response);
             }
@@ -69,7 +87,7 @@ namespace Orchestrate.Io
             }
         }
 
-        public async Task<KvList<T>> ExclusiveListAsync<T>(int limit = 100,
+        public async Task<ListResults<T>> ExclusiveListAsync<T>(int limit = 100,
                                                            string afterKey = null,
                                                            string beforeKey = null)
         {
@@ -92,14 +110,14 @@ namespace Orchestrate.Io
                 var response = await httpClient.GetAsync(uri.ToString());
 
                 if (response.IsSuccessStatusCode)
-                    return await response.Content.ReadAsAsync<KvList<T>>();
+                    return await response.Content.ReadAsAsync<ListResults<T>>();
                 else
                     throw await RequestExceptionUtility.Make(response);
             }
         }
 
 
-        public async Task<KvList<T>> InclusiveListAsync<T>(int limit = 100, 
+        public async Task<ListResults<T>> InclusiveListAsync<T>(int limit = 100, 
                                                            string startKey = null, 
                                                            string endKey = null)
         {
@@ -122,7 +140,7 @@ namespace Orchestrate.Io
                 var response = await httpClient.GetAsync(uri.ToString());
 
                 if (response.IsSuccessStatusCode)
-                    return await response.Content.ReadAsAsync<KvList<T>>();
+                    return await response.Content.ReadAsAsync<ListResults<T>>();
                 else
                     throw await RequestExceptionUtility.Make(response);
             }
