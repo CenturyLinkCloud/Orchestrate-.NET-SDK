@@ -68,6 +68,8 @@ public class SearchTests : IClassFixture<ListTestFixture>
         );
 
         Assert.Equal(3, searchResult.TotalCount);
+        Assert.Null(searchResult.Next);
+        Assert.Null(searchResult.Prev);
     }
 
     [Fact]
@@ -113,7 +115,8 @@ public class SearchTests : IClassFixture<ListTestFixture>
     [Fact]
     public async void SearchWithSortSucceeds()
     {
-        var searchResult = await collection.SearchAsync<TestData>("*", sort: "value.Id:asc");
+        SearchOptions options = new SearchOptions(sort: "value.Id:asc");
+        var searchResult = await collection.SearchAsync<TestData>("*", options);
 
         Assert.Collection(searchResult.Items,
             result =>
@@ -137,9 +140,35 @@ public class SearchTests : IClassFixture<ListTestFixture>
     }
 
     [Fact]
+    public async void SearchWithLimitSucceeds()
+    {
+        SearchOptions options = new SearchOptions(limit: 2);
+        var searchResult = await collection.SearchAsync<TestData>("*", options);
+
+        Assert.Equal(2, searchResult.Count);
+        Assert.Equal(3, searchResult.TotalCount);
+        Assert.Contains("offset=2", searchResult.Next);
+        Assert.Null(searchResult.Prev);
+    }
+
+    [Fact]
+    public async void SearchWithOffsetSucceeds()
+    {
+        SearchOptions options = new SearchOptions(offset: 2);
+        var searchResult = await collection.SearchAsync<TestData>("*", options);
+
+        Assert.Equal(1, searchResult.Count);
+        Assert.Equal(3, searchResult.TotalCount);
+        Assert.Null(searchResult.Next);
+        Assert.Contains("offset=0", searchResult.Prev);
+    }
+
+
+    [Fact]
     public async void SearchSucceedsWithInvalidSort()
     {
-        var searchResults = await collection.SearchAsync<TestData>("value.Id: 1", sort: ":(");
+        SearchOptions options = new SearchOptions(sort: ":(");
+        var searchResults = await collection.SearchAsync<TestData>("value.Id: 1", options);
 
         Assert.Equal(1, searchResults.Count);
     }

@@ -22,7 +22,7 @@ namespace Orchestrate.Io
             CollectionName = collectionName; 
         }
 
-        public async Task<SearchResults<T>> SearchAsync<T>(string query, string sort = null)
+        public async Task<SearchResults<T>> SearchAsync<T>(string query, SearchOptions opts = null)
         {
             Guard.ArgumentNotNullOrEmpty("query", query);
 
@@ -30,8 +30,14 @@ namespace Orchestrate.Io
                                                    .AppendPath(CollectionName)
                                                    .AddQuery("query", query);
 
-            if (sort != null)
-                uri.AddQuery("sort", sort);
+            if (opts != null)
+            {
+                if (!String.IsNullOrEmpty(opts.Sort))
+                    uri.AddQuery("sort", opts.Sort);
+
+                uri.AddQuery("limit", opts.Limit.ToString());
+                uri.AddQuery("offset", opts.Offset.ToString());
+            }
 
             using (var httpClient = new HttpClient())
             {
@@ -46,6 +52,7 @@ namespace Orchestrate.Io
                     throw await RequestExceptionUtility.Make(response);
             }
         }
+
 
         public async Task<ListResults<T>> ListAsync<T>(int limit = 100)
         {
