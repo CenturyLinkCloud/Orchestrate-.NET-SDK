@@ -15,20 +15,7 @@ public class SearchTests : IClassFixture<ListTestFixture>
         collection = listTestFixture.Collection;
         collectionName = listTestFixture.CollectionName;
 
-        WaitForConsistency();
-    }
-
-    private void WaitForConsistency()
-    {
-        int count = 0;
-        SearchResults<Product> searchResults;
-        do
-        {
-            searchResults = 
-                AsyncHelper.RunSync<SearchResults<Product>>(() => collection.SearchAsync<Product>("*"));
-            count++;
-        }
-        while (searchResults.Count != 3 && count < 25);
+        SearchHelper.WaitForConsistency(collection, 3);
     }
 
     [Fact]
