@@ -4,16 +4,26 @@ using Orchestrate.Io;
 using System.Net;
 using NSubstitute;
 
-public class AddOrUpdateTests : IClassFixture<TestFixture>
+public class AddOrUpdateTests : IClassFixture<TestFixture>, IDisposable
 {
     string collectionName;
     Collection collection;
+    Product product;
+    string productKey;
 
     public AddOrUpdateTests(TestFixture testFixture)
     {
         collectionName = testFixture.CollectionName;
-
         collection = testFixture.Client.GetCollection(testFixture.CollectionName);
+
+        product = new Product { Id = 1, Name = "Bread", Description = "Grain bread", Price = 2.50M, Rating = 4 };
+        productKey = "1";
+        AsyncHelper.RunSync(() => collection.TryAddAsync(productKey, product));
+    }
+
+    public void Dispose()
+    {
+        AsyncHelper.RunSync(() => collection.DeleteAsync(productKey));
     }
 
     [Fact]
@@ -38,10 +48,10 @@ public class AddOrUpdateTests : IClassFixture<TestFixture>
     [Fact]
     public async void AddSuccess()
     {
-        var item = new TestData { Id = 3, Value = "Added Object" };
+        var item = new Product { Id = 3, Name = "Bread", Description = "Whole Grain Bread", Price = 2.75M, Rating = 3 };
         var key = Guid.NewGuid().ToString();
 
-        var kvMetaData = await collection.AddOrUpdateAsync<TestData>(key, item);
+        var kvMetaData = await collection.AddOrUpdateAsync(key, item);
 
         Assert.Equal(collectionName, kvMetaData.CollectionName);
         Assert.Equal(key, kvMetaData.Key);
@@ -51,21 +61,21 @@ public class AddOrUpdateTests : IClassFixture<TestFixture>
     [Fact]
     public async void UpdateSuccess()
     {
-        var kvObject = await collection.GetAsync<TestData>("1");
-        var testData = kvObject.Value;
-        Assert.Equal("Initial Test Data", testData.Value);
-        testData.Value = "Updated Test Data";
+        var kvObject = await collection.GetAsync<Product>(productKey);
+        var retrievedProduct = kvObject.Value;
+        Assert.Equal(product.Description, retrievedProduct.Description);
+        retrievedProduct.Description = "Updated Description";
 
-        var kvMetaData = await collection.AddOrUpdateAsync<TestData>("1", testData);
+        var kvMetaData = await collection.AddOrUpdateAsync(productKey, retrievedProduct);
 
         Assert.Equal(collectionName, kvMetaData.CollectionName);
-        Assert.Equal("1", kvMetaData.Key);
+        Assert.Equal(productKey, kvMetaData.Key);
         Assert.True(kvMetaData.VersionReference.Length > 0);
         Assert.Contains(kvMetaData.VersionReference, kvMetaData.Location);
 
-        kvObject = await collection.GetAsync<TestData>("1");
-        testData = kvObject.Value;
-        Assert.Equal("Updated Test Data", testData.Value);
+        kvObject = await collection.GetAsync<Product>(productKey);
+        retrievedProduct = kvObject.Value;
+        Assert.Equal("Updated Description", retrievedProduct.Description);
     }
 
     [Fact]

@@ -1,30 +1,16 @@
-﻿using System;
-using Orchestrate.Io;
-using System.IO;
+﻿using Orchestrate.Io;
 
-public class ListTestFixture : IDisposable
+public class ListTestFixture : TestFixture
 {
-    public string CollectionName { get; private set; }
-    public Client Client { get; private set; }
-    public Application Application { get; private set; }
-
     public ListTestFixture()
     {
-        Application = new Application("OrchestrateApiKey");
-        Client = new Client(Application);
-        CollectionName = Path.GetRandomFileName();
+        var item1 = new Product { Id = 1, Name = "Bread", Description = "Low Fat Whole Grain Bread", Price = 2.75M, Rating = 4 };
+        AsyncHelper.RunSync(() => Collection.TryAddAsync("1", item1));
 
-        var collection = Client.GetCollection(CollectionName);
-        var item1 = new TestData { Id = 1, Value = "Initial Test Item" };
-        AsyncHelper.RunSync(() => collection.TryAddAsync("1", item1));
-        var item2 = new TestData { Id = 2, Value = "Initial Test Item #2" };
-        AsyncHelper.RunSync(() => collection.TryAddAsync("2", item2));
-        var item3 = new TestData { Id = 3, Value = "Initial Test Item #3" };
-        AsyncHelper.RunSync(() => collection.TryAddAsync("3", item3));
-    }
+        var item2 = new Product { Id = 2, Name = "Milk", Description = "Low Fat Milk", Price = 3.5M, Rating = 3 };
+        AsyncHelper.RunSync(() => Collection.TryAddAsync("2", item2));
 
-    public void Dispose()
-    {
-        AsyncHelper.RunSync(() => Client.DeleteCollectionAsync(CollectionName));
+        var item3 = new Product { Id = 3, Name = "Vint Soda", Description = "Americana Variety - Mix of 6 flavors", Price = 20.90M, Rating = 3 };
+        AsyncHelper.RunSync(() => Collection.TryAddAsync("3", item3));
     }
 }

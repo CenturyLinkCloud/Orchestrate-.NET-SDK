@@ -3,6 +3,7 @@ using Orchestrate.Io;
 using Xunit;
 using System.Net;
 using NSubstitute;
+using System.Dynamic;
 
 public class DeleteCollectionTests
 {
@@ -31,7 +32,9 @@ public class DeleteCollectionTests
         Application application = new Application("OrchestrateApiKey");
         var client = new Client(application);
 
-        var item = new TestData { Id = 1, Value = "DeleteCollection" };
+        dynamic item = new ExpandoObject();
+        item.Id = 1;
+
         await client.CreateCollectionAsync(collectionName, Guid.NewGuid().ToString(), item);
 
         await client.DeleteCollectionAsync(collectionName);

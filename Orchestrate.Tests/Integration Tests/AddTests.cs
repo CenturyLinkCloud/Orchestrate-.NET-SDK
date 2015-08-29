@@ -28,7 +28,7 @@ public class AddTests : IClassFixture<TestFixture>
     [Fact]
     public async void AddSuccess()
     {
-        var item = new TestData { Id = 3, Value = "A successful object Add" };
+        var item = new Product { Id = 3, Name = "Bread", Description = "Whole Grain Bread", Price = 2.75M, Rating = 3 };
         var kvMetaData = await collection.AddAsync(item);
 
         Assert.Equal(collectionName, kvMetaData.CollectionName);
@@ -36,11 +36,11 @@ public class AddTests : IClassFixture<TestFixture>
         Assert.True(kvMetaData.VersionReference.Length > 0);
         Assert.Contains(kvMetaData.VersionReference, kvMetaData.Location);
 
-        var kvObject = await collection.GetAsync<TestData>(kvMetaData.Key);
+        var kvObject = await collection.GetAsync<Product>(kvMetaData.Key);
 
-        TestData testData = kvObject.Value;
-        Assert.Equal(3, testData.Id);
-        Assert.Equal("A successful object Add", testData.Value);
+        Product product = kvObject.Value;
+        Assert.Equal(3, product.Id);
+        Assert.Equal("Bread", product.Name);
     }
 
     [Fact]

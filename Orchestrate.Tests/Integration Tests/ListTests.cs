@@ -8,25 +8,25 @@ public class ListTests : IClassFixture<ListTestFixture>
 
     public ListTests(ListTestFixture listTestFixture)
     {
-        collection = listTestFixture.Client.GetCollection(listTestFixture.CollectionName);
+        collection = listTestFixture.Collection;
     }
 
     [Fact]
     public async void Guards()
     {
         var exception = await Assert.ThrowsAsync<ArgumentOutOfRangeException>(
-            () => collection.ListAsync<TestData>(-1));
+            () => collection.ListAsync<Product>(-1));
         Assert.Equal("limit", exception.ParamName);
 
         exception = await Assert.ThrowsAsync<ArgumentOutOfRangeException>(
-            () => collection.ListAsync<TestData>(101));
+            () => collection.ListAsync<Product>(101));
         Assert.Equal("limit", exception.ParamName);
     }
 
     [Fact]
     public async void ListAsync()
     {
-        var listResult = await collection.ListAsync<TestData>();
+        var listResult = await collection.ListAsync<Product>();
 
         Assert.Collection(listResult.Items,
             result =>
@@ -52,7 +52,7 @@ public class ListTests : IClassFixture<ListTestFixture>
     [Fact]
     public async void ListWithLimitFewerThanNumberOfElementsAsync()
     {
-        var listResult = await collection.ListAsync<TestData>(2);
+        var listResult = await collection.ListAsync<Product>(2);
 
         Assert.Collection(listResult.Items,
             result => Assert.Equal(1, result.Value.Id),

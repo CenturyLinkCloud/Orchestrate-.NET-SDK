@@ -1,40 +1,58 @@
-﻿using Orchestrate.Io;
+﻿using System;
+using System.Dynamic;
 using System.Net;
+using Orchestrate.Io;
 using Xunit;
 
-public class ConditionalMergeTests : IClassFixture<TestFixture>
+public class ConditionalMergeTests : IClassFixture<TestFixture>, IDisposable
 {
-    TestFixture testFixture;
+    string collectionName;
+    Collection collection;
+    Product product;
+    string productKey;
 
     public ConditionalMergeTests(TestFixture testFixture)
     {
-        this.testFixture = testFixture;
+        collectionName = testFixture.CollectionName;
+        collection = testFixture.Client.GetCollection(testFixture.CollectionName);
+
+        product = new Product { Id = 1, Name = "Bread", Description = "Grain bread", Price = 2.50M, Rating = 4 };
+        productKey = "1";
+        AsyncHelper.RunSync(() => collection.TryAddAsync(productKey, product));
+    }
+
+    public void Dispose()
+    {
+        AsyncHelper.RunSync(() => collection.DeleteAsync(productKey));
     }
 
     [Fact]
     public async void MergeWithReferenceSucceeds()
     {
-        var existingItem = await testFixture.Collection.GetAsync<TestData>("1");
-        var mergeItem = new MergeTestData { MergeValue = "This is a merged value" };
-        var kvMetaData = await testFixture.Collection.MergeAsync("1", mergeItem, existingItem.VersionReference);
+        var existingItem = await collection.GetAsync<Product>(productKey);
+        string dateTime = DateTime.UtcNow.ToString("s");
+        dynamic mergeItem = new ExpandoObject();
+        mergeItem.releaseDate = dateTime;
+        var kvMetaData = await collection.MergeAsync(productKey, mergeItem, existingItem.VersionReference);
 
-        Assert.Equal(testFixture.CollectionName, kvMetaData.CollectionName);
+        Assert.Equal(collectionName, kvMetaData.CollectionName);
         Assert.Contains(kvMetaData.Key, kvMetaData.Location);
         Assert.True(kvMetaData.VersionReference.Length > 0);
         Assert.Contains(kvMetaData.VersionReference, kvMetaData.Location);
 
-        var kvObject = await testFixture.Collection.GetAsync<TestData>("1");
-        Assert.Contains("MergeValue", kvObject.RawValue);
+        var kvObject = await collection.GetAsync<dynamic>(productKey);
+        Assert.Equal(dateTime, kvObject.Value.releaseDate.ToString("s"));
     }
 
     [Fact]
     public async void ThrowsNotFoundExceptionWhenPassingInvalidKey()
     {
-        var kvObject = await testFixture.Collection.GetAsync<TestData>("1");
-        var mergeItem = new MergeTestData { MergeValue = "This is a merged value" };
+        var kvObject = await collection.GetAsync<Product>(productKey);
+        dynamic mergeItem = new ExpandoObject();
+        mergeItem.releaseDate = DateTime.UtcNow.ToString("s");
 
         var exception = await Assert.ThrowsAsync<NotFoundException>(
-            () => testFixture.Collection.MergeAsync("2", mergeItem, kvObject.VersionReference)
+            () => collection.MergeAsync("2", mergeItem, kvObject.VersionReference)
         );
 
         Assert.Equal(HttpStatusCode.NotFound, exception.StatusCode);
@@ -43,11 +61,12 @@ public class ConditionalMergeTests : IClassFixture<TestFixture>
     [Fact]
     public async void ThrowsRequestFoundExceptionWhenPassingInvalidReference()
     {
-        var kvObject = await testFixture.Collection.GetAsync<TestData>("1");
-        var mergeItem = new MergeTestData { MergeValue = "This is a merged value" };
+        var kvObject = await collection.GetAsync<Product>(productKey);
+        dynamic mergeItem = new ExpandoObject();
+        mergeItem.releaseDate = DateTime.UtcNow.ToString("s");
 
         var exception = await Assert.ThrowsAsync<RequestException>(
-            () => testFixture.Collection.MergeAsync("1", mergeItem, "86754321")
+            () => collection.MergeAsync(productKey, mergeItem, "86754321")
         );
 
         Assert.Equal(HttpStatusCode.PreconditionFailed, exception.StatusCode);

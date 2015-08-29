@@ -12,7 +12,7 @@ public class SearchTests : IClassFixture<ListTestFixture>
 
     public SearchTests(ListTestFixture listTestFixture)
     {
-        collection = listTestFixture.Client.GetCollection(listTestFixture.CollectionName);
+        collection = listTestFixture.Collection;
         collectionName = listTestFixture.CollectionName;
 
         WaitForConsistency();
@@ -21,11 +21,11 @@ public class SearchTests : IClassFixture<ListTestFixture>
     private void WaitForConsistency()
     {
         int count = 0;
-        SearchResults<TestData> searchResults;
+        SearchResults<Product> searchResults;
         do
         {
             searchResults = 
-                AsyncHelper.RunSync<SearchResults<TestData>>(() => collection.SearchAsync<TestData>("*"));
+                AsyncHelper.RunSync<SearchResults<Product>>(() => collection.SearchAsync<Product>("*"));
             count++;
         }
         while (searchResults.Count != 3 && count < 25);
@@ -35,18 +35,18 @@ public class SearchTests : IClassFixture<ListTestFixture>
     public async void Guards()
     {
         var exception = await Assert.ThrowsAsync<ArgumentException>(
-            () => collection.SearchAsync<TestData>(String.Empty));
+            () => collection.SearchAsync<Product>(String.Empty));
         Assert.Equal("query", exception.ParamName);
 
         exception = await Assert.ThrowsAsync<ArgumentNullException>(
-            () => collection.SearchAsync<TestData>(null));
+            () => collection.SearchAsync<Product>(null));
         Assert.Equal("query", exception.ParamName);
     }
 
     [Fact]
     public async void SearchStarSucceeds()
     {
-        var searchResult = await collection.SearchAsync<TestData>("*");
+        var searchResult = await collection.SearchAsync<Product>("*");
         var sortedList = searchResult.Items.OrderBy(result => result.Value.Id).ToList();
 
         Assert.Collection(sortedList,
@@ -75,7 +75,7 @@ public class SearchTests : IClassFixture<ListTestFixture>
     [Fact]
     public async void ExplicitSearchForOneItemSucceeds()
     {
-        var searchResult = await collection.SearchAsync<TestData>("value.Id: 1");
+        var searchResult = await collection.SearchAsync<Product>("value.id: 1");
 
         Assert.Collection(searchResult.Items,
             result =>
@@ -91,8 +91,8 @@ public class SearchTests : IClassFixture<ListTestFixture>
     [Fact]
     public async void SearchWithBooleanExpressionSucceeds()
     {
-        var query = String.Format("value.Value: (\"{0}\" AND NOT \"{1}\")", "Initial", "#2");
-        var searchResult = await collection.SearchAsync<TestData>(query);
+        var query = String.Format("value.description: (\"{0}\" AND NOT \"{1}\")", "Low Fat", "Americana");
+        var searchResult = await collection.SearchAsync<Product>(query);
         var sortedList = searchResult.Items.OrderBy(result => result.Value.Id).ToList();
 
         Assert.Collection(sortedList,
@@ -103,8 +103,8 @@ public class SearchTests : IClassFixture<ListTestFixture>
             },
             result =>
             {
-                Assert.Equal(3, result.Value.Id);
-                Assert.Equal("3", result.OrchestratePath.Key);
+                Assert.Equal(2, result.Value.Id);
+                Assert.Equal("2", result.OrchestratePath.Key);
             }
         );
 
@@ -115,8 +115,8 @@ public class SearchTests : IClassFixture<ListTestFixture>
     [Fact]
     public async void SearchWithSortSucceeds()
     {
-        SearchOptions options = new SearchOptions(sort: "value.Id:asc");
-        var searchResult = await collection.SearchAsync<TestData>("*", options);
+        SearchOptions options = new SearchOptions(sort: "value.id:asc");
+        var searchResult = await collection.SearchAsync<Product>("*", options);
 
         Assert.Collection(searchResult.Items,
             result =>
@@ -143,7 +143,7 @@ public class SearchTests : IClassFixture<ListTestFixture>
     public async void SearchWithLimitSucceeds()
     {
         SearchOptions options = new SearchOptions(limit: 2);
-        var searchResult = await collection.SearchAsync<TestData>("*", options);
+        var searchResult = await collection.SearchAsync<Product>("*", options);
 
         Assert.Equal(2, searchResult.Count);
         Assert.Equal(3, searchResult.TotalCount);
@@ -155,7 +155,7 @@ public class SearchTests : IClassFixture<ListTestFixture>
     public async void SearchWithOffsetSucceeds()
     {
         SearchOptions options = new SearchOptions(offset: 2);
-        var searchResult = await collection.SearchAsync<TestData>("*", options);
+        var searchResult = await collection.SearchAsync<Product>("*", options);
 
         Assert.Equal(1, searchResult.Count);
         Assert.Equal(3, searchResult.TotalCount);
@@ -168,7 +168,7 @@ public class SearchTests : IClassFixture<ListTestFixture>
     public async void SearchSucceedsWithInvalidSort()
     {
         SearchOptions options = new SearchOptions(sort: ":(");
-        var searchResults = await collection.SearchAsync<TestData>("value.Id: 1", options);
+        var searchResults = await collection.SearchAsync<Product>("value.id: 1", options);
 
         Assert.Equal(1, searchResults.Count);
     }
@@ -177,7 +177,7 @@ public class SearchTests : IClassFixture<ListTestFixture>
     public async void SearchFailsWithInvalidQuery()
     {
         var exception = await Assert.ThrowsAsync<RequestException>(
-            () => collection.SearchAsync<TestData>(":("));
+            () => collection.SearchAsync<Product>(":("));
 
         Assert.Equal(HttpStatusCode.BadRequest, exception.StatusCode);
     }

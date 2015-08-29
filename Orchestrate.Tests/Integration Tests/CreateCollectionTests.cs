@@ -1,8 +1,9 @@
-﻿using System;
-using Xunit;
+﻿using NSubstitute;
 using Orchestrate.Io;
+using System;
+using System.Dynamic;
 using System.Net;
-using NSubstitute;
+using Xunit;
 
 public class CreateCollectionTests
 {
@@ -48,7 +49,9 @@ public class CreateCollectionTests
 
         try
         {
-            var item = new TestData { Id = 1, Value = "CreateCollectionWithItemAsObject" };
+            dynamic item = new ExpandoObject();
+            item.Id = 1;
+
             string guid = Guid.NewGuid().ToString();
             KvMetadata metaData = await client.CreateCollectionAsync(collectionName, guid, item);
 

@@ -39,9 +39,8 @@ public class TryAddTests : IClassFixture<TestFixture>
     [Fact]
     public async void TryAddSucceeds()
     {
-        var item = new TestData { Id = 88, Value = "Test Value 88" };
-
-        var kvMetaData = await collection.TryAddAsync<TestData>("88", item);
+        var item = new Product { Id = 3, Name = "Bread", Description = "Whole Grain Bread", Price = 2.75M, Rating = 3 };
+        var kvMetaData = await collection.TryAddAsync("88", item);
 
         Assert.Equal(collectionName, kvMetaData.CollectionName);
         Assert.Equal("88", kvMetaData.Key);
@@ -51,10 +50,11 @@ public class TryAddTests : IClassFixture<TestFixture>
     [Fact]
     public async void TryAddFailsWithExistingKey()
     {
-        var item = new TestData { Id = 88, Value = "Test Value 88" };
+        var item = new Product { Id = 3, Name = "Bread", Description = "Whole Grain Bread", Price = 2.75M, Rating = 3 };
+        var kvMetaData = await collection.AddAsync(item);
 
         var exception = await Assert.ThrowsAsync<RequestException>(
-            () => collection.TryAddAsync<TestData>("1", item));
+            () => collection.TryAddAsync<Product>(kvMetaData.Key, item));
 
         Assert.Equal(HttpStatusCode.PreconditionFailed, exception.StatusCode);
     }

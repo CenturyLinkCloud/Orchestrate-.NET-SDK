@@ -71,7 +71,9 @@
     <Compile Include="Integration Tests\ExclusiveListTests.cs" />
     <Compile Include="Integration Tests\InclusiveListTests.cs" />
     <Compile Include="Integration Tests\SearchTests.cs" />
+    <Compile Include="Models\Product.cs" />
     <Compile Include="SearchOptionsTests.cs" />
+    <Compile Include="TestFixtures\TestFixture.cs" />
     <Compile Include="TestFixtures\ListTestFixture.cs" />
     <Compile Include="Integration Tests\ListTests.cs" />
     <Compile Include="Integration Tests\MergeTests.cs" />
@@ -81,15 +83,10 @@
     <Compile Include="Utility\AsyncHelper.cs" />
     <Compile Include="Integration Tests\DeleteCollectionTests.cs" />
     <Compile Include="Integration Tests\CreateCollectionTests.cs" />
-    <Compile Include="TestFixtures\TestFixture.cs">
-      <SubType>Code</SubType>
-    </Compile>
     <Compile Include="Integration Tests\GetTests.cs" />
     <Compile Include="Integration Tests\DeleteTests.cs">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="Models\MergeTestData.cs" />
-    <Compile Include="Models\TestData.cs" />
     <Compile Include="Integration Tests\PatchTests.cs" />
     <Compile Include="Integration Tests\AddTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

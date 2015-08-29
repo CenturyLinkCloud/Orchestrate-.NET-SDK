@@ -8,18 +8,18 @@ public class InclusiveListTests : IClassFixture<ListTestFixture>
 
     public InclusiveListTests(ListTestFixture listTestFixture)
     {
-        collection = listTestFixture.Client.GetCollection(listTestFixture.CollectionName);
+        collection = listTestFixture.Collection;
     }
 
     [Fact]
     public async void Guards()
     {
         var exception = await Assert.ThrowsAsync<ArgumentOutOfRangeException>(
-            () => collection.InclusiveListAsync<TestData>(-1));
+            () => collection.InclusiveListAsync<Product>(-1));
         Assert.Equal("limit", exception.ParamName);
 
         exception = await Assert.ThrowsAsync<ArgumentOutOfRangeException>(
-            () => collection.InclusiveListAsync<TestData>(101));
+            () => collection.InclusiveListAsync<Product>(101));
         Assert.Equal("limit", exception.ParamName);
     }
 
@@ -27,7 +27,7 @@ public class InclusiveListTests : IClassFixture<ListTestFixture>
     public async void StartKeyAsync()
     {
         var listResult =
-            await collection.InclusiveListAsync<TestData>(startKey: "1");
+            await collection.InclusiveListAsync<Product>(startKey: "1");
 
         Assert.Collection(listResult.Items,
             result =>
@@ -54,7 +54,7 @@ public class InclusiveListTests : IClassFixture<ListTestFixture>
     public async void EndKeyAsync()
     {
         var listResult =
-            await collection.InclusiveListAsync<TestData>(endKey: "2");
+            await collection.InclusiveListAsync<Product>(endKey: "2");
 
         Assert.Collection(listResult.Items,
             result =>
@@ -76,8 +76,8 @@ public class InclusiveListTests : IClassFixture<ListTestFixture>
     public async void StartKeyAndEndKeyAsync()
     {
         var listResult =
-            await collection.InclusiveListAsync<TestData>(startKey: "1",
-                                                          endKey: "2");
+            await collection.InclusiveListAsync<Product>(startKey: "1",
+                                                         endKey: "2");
 
         Assert.Collection(listResult.Items,
             result =>
@@ -99,7 +99,7 @@ public class InclusiveListTests : IClassFixture<ListTestFixture>
     public async void StartKeyGreaterThanExistingKeysAsync()
     {
         var listResult =
-            await collection.InclusiveListAsync<TestData>(startKey: "4");
+            await collection.InclusiveListAsync<Product>(startKey: "4");
 
         Assert.Equal(0, listResult.Count);
         Assert.Null(listResult.Next);
@@ -109,8 +109,8 @@ public class InclusiveListTests : IClassFixture<ListTestFixture>
     public async void InvalidKeysAsync()
     {
         var listResult =
-            await collection.InclusiveListAsync<TestData>(startKey: "3",
-                                                          endKey: "1");
+            await collection.InclusiveListAsync<Product>(startKey: "3",
+                                                         endKey: "1");
 
         Assert.Equal(0, listResult.Count);
         Assert.Null(listResult.Next);

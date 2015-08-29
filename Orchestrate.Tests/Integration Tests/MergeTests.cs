@@ -3,17 +3,28 @@ using Xunit;
 using Orchestrate.Io;
 using System.Net;
 using NSubstitute;
+using System.Dynamic;
 
-public class MergeTests : IClassFixture<TestFixture>
+public class MergeTests : IClassFixture<TestFixture>, IDisposable
 {
     string collectionName;
     Collection collection;
+    Product product;
+    string productKey;
 
     public MergeTests(TestFixture testFixture)
     {
         collectionName = testFixture.CollectionName;
-
         collection = testFixture.Client.GetCollection(testFixture.CollectionName);
+
+        product = new Product { Id = 1, Name = "Bread", Description = "Grain bread", Price = 2.50M, Rating = 4 };
+        productKey = "1";
+        AsyncHelper.RunSync(() => collection.TryAddAsync(productKey, product));
+    }
+
+    public void Dispose()
+    {
+        AsyncHelper.RunSync(() => collection.DeleteAsync(productKey));
     }
 
     [Fact]
@@ -38,21 +49,22 @@ public class MergeTests : IClassFixture<TestFixture>
     [Fact]
     public async void MergeSuccess()
     {
-        var testData = await collection.GetAsync<TestData>("1");
+        var productMetaData = await collection.GetAsync<Product>(productKey);
 
-        var item = new MergeTestData
-        { MergeValue = "Merge Value" };
+        string dateTime = DateTime.UtcNow.ToString("s");
+        dynamic mergeItem = new ExpandoObject();
+        mergeItem.releaseDate = dateTime;
 
-        var kvMetaData = await collection.MergeAsync(testData.Key, item);
+        var kvMetaData = await collection.MergeAsync(productMetaData.Key, mergeItem);
 
         Assert.Equal(collectionName, kvMetaData.CollectionName);
         Assert.Contains(kvMetaData.Key, kvMetaData.Location);
         Assert.True(kvMetaData.VersionReference.Length > 0);
         Assert.Contains(kvMetaData.VersionReference, kvMetaData.Location);
 
-        var kvObject = await collection.GetAsync<TestData>("1");
-
-        Assert.Contains("MergeValue", kvObject.RawValue);
+        var kvObject = await collection.GetAsync<dynamic>(productKey);
+        var product = kvObject.Value;
+        Assert.Equal(dateTime, product.releaseDate.ToString("s"));
     }
 
     [Fact]

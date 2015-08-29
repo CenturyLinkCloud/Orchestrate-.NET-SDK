@@ -4,18 +4,26 @@ using Orchestrate.Io;
 using System.Net;
 using NSubstitute;
 
-public class GetTests : IClassFixture<TestFixture>
+public class GetTests : IClassFixture<TestFixture>, IDisposable
 {
-    string collectionName; 
+    string collectionName;
     Collection collection;
-    TestData testData; 
+    Product product;
+    string productKey;
 
     public GetTests(TestFixture testFixture)
     {
         collectionName = testFixture.CollectionName;
-        testData = testFixture.TestData;
-
         collection = testFixture.Client.GetCollection(testFixture.CollectionName);
+
+        product = new Product { Id = 1, Name = "Bread", Description = "Whole grain bread", Price = 2.50M, Rating = 4 };
+        productKey = "1";
+        AsyncHelper.RunSync(() => collection.TryAddAsync(productKey, product));
+    }
+
+    public void Dispose()
+    {
+        AsyncHelper.RunSync(() => collection.DeleteAsync(productKey));
     }
 
     [Fact]
@@ -35,16 +43,16 @@ public class GetTests : IClassFixture<TestFixture>
     [Fact]
     public async void GetSuccess()
     {
-        var kvObject = await collection.GetAsync<TestData>("1");
+        var kvObject = await collection.GetAsync<Product>(productKey);
 
         Assert.Equal(collectionName, kvObject.CollectionName);
-        Assert.Equal("1", kvObject.Key);
+        Assert.Equal(productKey, kvObject.Key);
         Assert.True(kvObject.VersionReference.Length > 0);
         Assert.Empty(kvObject.Location);
 
-        TestData actualTestData = kvObject.Value;
-        Assert.Equal(testData.Id, actualTestData.Id);
-        Assert.Equal(testData.Value, actualTestData.Value);
+        Product actualProduct = kvObject.Value;
+        Assert.Equal(product.Id, actualProduct.Id);
+        Assert.Equal(product.Name, actualProduct.Name);
     }
 
     [Fact]
