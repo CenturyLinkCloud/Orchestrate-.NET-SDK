@@ -53,6 +53,16 @@ namespace Orchestrate.Io
             }
         }
 
+        public Task<SearchResults<T>> SearchAsync<T>(string field, decimal latitude, decimal longitude, string distance)
+        {
+            string luceneQuery = string.Format("{0}:NEAR:{4}lat:{1} lon:{2} dist:{3}{5}", field, 
+                                                                                          latitude.ToString(), 
+                                                                                          longitude.ToString(), 
+                                                                                          distance,
+                                                                                          "{",
+                                                                                          "}");
+            return SearchAsync<T>(luceneQuery);
+        }
 
         public async Task<ListResults<T>> ListAsync<T>(int limit = 100)
         {

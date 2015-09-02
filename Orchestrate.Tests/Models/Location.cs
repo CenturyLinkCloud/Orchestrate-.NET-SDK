@@ -7,10 +7,10 @@ public class Location
     public string Name { get; set; }
 
     [JsonProperty("coordinates")]
-    public GpsCoordinates Coordinates { get; set; }
+    public GeoCoordinate GeoCoordinate { get; set; }
 }
 
-public class GpsCoordinates
+public class GeoCoordinate
 {
     [JsonProperty("latitude")]
     public decimal Latitude { get; set; }
