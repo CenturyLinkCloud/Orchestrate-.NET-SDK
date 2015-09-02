@@ -1,9 +1,11 @@
 ﻿using Newtonsoft.Json;
 using System.Collections.Generic;
+using System.Collections;
 
 namespace Orchestrate.Io
 {
-    public class ListResults<T>
+    [JsonObject]
+    public class ListResults<T> : IEnumerable<T>
     {
         [JsonProperty("count")]
         public int Count { get; set; }
@@ -13,5 +15,14 @@ namespace Orchestrate.Io
 
         [JsonProperty("next")]
         public string Next { get; set; }
+
+        public IEnumerator<T> GetEnumerator()
+        {
+            foreach (ListItem<T> listItem in Items)
+                yield return listItem.Value;
+        }
+
+        IEnumerator IEnumerable.GetEnumerator()
+        { return GetEnumerator(); }
     }
 }

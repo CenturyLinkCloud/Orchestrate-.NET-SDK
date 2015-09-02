@@ -168,6 +168,19 @@ public class SearchTests : IClassFixture<ListTestFixture>
         Assert.Equal(HttpStatusCode.BadRequest, exception.StatusCode);
     }
 
+    [Fact]
+    public async void EnumerateSearchAsync()
+    {
+        var searchResult = await collection.SearchAsync<Product>("*");
+        Assert.Equal(3, searchResult.Count);
+
+        int count = 0;
+        foreach (Product product in searchResult)
+            count++;
+
+        Assert.Equal(3, count);
+    }
+
 
     [Fact]
     public async void InvalidCredentialsThrowsRequestException()

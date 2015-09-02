@@ -61,4 +61,17 @@ public class ListTests : IClassFixture<ListTestFixture>
 
         Assert.Contains("afterKey=2", listResult.Next);
     }
+
+    [Fact]
+    public async void EnumerateListAsync()
+    {
+        var listResult = await collection.ListAsync<Product>();
+        Assert.Equal(3, listResult.Count);
+
+        int count = 0;
+        foreach (Product product in listResult)
+            count++;
+
+        Assert.Equal(3, count);
+    }
 }
