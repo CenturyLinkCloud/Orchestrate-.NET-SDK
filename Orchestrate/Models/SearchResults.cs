@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System;
 using System.Collections;
+using System.Linq;
 
 namespace Orchestrate.Io
 {
@@ -25,8 +26,7 @@ namespace Orchestrate.Io
 
         public IEnumerator<T> GetEnumerator()
         {
-            foreach (SearchItem<T> searchItem in Items)
-                yield return searchItem.Value;
+            return Items.Select(i => i.Value).GetEnumerator();
         }
 
         IEnumerator IEnumerable.GetEnumerator()

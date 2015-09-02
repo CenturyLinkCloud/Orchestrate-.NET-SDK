@@ -1,6 +1,7 @@
 ﻿using Newtonsoft.Json;
 using System.Collections.Generic;
 using System.Collections;
+using System.Linq;
 
 namespace Orchestrate.Io
 {
@@ -18,8 +19,7 @@ namespace Orchestrate.Io
 
         public IEnumerator<T> GetEnumerator()
         {
-            foreach (ListItem<T> listItem in Items)
-                yield return listItem.Value;
+            return Items.Select(i => i.Value).GetEnumerator();
         }
 
         IEnumerator IEnumerable.GetEnumerator()
