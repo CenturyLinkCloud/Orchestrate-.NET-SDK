@@ -2,7 +2,6 @@
 using Orchestrate.Io;
 using Xunit;
 using System.Net;
-using NSubstitute;
 using System.Dynamic;
 
 public class DeleteCollectionTests
@@ -12,7 +11,7 @@ public class DeleteCollectionTests
     [Fact]
     public async void Guards()
     {
-        Application application = new Application("OrchestrateApiKey");
+        Application application = new Application(EnvironmentHelper.ApiKey("OrchestrateApiKey"));
         var client = new Client(application);
 
         var exception = await Assert.ThrowsAsync<ArgumentException>(
@@ -29,7 +28,7 @@ public class DeleteCollectionTests
     [Fact]
     public async void DeleteSuccess()
     {
-        Application application = new Application("OrchestrateApiKey");
+        Application application = new Application(EnvironmentHelper.ApiKey("OrchestrateApiKey"));
         var client = new Client(application);
 
         dynamic item = new ExpandoObject();
@@ -43,10 +42,7 @@ public class DeleteCollectionTests
     [Fact]
     public async void InvalidCredentialsThrowsRequestException()
     {
-        var application = Substitute.For<IApplication>();
-        application.Key.Returns("HaHa");
-        application.HostUrl.Returns("https://api.orchestrate.io/v0");
-
+        var application = new Application("HaHa");
         var client = new Client(application);
 
         var exception = await Assert.ThrowsAsync<RequestException>(
@@ -61,7 +57,7 @@ public class DeleteCollectionTests
     [Fact]
     public async void DeleteNonExistantCollectionSuccess()
     {
-        Application application = new Application("OrchestrateApiKey");
+        Application application = new Application(EnvironmentHelper.ApiKey("OrchestrateApiKey"));
         var client = new Client(application);
 
         await client.DeleteCollectionAsync("NonExistantCollection");

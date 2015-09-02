@@ -11,7 +11,7 @@ public class TestFixture : IDisposable
 
     public TestFixture()
     {
-        Application = new Application("OrchestrateApiKey");
+        Application = new Application(EnvironmentHelper.ApiKey("OrchestrateApiKey"));
         Client = new Client(Application);
 
         CollectionName = Path.GetRandomFileName();

@@ -1,16 +1,17 @@
-﻿using System;
-
-namespace Orchestrate.Io
+﻿namespace Orchestrate.Io
 {
     /// <summary>
     /// This is a utility class provided as an implementation of the 
-    /// <see cref="IApplication"/> interface that looks for the Orchestrate 
-    /// Application Key in a specified environment variable. It also provides 
-    /// a default URL for the Orchestrate API. 
+    /// <see cref="IApplication"/> interface that associates the API Key with the 
+    /// specific URL for the data center that hosts your database. 
     /// </summary>
     public class Application : IApplication
     {
-        string envVariable;
+        /// <summary>
+        /// This is the API key that you retrieve from the Orchestrate Website for your specific application. 
+        /// </summary>
+        public string Key { get; private set; }
+
         string host;  
 
         /// <summary>
@@ -18,29 +19,12 @@ namespace Orchestrate.Io
         /// You can optionally provide a differenet URL which allows access to Orchestrate in 
         /// mutiple data centers. 
         /// </summary>
-        /// <param name="emvironmentVariable">The environment variable that holds the Orchestrate Application Key</param>
+        /// <param name="apiKey">The environment variable that holds the Orchestrate Application Key</param>
         /// <param name="host">The API Host URL</param>
-        public Application(string envVariable, string host = "https://api.orchestrate.io/")
+        public Application(string apiKey, string host = "https://api.orchestrate.io/")
         {
-            this.envVariable = envVariable;
+            Key = apiKey;
             this.host = host;
-        }
-
-        /// <summary>
-        /// The Key will lookup the passed in named environment variable for the 
-        /// Orchestrate API key. If the environment variable is not present 
-        /// it will return null. 
-        /// </summary>
-        public string Key
-        {
-            get
-            {
-                string result = Environment.GetEnvironmentVariable(envVariable);
-                if (result == null)
-                    return string.Empty;
-
-                return result;
-            }
         }
 
         /// <inheritdoc/>

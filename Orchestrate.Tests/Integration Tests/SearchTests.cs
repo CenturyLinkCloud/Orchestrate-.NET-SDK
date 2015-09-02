@@ -1,5 +1,4 @@
-﻿using NSubstitute;
-using Orchestrate.Io;
+﻿using Orchestrate.Io;
 using System;
 using System.Linq;
 using System.Net;
@@ -173,10 +172,7 @@ public class SearchTests : IClassFixture<ListTestFixture>
     [Fact]
     public async void InvalidCredentialsThrowsRequestException()
     {
-        var application = Substitute.For<IApplication>();
-        application.Key.Returns("HaHa");
-        application.HostUrl.Returns("https://api.orchestrate.io/v0");
-
+        var application = new Application("HaHa");
         var client = new Client(application);
         var collection = client.GetCollection(collectionName);
 

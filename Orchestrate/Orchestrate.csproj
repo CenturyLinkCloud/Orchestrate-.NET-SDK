@@ -65,6 +65,7 @@
     <Compile Include="Models\SearchItem.cs" />
     <Compile Include="Models\SearchResults.cs" />
     <Compile Include="SearchOptions.cs" />
+    <Compile Include="Utility\EnvironmentHelper.cs" />
     <Compile Include="Utility\HttpClientExtensions.cs" />
     <Compile Include="Utility\Guard.cs" />
     <Compile Include="Utility\HttpMessageExtensions.cs" />

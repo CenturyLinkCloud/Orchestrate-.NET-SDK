@@ -2,7 +2,6 @@
 using Xunit;
 using Orchestrate.Io;
 using System.Net;
-using NSubstitute;
 
 public class AddOrUpdateTests : IClassFixture<TestFixture>, IDisposable
 {
@@ -81,10 +80,7 @@ public class AddOrUpdateTests : IClassFixture<TestFixture>, IDisposable
     [Fact]
     public async void InvalidCredentialsThrowsRequestException()
     {
-        var application = Substitute.For<IApplication>();
-        application.Key.Returns("HaHa");
-        application.HostUrl.Returns("https://api.orchestrate.io/v0");
-
+        var application = new Application("HaHa");
         var client = new Client(application);
         var collection = client.GetCollection(collectionName);        
 

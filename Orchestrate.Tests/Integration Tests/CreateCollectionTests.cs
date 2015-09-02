@@ -1,5 +1,4 @@
-﻿using NSubstitute;
-using Orchestrate.Io;
+﻿using Orchestrate.Io;
 using System;
 using System.Dynamic;
 using System.Net;
@@ -44,7 +43,7 @@ public class CreateCollectionTests
     [Fact]
     public async void CreateCollectionSuccess()
     {
-        Application application = new Application("OrchestrateApiKey");
+        Application application = new Application(EnvironmentHelper.ApiKey("OrchestrateApiKey"));
         var client = new Client(application);
 
         try
@@ -69,10 +68,7 @@ public class CreateCollectionTests
     [Fact]
     public async void InvalidCredentialsThrowsRequestException()
     {
-        var application = Substitute.For<IApplication>();
-        application.Key.Returns("HaHa");
-        application.HostUrl.Returns("https://api.orchestrate.io/v0");
-
+        var application = new Application("HaHa");
         var client = new Client(application);
 
         var exception = await Assert.ThrowsAsync<RequestException>(
