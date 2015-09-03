@@ -28,4 +28,19 @@ Usage examples
     // Get a value
     var kvObject = await collection.GetAsync<dynamic>("Key");
     var dynamicValue = kvObject.Value;
+    
+    // Add a value 
+    var product = new Product { /* .... */ };
+    var kvMetaData = await collection.AddAsync(product);
+    
+    // Add a value, specifying the key
+    var product = new Product { /* .... */ };
+    var kvMetaData = await collection.TryAddAsync(product);
+    
+    // List items in a collection
+    var listResults = await collection.ListAsync<Product>();
+    foreach(Product product in listResults)
+    {
+        /* work on the specific product */
+    }
 ```
