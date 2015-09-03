@@ -35,7 +35,7 @@ Usage examples
     
     // Add a value, specifying the key
     var product = new Product { /* .... */ };
-    var kvMetaData = await collection.TryAddAsync(product);
+    var kvMetaData = await collection.TryAddAsync("Key", product);
     
     // List items in a collection
     var listResults = await collection.ListAsync<Product>();
