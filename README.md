@@ -17,15 +17,15 @@ Usage examples
     using Orchestrate.Io
 
     // Create an Application
-	var application = new Application("Your API Key");
+    var application = new Application("Your API Key");
 
-	// Create a Client
-	var client = new Client(application);
-
-	// Get a Collection
-	var collection = client.GetCollection("collection");
+    // Create a Client
+    var client = new Client(application);
+    
+    // Get a Collection
+    var collection = client.GetCollection("Collection Name");
 
     // Get a value
-	var kvObject = await collection.GetAsync<dynamic>("key");
-	var value = kvObject.Value;
+    var kvObject = await collection.GetAsync<dynamic>("Key");
+    var dynamicValue = kvObject.Value;
 ```
