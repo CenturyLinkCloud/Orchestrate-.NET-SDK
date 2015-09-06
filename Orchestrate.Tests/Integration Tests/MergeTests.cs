@@ -1,8 +1,8 @@
 ﻿using System;
-using Xunit;
-using Orchestrate.Io;
-using System.Net;
 using System.Dynamic;
+using System.Net;
+using Orchestrate.Io;
+using Xunit;
 
 public class MergeTests : IClassFixture<TestFixture>, IDisposable
 {

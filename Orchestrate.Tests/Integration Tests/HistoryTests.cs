@@ -1,6 +1,6 @@
-﻿using Orchestrate.Io;
-using System;
+﻿using System;
 using System.Net;
+using Orchestrate.Io;
 using Xunit;
 
 public class HistoryTests : IClassFixture<TestFixture>, IDisposable

@@ -1,8 +1,8 @@
 ﻿using System;
-using Xunit;
-using Orchestrate.Io;
 using System.Collections.Generic;
 using System.Net;
+using Orchestrate.Io;
+using Xunit;
 
 public class PatchTests : IClassFixture<TestFixture>, IDisposable
 {

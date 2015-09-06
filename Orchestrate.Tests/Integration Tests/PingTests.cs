@@ -1,5 +1,5 @@
-﻿using Orchestrate.Io;
-using System.Net;
+﻿using System.Net;
+using Orchestrate.Io;
 using Xunit;
 
 public class PingTests

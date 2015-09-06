@@ -1,7 +1,7 @@
 ﻿using System;
-using Xunit;
-using Orchestrate.Io;
 using System.Net;
+using Orchestrate.Io;
+using Xunit;
 
 public class AddOrUpdateTests : IClassFixture<TestFixture>, IDisposable
 {

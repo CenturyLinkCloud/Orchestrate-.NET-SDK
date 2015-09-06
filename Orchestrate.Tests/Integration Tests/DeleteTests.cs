@@ -1,7 +1,7 @@
 ﻿using System;
+using System.Net;
 using Orchestrate.Io;
 using Xunit;
-using System.Net;
 
 public class DeleteTests : IClassFixture<TestFixture>
 {

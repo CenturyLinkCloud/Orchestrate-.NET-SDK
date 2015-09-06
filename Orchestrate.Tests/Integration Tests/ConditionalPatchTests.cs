@@ -1,7 +1,7 @@
-﻿using Orchestrate.Io;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Net;
+using Orchestrate.Io;
 using Xunit;
 
 public class ConditionalPatchTests : IClassFixture<TestFixture>, IDisposable

@@ -1,25 +1,27 @@
-﻿using System;
+﻿using System.IO;
+using System.Threading.Tasks;
 using Orchestrate.Io;
-using System.IO;
+using Xunit;
 
-public class TestFixture : IDisposable
+public class TestFixture : IAsyncLifetime
 {
     public string CollectionName { get; private set; }
     public Client Client { get; private set; }
     public Application Application { get; private set; }
     public Collection Collection { get; private set; }
 
-    public TestFixture()
+    public virtual Task InitializeAsync()
     {
         Application = new Application(EnvironmentHelper.ApiKey("OrchestrateApiKey"));
         Client = new Client(Application);
 
         CollectionName = Path.GetRandomFileName();
         Collection = Client.GetCollection(CollectionName);
+        return Task.FromResult(0);
     }
 
-    public void Dispose()
+    public virtual Task DisposeAsync()
     {
-        AsyncHelper.RunSync(() => Client.DeleteCollectionAsync(CollectionName));
+        return Client.DeleteCollectionAsync(CollectionName);
     }
 }

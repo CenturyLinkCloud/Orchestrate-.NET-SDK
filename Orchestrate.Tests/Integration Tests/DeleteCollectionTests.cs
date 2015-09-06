@@ -1,8 +1,8 @@
 ﻿using System;
+using System.Dynamic;
+using System.Net;
 using Orchestrate.Io;
 using Xunit;
-using System.Net;
-using System.Dynamic;
 
 public class DeleteCollectionTests
 {

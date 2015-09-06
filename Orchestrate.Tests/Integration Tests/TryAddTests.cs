@@ -1,7 +1,7 @@
-﻿using Xunit;
-using Orchestrate.Io;
+﻿using System;
 using System.Net;
-using System;
+using Orchestrate.Io;
+using Xunit;
 
 public class TryAddTests : IClassFixture<TestFixture>
 {

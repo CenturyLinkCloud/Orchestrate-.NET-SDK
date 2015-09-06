@@ -1,5 +1,5 @@
-﻿using Orchestrate.Io;
-using System;
+﻿using System;
+using Orchestrate.Io;
 using Xunit;
 
 public class HttpUrlBuilderTests
