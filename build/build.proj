@@ -6,7 +6,7 @@
       AssemblyFile="..\packages\xunit.buildtasks\tools\CodePlex.MSBuildTasks.dll"
       TaskName="CodePlex.MSBuildTasks.Zip"/>
   <UsingTask
-      AssemblyFile="..\packages\xunit.runner.msbuild\build\portable-net45+netcore45+wp8+wpa81\xunit.runner.msbuild.dll"
+      AssemblyFile="..\packages\xunit.runner.msbuild\build\portable-net45+win8+wp8+wpa81\xunit.runner.msbuild.dll"
       TaskName="Xunit.Runner.MSBuild.Xunit"/>
 
   <!-- Settings -->
