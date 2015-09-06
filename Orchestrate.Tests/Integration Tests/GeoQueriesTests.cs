@@ -17,7 +17,7 @@ public class GeoQueriesTests : IClassFixture<TestFixture>, IDisposable
         Location location = new Location { Name = "Eiffel Tower", GeoCoordinate = coordinate };
         AsyncHelper.RunSync(() => collection.TryAddAsync("1", location));
 
-        SearchHelper.WaitForConsistency(collection, 1);
+        SearchHelper.WaitForConsistency(collection, "value.coordinates:NEAR:{lat:48.8 lon:2.3 dist:100km}", 1);
     }
 
     public void Dispose()
