@@ -40,17 +40,29 @@ namespace Orchestrate.Io
             }
 
             using (var httpClient = new HttpClient())
-            {
-                httpClient.AddAuthenticaion(apiKey);
-                var response = await httpClient.GetAsync(uri.ToString());
+                return await httpClient.GetAsync<SearchResults<T>>(apiKey, uri);
+        }
 
-                if (response.IsSuccessStatusCode)
-                {
-                    return await response.Content.ReadAsAsync<SearchResults<T>>();
-                }
-                else
-                    throw await RequestExceptionUtility.Make(response);
+        public async Task<ListResults<T>> HistoryAsync<T>(string productKey, HistoryOptions opts = null)
+        {
+            Guard.ArgumentNotNullOrEmpty("key", productKey);
+
+            HttpUrlBuilder uri = new HttpUrlBuilder(host)
+                                       .AppendPath(CollectionName)
+                                       .AppendPath(productKey)
+                                       .AppendPath("refs");
+
+            if(opts != null)
+            {
+                if (opts.Values == true)
+                    uri.AddQuery("values", "true");
+
+                uri.AddQuery("limit", opts.Limit.ToString());
+                uri.AddQuery("offset", opts.Offset.ToString());
             }
+
+            using (var httpClient = new HttpClient())
+                return await httpClient.GetAsync<ListResults<T>>(apiKey, uri);
         }
 
         public Task<SearchResults<T>> SearchAsync<T>(string field, decimal latitude, decimal longitude, string distance)
@@ -74,15 +86,7 @@ namespace Orchestrate.Io
                                                    .AddQuery("limit", limit.ToString());
 
             using (var httpClient = new HttpClient())
-            {
-                httpClient.AddAuthenticaion(apiKey);
-                var response = await httpClient.GetAsync(uri.ToString());
-
-                if (response.IsSuccessStatusCode)
-                    return await response.Content.ReadAsAsync<ListResults<T>>();
-                else
-                    throw await RequestExceptionUtility.Make(response);
-            }
+                return await httpClient.GetAsync<ListResults<T>>(apiKey, uri);
         }
 
         public async Task<KvMetadata> AddAsync<T>(T item)
@@ -122,15 +126,7 @@ namespace Orchestrate.Io
                 uri.AddQuery("afterKey", afterKey);
 
             using (var httpClient = new HttpClient())
-            {
-                httpClient.AddAuthenticaion(apiKey);
-                var response = await httpClient.GetAsync(uri.ToString());
-
-                if (response.IsSuccessStatusCode)
-                    return await response.Content.ReadAsAsync<ListResults<T>>();
-                else
-                    throw await RequestExceptionUtility.Make(response);
-            }
+                return await httpClient.GetAsync<ListResults<T>>(apiKey, uri);
         }
 
 
@@ -152,15 +148,7 @@ namespace Orchestrate.Io
                 uri.AddQuery("endKey", endKey);
 
             using (var httpClient = new HttpClient())
-            {
-                httpClient.AddAuthenticaion(apiKey);
-                var response = await httpClient.GetAsync(uri.ToString());
-
-                if (response.IsSuccessStatusCode)
-                    return await response.Content.ReadAsAsync<ListResults<T>>();
-                else
-                    throw await RequestExceptionUtility.Make(response);
-            }
+                return await httpClient.GetAsync<ListResults<T>>(apiKey, uri);
         }
 
         public async Task<KvMetadata> AddOrUpdateAsync<T>(string key,
@@ -181,7 +169,6 @@ namespace Orchestrate.Io
 
             if (item != null)
                 message.AddContent(item);
-
 
             using (var httpClient = new HttpClient())
             {

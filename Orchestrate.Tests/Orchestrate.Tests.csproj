@@ -62,6 +62,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="HistoryOptionsTests.cs" />
     <Compile Include="HttpUrlBuilderTests.cs" />
     <Compile Include="Integration Tests\CollectionTests.cs" />
     <Compile Include="Integration Tests\ConditionalMergeTests.cs" />
@@ -70,6 +71,7 @@
     <Compile Include="Integration Tests\DataCenterTests.cs" />
     <Compile Include="Integration Tests\ExclusiveListTests.cs" />
     <Compile Include="Integration Tests\GeoQueriesTests.cs" />
+    <Compile Include="Integration Tests\HistoryTests.cs" />
     <Compile Include="Integration Tests\InclusiveListTests.cs" />
     <Compile Include="Integration Tests\SearchTests.cs" />
     <Compile Include="Models\Location.cs" />

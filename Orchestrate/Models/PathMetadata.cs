@@ -18,5 +18,8 @@ namespace Orchestrate.Io
 
         [JsonProperty("reftime")]
         public object ReferenceTime { get; set; }
+
+        [JsonProperty("tombstone")]
+        public bool Tombstone { get; set; }
     }
 }

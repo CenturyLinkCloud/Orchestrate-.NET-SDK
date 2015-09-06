@@ -33,12 +33,12 @@ public class ExclusiveListTests : IClassFixture<ListTestFixture>
             result =>
             {
                 Assert.Equal(2, result.Value.Id);
-                Assert.Equal("2", result.OrchestratePath.Key);
+                Assert.Equal("2", result.PathMetadata.Key);
             },
             result =>
             {
                 Assert.Equal(3, result.Value.Id);
-                Assert.Equal("3", result.OrchestratePath.Key);
+                Assert.Equal("3", result.PathMetadata.Key);
             }
         );
 
@@ -55,7 +55,7 @@ public class ExclusiveListTests : IClassFixture<ListTestFixture>
             result =>
             {
                 Assert.Equal(1, result.Value.Id);
-                Assert.Equal("1", result.OrchestratePath.Key);
+                Assert.Equal("1", result.PathMetadata.Key);
             }
         );
 
@@ -73,7 +73,7 @@ public class ExclusiveListTests : IClassFixture<ListTestFixture>
             result =>
             {
                 Assert.Equal(2, result.Value.Id);
-                Assert.Equal("2", result.OrchestratePath.Key);
+                Assert.Equal("2", result.PathMetadata.Key);
             }
         );
 

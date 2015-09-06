@@ -13,7 +13,7 @@ public static class SearchHelper
                 AsyncHelper.RunSync<SearchResults<dynamic>>(() => collection.SearchAsync<dynamic>("*"));
             count++;
         }
-        while (searchResults.Count < searchCount && count < 25);
+        while (searchResults.Count < searchCount);
     }
 }
 

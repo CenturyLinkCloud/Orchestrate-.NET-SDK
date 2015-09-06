@@ -55,6 +55,7 @@
     <Compile Include="Exceptions\NotFoundException.cs" />
     <Compile Include="Exceptions\PatchConflictException.cs" />
     <Compile Include="Exceptions\RequestException.cs" />
+    <Compile Include="HistoryOptions.cs" />
     <Compile Include="IApplication.cs" />
     <Compile Include="Models\ListResults.cs" />
     <Compile Include="Models\ListItem.cs" />
