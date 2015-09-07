@@ -3,31 +3,19 @@ using System.Net;
 using Orchestrate.Io;
 using Xunit;
 
-public class HistoryTests : IClassFixture<TestFixture>, IDisposable
+public class HistoryTests : IClassFixture<HistoryTestFixture>
 {
     string collectionName;
     Collection collection;
     Product product;
     string productKey;
 
-    public HistoryTests(TestFixture testFixture)
+    public HistoryTests(HistoryTestFixture testFixture)
     {
         collectionName = testFixture.CollectionName;
         collection = testFixture.Client.GetCollection(testFixture.CollectionName);
-
-        product = new Product { Id = 1, Name = "Bread", Description = "Grain Bread", Price = 2.50M, Rating = 4 };
-        productKey = "1";
-        AsyncHelper.RunSync(() => collection.TryAddAsync(productKey, product));
-
-        AsyncHelper.RunSync(() => collection.DeleteAsync("1", purge: false));
-
-        product.Description = "Whole Grain Bread";
-        AsyncHelper.RunSync(() => collection.AddOrUpdateAsync(productKey, product));
-    }
-
-    public void Dispose()
-    {
-        AsyncHelper.RunSync(() => collection.DeleteAsync(productKey));
+        product = testFixture.Product;
+        productKey = testFixture.Key;
     }
 
     [Fact]

@@ -11,7 +11,6 @@ public class TryAddTests : IClassFixture<TestFixture>
     public TryAddTests(TestFixture testFixture)
     {
         collectionName = testFixture.CollectionName;
-
         collection = testFixture.Client.GetCollection(testFixture.CollectionName);
     }
 

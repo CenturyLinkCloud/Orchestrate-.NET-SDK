@@ -11,7 +11,6 @@ public class DeleteTests : IClassFixture<TestFixture>
     public DeleteTests(TestFixture testFixture)
     {
         collectionName = testFixture.CollectionName;
-
         collection = testFixture.Client.GetCollection(testFixture.CollectionName);
     }
 

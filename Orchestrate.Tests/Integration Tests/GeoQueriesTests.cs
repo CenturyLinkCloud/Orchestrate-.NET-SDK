@@ -1,28 +1,20 @@
-﻿using System;
-using System.Net;
+﻿using System.Net;
 using Orchestrate.Io;
 using Xunit;
 
-public class GeoQueriesTests : IClassFixture<TestFixture>, IDisposable
+public class GeoQueriesTests : IClassFixture<LocationTestFixture>
 {
     Collection collection;
     string collectionName;
+    Location location;
+    string locationKey; 
 
-    public GeoQueriesTests(TestFixture testFixture)
+    public GeoQueriesTests(LocationTestFixture testFixture)
     {
         collection = testFixture.Collection;
         collectionName = testFixture.CollectionName;
-
-        GeoCoordinate coordinate = new GeoCoordinate { Latitude = 48.8582M, Longitude = 2.2945M };
-        Location location = new Location { Name = "Eiffel Tower", GeoCoordinate = coordinate };
-        AsyncHelper.RunSync(() => collection.TryAddAsync("1", location));
-
-        SearchHelper.WaitForConsistency(collection, "value.coordinates:NEAR:{lat:48.8 lon:2.3 dist:100km}", 1);
-    }
-
-    public void Dispose()
-    {
-        AsyncHelper.RunSync(() => collection.DeleteAsync("1"));
+        location = testFixture.Location;
+        locationKey = testFixture.Key;
     }
 
     [Fact]

@@ -80,6 +80,9 @@
     <Compile Include="Models\Location.cs" />
     <Compile Include="Models\Product.cs" />
     <Compile Include="SearchOptionsTests.cs" />
+    <Compile Include="TestFixtures\HistoryTestFixture.cs" />
+    <Compile Include="TestFixtures\LocationTestFixture.cs" />
+    <Compile Include="TestFixtures\ProductTestFixture.cs" />
     <Compile Include="TestFixtures\TestFixture.cs" />
     <Compile Include="TestFixtures\ListTestFixture.cs" />
     <Compile Include="Integration Tests\ListTests.cs" />
@@ -87,7 +90,6 @@
     <Compile Include="Integration Tests\PingTests.cs" />
     <Compile Include="Integration Tests\TryAddTests.cs" />
     <Compile Include="Integration Tests\UpdateTests.cs" />
-    <Compile Include="Utility\AsyncHelper.cs" />
     <Compile Include="Integration Tests\DeleteCollectionTests.cs" />
     <Compile Include="Integration Tests\CreateCollectionTests.cs" />
     <Compile Include="Integration Tests\GetTests.cs" />
