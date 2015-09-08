@@ -13,8 +13,6 @@ public class SearchTests : IClassFixture<ListTestFixture>
     {
         collection = listTestFixture.Collection;
         collectionName = listTestFixture.CollectionName;
-
-        SearchHelper.WaitForConsistency(collection, "*", 3);
     }
 
     [Fact]

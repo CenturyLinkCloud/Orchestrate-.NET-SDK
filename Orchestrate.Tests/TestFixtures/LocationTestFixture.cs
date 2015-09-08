@@ -14,7 +14,7 @@ public class LocationTestFixture : TestFixture
         Key = "1";
         await Collection.TryAddAsync(Key, Location);
 
-        SearchHelper.WaitForConsistency(Collection, "value.coordinates:NEAR:{lat:48.8 lon:2.3 dist:100km}", 1);
+        await SearchHelper.WaitForConsistency(Collection, "value.coordinates:NEAR:{lat:48.8 lon:2.3 dist:100km}", 1);
     }
 
     public async override Task DisposeAsync()

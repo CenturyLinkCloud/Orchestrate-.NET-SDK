@@ -1,9 +1,10 @@
-﻿using Orchestrate.Io;
+﻿using System.Threading.Tasks;
+using Orchestrate.Io;
 
 
 public static class SearchHelper
 {
-    public async static void WaitForConsistency(Collection collection, string query, int searchCount)
+    public async static Task WaitForConsistency(Collection collection, string query, int searchCount)
     {
         int count = 0;
         SearchResults<dynamic> searchResults;
@@ -13,6 +14,8 @@ public static class SearchHelper
             count++;
         }
         while (searchResults.Count < searchCount);
+
+        return;
     }
 }
 

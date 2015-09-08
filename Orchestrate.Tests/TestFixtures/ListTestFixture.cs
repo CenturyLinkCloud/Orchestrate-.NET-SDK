@@ -15,5 +15,7 @@ public class ListTestFixture : TestFixture
 
         var item3 = new Product { Id = 3, Name = "Vint Soda", Description = "Americana Variety - Mix of 6 flavors", Price = 20.90M, Rating = 3 };
         await Collection.TryAddAsync("3", item3);
+
+        await SearchHelper.WaitForConsistency(Collection, "*", 3);
     }
 }
