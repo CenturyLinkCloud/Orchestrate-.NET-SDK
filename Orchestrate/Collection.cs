@@ -58,18 +58,19 @@ namespace Orchestrate.Io
                 return await httpClient.GetAsync<ListResults<T>>(apiKey, uri);
         }
 
-        public async Task<T> GetLinkAsync<T>(string key, string kind, GraphNode toNode)
+        public async Task<T> GetLinkAsync<T>(string key, string kind, GraphNode destinationNode)
         {
             Guard.ArgumentNotNullOrEmpty("key", key);
             Guard.ArgumentNotNullOrEmpty("kind", kind);
+            Guard.ArgumentNotNull("destination node", destinationNode);
 
             HttpUrlBuilder uri = new HttpUrlBuilder(host)
                                                     .AppendPath(CollectionName)
                                                     .AppendPath(key)
-                                                    .AppendPath("relations")
+                                                    .AppendPath("relation")
                                                     .AppendPath(kind)
-                                                    .AppendPath(toNode.CollectionName)
-                                                    .AppendPath(toNode.Key);
+                                                    .AppendPath(destinationNode.CollectionName)
+                                                    .AppendPath(destinationNode.Key);
 
             using (var httpClient = new HttpClient())
                 return await httpClient.GetAsync<T>(apiKey, uri);
