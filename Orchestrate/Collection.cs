@@ -43,6 +43,38 @@ namespace Orchestrate.Io
                 return await httpClient.GetAsync<SearchResults<T>>(apiKey, uri);
         }
 
+        public async Task<ListResults<T>> GetLinkAsync<T>(string key, string kind)
+        {
+            Guard.ArgumentNotNullOrEmpty("key", key);
+            Guard.ArgumentNotNullOrEmpty("kind", kind);
+
+            HttpUrlBuilder uri = new HttpUrlBuilder(host)
+                                                    .AppendPath(CollectionName)
+                                                    .AppendPath(key)
+                                                    .AppendPath("relations")
+                                                    .AppendPath(kind);
+
+            using (var httpClient = new HttpClient())
+                return await httpClient.GetAsync<ListResults<T>>(apiKey, uri);
+        }
+
+        public async Task<T> GetLinkAsync<T>(string key, string kind, GraphNode toNode)
+        {
+            Guard.ArgumentNotNullOrEmpty("key", key);
+            Guard.ArgumentNotNullOrEmpty("kind", kind);
+
+            HttpUrlBuilder uri = new HttpUrlBuilder(host)
+                                                    .AppendPath(CollectionName)
+                                                    .AppendPath(key)
+                                                    .AppendPath("relations")
+                                                    .AppendPath(kind)
+                                                    .AppendPath(toNode.CollectionName)
+                                                    .AppendPath(toNode.Key);
+
+            using (var httpClient = new HttpClient())
+                return await httpClient.GetAsync<T>(apiKey, uri);
+        }
+
         public async Task<ListResults<T>> HistoryAsync<T>(string productKey, HistoryOptions opts = null)
         {
             Guard.ArgumentNotNullOrEmpty("key", productKey);

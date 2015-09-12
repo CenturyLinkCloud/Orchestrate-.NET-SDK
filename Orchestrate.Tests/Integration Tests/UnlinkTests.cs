@@ -1,14 +1,13 @@
 ﻿using System;
-using System.Dynamic;
 using System.Net;
 using Orchestrate.Io;
 using Xunit;
 
-public class LinkTests : IClassFixture<GraphTestFixture>
+public class UnlinkTests : IClassFixture<GraphTestFixture>
 {
     GraphTestFixture testFixture;
 
-    public LinkTests(GraphTestFixture testFixture)
+    public UnlinkTests(GraphTestFixture testFixture)
     {
         this.testFixture = testFixture;
     }
@@ -17,79 +16,34 @@ public class LinkTests : IClassFixture<GraphTestFixture>
     public async void Guards()
     {
         ArgumentException exception = await Assert.ThrowsAsync<ArgumentNullException>(
-            () => testFixture.Client.LinkAsync(null, String.Empty, null));
+            () => testFixture.Client.UnlinkAsync(null, String.Empty, null));
         Assert.Equal("fromNode", exception.ParamName);
 
         exception = await Assert.ThrowsAsync<ArgumentException>(
-            () => testFixture.Client.LinkAsync(new GraphNode(), String.Empty, null));
+            () => testFixture.Client.UnlinkAsync(new GraphNode(), String.Empty, null));
         Assert.Equal("kind", exception.ParamName);
 
         exception = await Assert.ThrowsAsync<ArgumentNullException>(
-            () => testFixture.Client.LinkAsync(new GraphNode(), null, null));
+            () => testFixture.Client.UnlinkAsync(new GraphNode(), null, null));
         Assert.Equal("kind", exception.ParamName);
 
         exception = await Assert.ThrowsAsync<ArgumentNullException>(
-            () => testFixture.Client.LinkAsync(new GraphNode(), "1", null));
+            () => testFixture.Client.UnlinkAsync(new GraphNode(), "1", null));
         Assert.Equal("toNode", exception.ParamName);
     }
 
     [Fact]
-    public async void LinkSucceeds()
+    public async void UnLinkSucceeds()
     {
         GraphNode fromNode = new GraphNode { CollectionName = testFixture.UserCollection.CollectionName, Key = testFixture.UserKey };
         GraphNode toNode = new GraphNode { CollectionName = testFixture.Collection.CollectionName, Key = testFixture.ProductKey };
+        await testFixture.Client.LinkAsync(fromNode, "purchased", toNode);
 
-        try
-        {
-            var kvMetaData = await testFixture.Client.LinkAsync(fromNode, "purchased", toNode);
-
-            Assert.Equal(fromNode.CollectionName, kvMetaData.CollectionName);
-            Assert.Equal(fromNode.Key, kvMetaData.Key);
-            Assert.True(kvMetaData.VersionReference.Length > 0);
-            var location = String.Format("/v0/{0}/{1}/relation/purchased/{2}/{3}",
-                                         fromNode.CollectionName,
-                                         fromNode.Key,
-                                         toNode.CollectionName,
-                                         toNode.Key);
-            Assert.Equal(location, kvMetaData.Location);
-        }
-        finally
-        {
-            await testFixture.Client.UnlinkAsync(fromNode, "purchased", toNode);
-        }
+        await testFixture.Client.UnlinkAsync(fromNode, "purchased", toNode);
     }
 
     [Fact]
-    public async void LinkWithPropertiesSucceeds()
-    {
-        GraphNode fromNode = new GraphNode { CollectionName = testFixture.UserCollection.CollectionName, Key = testFixture.UserKey };
-        GraphNode toNode = new GraphNode { CollectionName = testFixture.Collection.CollectionName, Key = testFixture.ProductKey };
-
-        dynamic properties = new ExpandoObject();
-        properties.rating = "3 stars";
-
-        try
-        {
-            var kvMetaData = await testFixture.Client.LinkAsync(fromNode, "purchased", toNode, properties);
-
-            Assert.Equal(fromNode.CollectionName, kvMetaData.CollectionName);
-            Assert.Equal(fromNode.Key, kvMetaData.Key);
-            Assert.True(kvMetaData.VersionReference.Length > 0);
-            var location = String.Format("/v0/{0}/{1}/relation/purchased/{2}/{3}",
-                                         fromNode.CollectionName,
-                                         fromNode.Key,
-                                         toNode.CollectionName,
-                                         toNode.Key);
-            Assert.Equal(location, kvMetaData.Location);
-        }
-        finally
-        {
-            await testFixture.Client.UnlinkAsync(fromNode, "purchased", toNode);
-        }
-    }
-
-    [Fact]
-    public async void LinkWithInvalidFromCollectionReturnsNotFound()
+    public async void UnlinkWithInvalidFromCollectionReturnsNotFound()
     {
         GraphNode fromNode = new GraphNode { CollectionName = ":(", Key = testFixture.UserKey };
         GraphNode toNode = new GraphNode { CollectionName = testFixture.Collection.CollectionName, Key = testFixture.ProductKey };
@@ -97,7 +51,7 @@ public class LinkTests : IClassFixture<GraphTestFixture>
         try
         {
             var exception = await Assert.ThrowsAsync<NotFoundException>(
-                                    () => testFixture.Client.LinkAsync(fromNode, "kind", toNode));
+                                    () => testFixture.Client.UnlinkAsync(fromNode, "kind", toNode));
 
             Assert.Equal(HttpStatusCode.NotFound, exception.StatusCode);
             var errorMessage = String.Format("Key: 1 was not found in collection: {0}", fromNode.CollectionName);
@@ -110,13 +64,13 @@ public class LinkTests : IClassFixture<GraphTestFixture>
     }
 
     [Fact]
-    public async void LinkWithInvalidKeyInFromCollectionReturnsNotFound()
+    public async void UnkinkWithInvalidKeyInFromCollectionReturnsNotFound()
     {
         GraphNode fromNode = new GraphNode { CollectionName = testFixture.UserCollection.CollectionName, Key = "9999" };
         GraphNode toNode = new GraphNode { CollectionName = testFixture.Collection.CollectionName, Key = testFixture.ProductKey };
 
         var exception = await Assert.ThrowsAsync<NotFoundException>(
-                                () => testFixture.Client.LinkAsync(fromNode, "kind", toNode));
+                                () => testFixture.Client.UnlinkAsync(fromNode, "kind", toNode));
 
         Assert.Equal(HttpStatusCode.NotFound, exception.StatusCode);
         var errorMessage = String.Format("Key: 9999 was not found in collection: {0}", fromNode.CollectionName);
@@ -124,13 +78,13 @@ public class LinkTests : IClassFixture<GraphTestFixture>
     }
 
     [Fact]
-    public async void LinkWithInvalidKeyInToCollectionReturnsNotFound()
+    public async void UnlinkWithInvalidKeyInToCollectionReturnsNotFound()
     {
         GraphNode fromNode = new GraphNode { CollectionName = testFixture.UserCollection.CollectionName, Key = testFixture.UserKey };
         GraphNode toNode = new GraphNode { CollectionName = testFixture.Collection.CollectionName, Key = "9999" };
 
         var exception = await Assert.ThrowsAsync<NotFoundException>(
-                                () => testFixture.Client.LinkAsync(fromNode, "kind", toNode));
+                                () => testFixture.Client.UnlinkAsync(fromNode, "kind", toNode));
 
         Assert.Equal(HttpStatusCode.NotFound, exception.StatusCode);
         var errorMessage = String.Format("Key: 9999 was not found in collection: {0}", toNode.CollectionName);
@@ -138,7 +92,7 @@ public class LinkTests : IClassFixture<GraphTestFixture>
     }
 
     [Fact]
-    public async void LinkWithInvalidToCollectionReturnsNotFound()
+    public async void UnlinkWithInvalidToCollectionReturnsNotFound()
     {
         GraphNode fromNode = new GraphNode { CollectionName = testFixture.UserCollection.CollectionName, Key = testFixture.UserKey };
         GraphNode toNode = new GraphNode { CollectionName = ":(", Key = testFixture.ProductKey };
@@ -146,7 +100,7 @@ public class LinkTests : IClassFixture<GraphTestFixture>
         try
         {
             var exception = await Assert.ThrowsAsync<NotFoundException>(
-                                    () => testFixture.Client.LinkAsync(fromNode, "kind", toNode));
+                                    () => testFixture.Client.UnlinkAsync(fromNode, "kind", toNode));
 
             Assert.Equal(HttpStatusCode.NotFound, exception.StatusCode);
             var errorMessage = String.Format("Key: 1 was not found in collection: {0}", toNode.CollectionName);
@@ -166,7 +120,7 @@ public class LinkTests : IClassFixture<GraphTestFixture>
         var client = new Client(application);
 
         var execption = await Assert.ThrowsAsync<RequestException>(
-                                () => client.LinkAsync(graphNode, "relation", graphNode));
+                                () => client.UnlinkAsync(graphNode, "relation", graphNode));
 
         Assert.Equal(HttpStatusCode.Unauthorized, execption.StatusCode);
         Assert.Equal("Valid credentials are required.", execption.Message);

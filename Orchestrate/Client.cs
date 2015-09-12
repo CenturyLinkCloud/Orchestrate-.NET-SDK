@@ -35,6 +35,33 @@ namespace Orchestrate.Io
             }
         }
 
+        public async Task UnlinkAsync(GraphNode fromNode, string kind, GraphNode toNode)
+        {
+            Guard.ArgumentNotNull("fromNode", fromNode);
+            Guard.ArgumentNotNullOrEmpty("kind", kind);
+            Guard.ArgumentNotNull("toNode", toNode);
+
+            HttpUrlBuilder uri = new HttpUrlBuilder(application.HostUrl)
+                                                    .AppendPath(fromNode.CollectionName)
+                                                    .AppendPath(fromNode.Key)
+                                                    .AppendPath("relation")
+                                                    .AppendPath(kind)
+                                                    .AppendPath(toNode.CollectionName)
+                                                    .AppendPath(toNode.Key)
+                                                    .AddQuery("purge", "true");
+
+            using (var httpClient = new HttpClient())
+            {
+                httpClient.AddAuthenticaion(application.Key);
+                HttpRequestMessage message = new HttpRequestMessage(HttpMethod.Delete, uri.ToUri());
+
+                var response = await httpClient.SendAsync(message);
+
+                if (!response.IsSuccessStatusCode)
+                    throw await RequestExceptionUtility.Make(response);
+            }
+        }
+
         public async Task<KvMetadata> CreateCollectionAsync<T>(string collectionName, 
                                                                string key, 
                                                                T item)
@@ -82,7 +109,7 @@ namespace Orchestrate.Io
             return await LinkAsync<object>(fromNode, kind, toNode, null);
         }
 
-        public async Task<KvMetadata> LinkAsync<T>(GraphNode fromNode, string kind, GraphNode toNode, T properties = default(T)) where T : class
+        public async Task<KvMetadata> LinkAsync<T>(GraphNode fromNode, string kind, GraphNode toNode, T properties)
         {
             Guard.ArgumentNotNull("fromNode", fromNode);
             Guard.ArgumentNotNullOrEmpty("kind", kind);

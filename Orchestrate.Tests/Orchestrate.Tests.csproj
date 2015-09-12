@@ -72,8 +72,10 @@
     <Compile Include="Integration Tests\ConditionalPatchTests.cs" />
     <Compile Include="Integration Tests\ConditionalAddOrUpdateTests.cs" />
     <Compile Include="Integration Tests\DataCenterTests.cs" />
+    <Compile Include="Integration Tests\UnlinkTests.cs" />
     <Compile Include="Integration Tests\ExclusiveListTests.cs" />
     <Compile Include="Integration Tests\GeoQueriesTests.cs" />
+    <Compile Include="Integration Tests\GetLinkTests.cs" />
     <Compile Include="Integration Tests\LinkTests.cs" />
     <Compile Include="Integration Tests\HistoryTests.cs" />
     <Compile Include="Integration Tests\InclusiveListTests.cs" />
