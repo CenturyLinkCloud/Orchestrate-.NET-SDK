@@ -13,7 +13,7 @@ namespace Orchestrate.Io
             string rawJson = await response.Content.ReadAsStringAsync();
 
             var error = JsonConvert.DeserializeObject<Error>(rawJson);
-            if (error != null)
+            if (error != null && error.Code != null)
             {
                 if (error.Code.Equals("items_not_found"))
                     return new NotFoundException(response.StatusCode, rawJson, requestId);

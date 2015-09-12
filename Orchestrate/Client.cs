@@ -76,5 +76,41 @@ namespace Orchestrate.Io
                     throw await RequestExceptionUtility.Make(response);
             }
         }
+
+        public async Task<KvMetadata> LinkAsync(GraphNode fromNode, string kind, GraphNode toNode)
+        {
+            return await LinkAsync<object>(fromNode, kind, toNode, null);
+        }
+
+        public async Task<KvMetadata> LinkAsync<T>(GraphNode fromNode, string kind, GraphNode toNode, T properties = default(T)) where T : class
+        {
+            Guard.ArgumentNotNull("fromNode", fromNode);
+            Guard.ArgumentNotNullOrEmpty("kind", kind);
+            Guard.ArgumentNotNull("toNode", toNode);
+
+            HttpUrlBuilder uri = new HttpUrlBuilder(application.HostUrl)
+                                                    .AppendPath(fromNode.CollectionName)
+                                                    .AppendPath(fromNode.Key)
+                                                    .AppendPath("relation")
+                                                    .AppendPath(kind)
+                                                    .AppendPath(toNode.CollectionName)
+                                                    .AppendPath(toNode.Key);
+
+            using (var httpClient = new HttpClient())
+            {
+                httpClient.AddAuthenticaion(application.Key);
+                HttpRequestMessage message = new HttpRequestMessage(HttpMethod.Put, uri.ToUri());
+
+                if (properties != null)
+                    message.AddContent(properties);
+
+                var response = await httpClient.SendAsync(message);
+
+                if (response.IsSuccessStatusCode)
+                    return KvMetadata.Make(fromNode.CollectionName, response);
+                else
+                    throw await RequestExceptionUtility.Make(response);
+            }
+        }
     }
 }

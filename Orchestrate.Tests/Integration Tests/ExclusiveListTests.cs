@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Net;
 using Orchestrate.Io;
 using Xunit;
 
@@ -99,5 +100,19 @@ public class ExclusiveListTests : IClassFixture<ListTestFixture>
 
         Assert.Equal(0, listResult.Count);
         Assert.Null(listResult.Next);
+    }
+
+    [Fact]
+    public async void InvalidCredentialsThrowsRequestException()
+    {
+        var application = new Application("HaHa");
+        var client = new Client(application);
+        var collection = client.GetCollection("collection");
+
+        var execption = await Assert.ThrowsAsync<RequestException>(
+                                () => collection.ExclusiveListAsync<Product>());
+
+        Assert.Equal(HttpStatusCode.Unauthorized, execption.StatusCode);
+        Assert.Equal("Valid credentials are required.", execption.Message);
     }
 }

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Net;
 using Orchestrate.Io;
 using Xunit;
 
@@ -73,5 +74,19 @@ public class ListTests : IClassFixture<ListTestFixture>
             count++;
 
         Assert.Equal(3, count);
+    }
+
+    [Fact]
+    public async void InvalidCredentialsThrowsRequestException()
+    {
+        var application = new Application("HaHa");
+        var client = new Client(application);
+        var collection = client.GetCollection("collection");
+
+        var execption = await Assert.ThrowsAsync<RequestException>(
+                                () => collection.ListAsync<Product>());
+
+        Assert.Equal(HttpStatusCode.Unauthorized, execption.StatusCode);
+        Assert.Equal("Valid credentials are required.", execption.Message);
     }
 }

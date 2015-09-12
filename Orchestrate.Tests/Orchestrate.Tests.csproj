@@ -74,12 +74,15 @@
     <Compile Include="Integration Tests\DataCenterTests.cs" />
     <Compile Include="Integration Tests\ExclusiveListTests.cs" />
     <Compile Include="Integration Tests\GeoQueriesTests.cs" />
+    <Compile Include="Integration Tests\LinkTests.cs" />
     <Compile Include="Integration Tests\HistoryTests.cs" />
     <Compile Include="Integration Tests\InclusiveListTests.cs" />
     <Compile Include="Integration Tests\SearchTests.cs" />
     <Compile Include="Models\Location.cs" />
     <Compile Include="Models\Product.cs" />
+    <Compile Include="Models\User.cs" />
     <Compile Include="SearchOptionsTests.cs" />
+    <Compile Include="TestFixtures\GraphTestFixture.cs" />
     <Compile Include="TestFixtures\HistoryTestFixture.cs" />
     <Compile Include="TestFixtures\LocationTestFixture.cs" />
     <Compile Include="TestFixtures\ProductTestFixture.cs" />

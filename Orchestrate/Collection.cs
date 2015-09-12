@@ -109,8 +109,8 @@ namespace Orchestrate.Io
         }
 
         public async Task<ListResults<T>> ExclusiveListAsync<T>(int limit = 100,
-                                                           string afterKey = null,
-                                                           string beforeKey = null)
+                                                                string afterKey = null,
+                                                                string beforeKey = null)
         {
             if (limit < 1 || limit > 100)
                 throw new ArgumentOutOfRangeException("limit", "limit must be between 1 and 100");
@@ -131,8 +131,8 @@ namespace Orchestrate.Io
 
 
         public async Task<ListResults<T>> InclusiveListAsync<T>(int limit = 100, 
-                                                           string startKey = null, 
-                                                           string endKey = null)
+                                                                string startKey = null, 
+                                                                string endKey = null)
         {
             if (limit < 1 || limit > 100)
                 throw new ArgumentOutOfRangeException("limit", "limit must be between 1 and 100");
