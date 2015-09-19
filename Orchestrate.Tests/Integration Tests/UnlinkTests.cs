@@ -36,7 +36,7 @@ public class UnlinkTests : IClassFixture<GraphTestFixture>
     public async void UnLinkSucceeds()
     {
         GraphNode fromNode = new GraphNode { CollectionName = testFixture.UserCollection.CollectionName, Key = testFixture.UserKey };
-        GraphNode toNode = new GraphNode { CollectionName = testFixture.Collection.CollectionName, Key = testFixture.ProductKey };
+        GraphNode toNode = new GraphNode { CollectionName = testFixture.Collection.CollectionName, Key = testFixture.BreadKey };
         await testFixture.Client.LinkAsync(fromNode, "purchased", toNode);
 
         await testFixture.Client.UnlinkAsync(fromNode, "purchased", toNode);
@@ -46,7 +46,7 @@ public class UnlinkTests : IClassFixture<GraphTestFixture>
     public async void UnlinkWithInvalidFromCollectionReturnsNotFound()
     {
         GraphNode fromNode = new GraphNode { CollectionName = ":(", Key = testFixture.UserKey };
-        GraphNode toNode = new GraphNode { CollectionName = testFixture.Collection.CollectionName, Key = testFixture.ProductKey };
+        GraphNode toNode = new GraphNode { CollectionName = testFixture.Collection.CollectionName, Key = testFixture.BreadKey };
 
         try
         {
@@ -67,7 +67,7 @@ public class UnlinkTests : IClassFixture<GraphTestFixture>
     public async void UnkinkWithInvalidKeyInFromCollectionReturnsNotFound()
     {
         GraphNode fromNode = new GraphNode { CollectionName = testFixture.UserCollection.CollectionName, Key = "9999" };
-        GraphNode toNode = new GraphNode { CollectionName = testFixture.Collection.CollectionName, Key = testFixture.ProductKey };
+        GraphNode toNode = new GraphNode { CollectionName = testFixture.Collection.CollectionName, Key = testFixture.BreadKey };
 
         var exception = await Assert.ThrowsAsync<NotFoundException>(
                                 () => testFixture.Client.UnlinkAsync(fromNode, "kind", toNode));
@@ -95,7 +95,7 @@ public class UnlinkTests : IClassFixture<GraphTestFixture>
     public async void UnlinkWithInvalidToCollectionReturnsNotFound()
     {
         GraphNode fromNode = new GraphNode { CollectionName = testFixture.UserCollection.CollectionName, Key = testFixture.UserKey };
-        GraphNode toNode = new GraphNode { CollectionName = ":(", Key = testFixture.ProductKey };
+        GraphNode toNode = new GraphNode { CollectionName = ":(", Key = testFixture.BreadKey };
 
         try
         {

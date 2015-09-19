@@ -37,7 +37,7 @@ public class LinkTests : IClassFixture<GraphTestFixture>
     public async void LinkSucceeds()
     {
         GraphNode fromNode = new GraphNode { CollectionName = testFixture.UserCollection.CollectionName, Key = testFixture.UserKey };
-        GraphNode toNode = new GraphNode { CollectionName = testFixture.Collection.CollectionName, Key = testFixture.ProductKey };
+        GraphNode toNode = new GraphNode { CollectionName = testFixture.Collection.CollectionName, Key = testFixture.BreadKey };
 
         try
         {
@@ -63,7 +63,7 @@ public class LinkTests : IClassFixture<GraphTestFixture>
     public async void LinkWithPropertiesSucceeds()
     {
         GraphNode fromNode = new GraphNode { CollectionName = testFixture.UserCollection.CollectionName, Key = testFixture.UserKey };
-        GraphNode toNode = new GraphNode { CollectionName = testFixture.Collection.CollectionName, Key = testFixture.ProductKey };
+        GraphNode toNode = new GraphNode { CollectionName = testFixture.Collection.CollectionName, Key = testFixture.BreadKey };
 
         dynamic properties = new ExpandoObject();
         properties.rating = "3 stars";
@@ -92,7 +92,7 @@ public class LinkTests : IClassFixture<GraphTestFixture>
     public async void LinkWithInvalidFromCollectionReturnsNotFound()
     {
         GraphNode fromNode = new GraphNode { CollectionName = ":(", Key = testFixture.UserKey };
-        GraphNode toNode = new GraphNode { CollectionName = testFixture.Collection.CollectionName, Key = testFixture.ProductKey };
+        GraphNode toNode = new GraphNode { CollectionName = testFixture.Collection.CollectionName, Key = testFixture.BreadKey };
 
         try
         {
@@ -113,7 +113,7 @@ public class LinkTests : IClassFixture<GraphTestFixture>
     public async void LinkWithInvalidKeyInFromCollectionReturnsNotFound()
     {
         GraphNode fromNode = new GraphNode { CollectionName = testFixture.UserCollection.CollectionName, Key = "9999" };
-        GraphNode toNode = new GraphNode { CollectionName = testFixture.Collection.CollectionName, Key = testFixture.ProductKey };
+        GraphNode toNode = new GraphNode { CollectionName = testFixture.Collection.CollectionName, Key = testFixture.BreadKey };
 
         var exception = await Assert.ThrowsAsync<NotFoundException>(
                                 () => testFixture.Client.LinkAsync(fromNode, "kind", toNode));
@@ -141,7 +141,7 @@ public class LinkTests : IClassFixture<GraphTestFixture>
     public async void LinkWithInvalidToCollectionReturnsNotFound()
     {
         GraphNode fromNode = new GraphNode { CollectionName = testFixture.UserCollection.CollectionName, Key = testFixture.UserKey };
-        GraphNode toNode = new GraphNode { CollectionName = ":(", Key = testFixture.ProductKey };
+        GraphNode toNode = new GraphNode { CollectionName = ":(", Key = testFixture.BreadKey };
 
         try
         {
@@ -162,7 +162,7 @@ public class LinkTests : IClassFixture<GraphTestFixture>
     public async void LinkWithVersionReferenceSucceeds()
     {
         GraphNode fromNode = new GraphNode { CollectionName = testFixture.UserCollection.CollectionName, Key = testFixture.UserKey };
-        GraphNode toNode = new GraphNode { CollectionName = testFixture.Collection.CollectionName, Key = testFixture.ProductKey };
+        GraphNode toNode = new GraphNode { CollectionName = testFixture.Collection.CollectionName, Key = testFixture.BreadKey };
         dynamic properties = new ExpandoObject();
         properties.rating = "3 stars";
 
@@ -187,7 +187,7 @@ public class LinkTests : IClassFixture<GraphTestFixture>
     public async void LinkWithVersionReferenceThrowsWithInvalidReference()
     {
         GraphNode fromNode = new GraphNode { CollectionName = testFixture.UserCollection.CollectionName, Key = testFixture.UserKey };
-        GraphNode toNode = new GraphNode { CollectionName = testFixture.Collection.CollectionName, Key = testFixture.ProductKey };
+        GraphNode toNode = new GraphNode { CollectionName = testFixture.Collection.CollectionName, Key = testFixture.BreadKey };
         dynamic properties = new ExpandoObject();
         properties.rating = "3 stars";
 

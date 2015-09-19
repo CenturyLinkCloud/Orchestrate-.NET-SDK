@@ -9,9 +9,11 @@ public class GetLinkTests : IClassFixture<GraphTestFixture>
     Collection userCollection;
     string userKey;
     Collection productCollection;
-    string productKey;
+    string breadKey;
     Client client;
-    Product product;
+    Product bread;
+    Product milk;
+    string milkKey;
 
     public GetLinkTests(GraphTestFixture testFixture)
     {
@@ -19,8 +21,10 @@ public class GetLinkTests : IClassFixture<GraphTestFixture>
         userCollection = testFixture.UserCollection;
         userKey = testFixture.UserKey;
         productCollection = testFixture.Collection;
-        productKey = testFixture.ProductKey;
-        product = testFixture.Product;
+        breadKey = testFixture.BreadKey;
+        bread = testFixture.Bread;
+        milkKey = testFixture.MilkKey;
+        milk = testFixture.Milk;
     }
 
     [Fact]
@@ -47,23 +51,23 @@ public class GetLinkTests : IClassFixture<GraphTestFixture>
     public async void GetWithPropertiesGuards()
     {
         ArgumentException exception = await Assert.ThrowsAsync<ArgumentNullException>(
-            () => userCollection.GetLinkAsync<dynamic>(null, String.Empty, null));
+            () => userCollection.GetLinkAsync<dynamic>(null, String.Empty, (GraphNode)null));
         Assert.Equal("key", exception.ParamName);
 
         exception = await Assert.ThrowsAsync<ArgumentException>(
-            () => userCollection.GetLinkAsync<dynamic>(String.Empty, String.Empty, null));
+            () => userCollection.GetLinkAsync<dynamic>(String.Empty, String.Empty, (GraphNode)null));
         Assert.Equal("key", exception.ParamName);
 
         exception = await Assert.ThrowsAsync<ArgumentNullException>(
-            () => userCollection.GetLinkAsync<dynamic>("1", null, null));
+            () => userCollection.GetLinkAsync<dynamic>("1", null, (GraphNode)null));
         Assert.Equal("kind", exception.ParamName);
 
         exception = await Assert.ThrowsAsync<ArgumentException>(
-            () => userCollection.GetLinkAsync<dynamic>("1", String.Empty, null));
+            () => userCollection.GetLinkAsync<dynamic>("1", String.Empty, (GraphNode)null));
         Assert.Equal("kind", exception.ParamName);
 
         exception = await Assert.ThrowsAsync<ArgumentNullException>(
-            () => userCollection.GetLinkAsync<dynamic>("1", "kind", null));
+            () => userCollection.GetLinkAsync<dynamic>("1", "kind", (GraphNode)null));
         Assert.Equal("destination node", exception.ParamName);
     }
 
@@ -71,7 +75,7 @@ public class GetLinkTests : IClassFixture<GraphTestFixture>
     public async void GetLinkSuccess()
     {
         GraphNode fromNode = new GraphNode { CollectionName = userCollection.CollectionName, Key = userKey };
-        GraphNode toNode = new GraphNode { CollectionName = productCollection.CollectionName, Key = productKey };
+        GraphNode toNode = new GraphNode { CollectionName = productCollection.CollectionName, Key = breadKey };
 
         try
         {
@@ -80,11 +84,68 @@ public class GetLinkTests : IClassFixture<GraphTestFixture>
             var products = await userCollection.GetLinkAsync<Product>("1", "purchased");
 
             Assert.Equal(1, products.Count);
-            Assert.Equal(product.Description, products.Items[0].Value.Description);
+            Assert.Equal(bread.Description, products.Items[0].Value.Description);
         }
         finally
         {
             await client.UnlinkAsync(fromNode, "purchased", toNode);
+        }
+    }
+
+    [Fact]
+    public async void GetMultipleLinksWithLimitSucceeds()
+    {
+        GraphNode fromNode = new GraphNode { CollectionName = userCollection.CollectionName, Key = userKey };
+        GraphNode toNode = new GraphNode { CollectionName = productCollection.CollectionName, Key = breadKey };
+        GraphNode milkNode = new GraphNode { CollectionName = productCollection.CollectionName, Key = milkKey };
+
+        try
+        {
+            await client.LinkAsync(fromNode, "purchased", toNode);
+            await client.LinkAsync(fromNode, "purchased", milkNode);
+
+            var linkOptions = new LinkOptions(limit: 1);
+            var products = await userCollection.GetLinkAsync<Product>("1", "purchased", linkOptions);
+
+            Assert.Equal(1, products.Count);
+            Assert.Contains("offset=1&limit=1", products.Next);
+        }
+        finally
+        {
+            await client.UnlinkAsync(fromNode, "purchased", toNode);
+            await client.UnlinkAsync(fromNode, "purchased", milkNode);
+        }
+    }
+
+    [Fact]
+    public async void GetMultipleLinksWithOffsetSucceeds()
+    {
+        GraphNode fromNode = new GraphNode { CollectionName = userCollection.CollectionName, Key = userKey };
+        GraphNode toNode = new GraphNode { CollectionName = productCollection.CollectionName, Key = breadKey };
+        GraphNode milkNode = new GraphNode { CollectionName = productCollection.CollectionName, Key = milkKey };
+
+        try
+        {
+            await client.LinkAsync(fromNode, "purchased", toNode);
+            await client.LinkAsync(fromNode, "purchased", milkNode);
+
+            var linkOptions = new LinkOptions(offset: 1);
+            var products = await userCollection.GetLinkAsync<Product>("1", "purchased", linkOptions);
+
+            Assert.Null(products.Next);
+            Assert.Collection(products.Items,
+                result =>
+                {
+                    Assert.Equal(2, result.Value.Id);
+                    Assert.Equal("2", result.PathMetadata.Key);
+                    Assert.Equal("2% Milk", result.Value.Description);
+                }
+            );
+        }
+        finally
+        {
+            await client.UnlinkAsync(fromNode, "purchased", toNode);
+            await client.UnlinkAsync(fromNode, "purchased", milkNode);
         }
     }
 
@@ -135,7 +196,7 @@ public class GetLinkTests : IClassFixture<GraphTestFixture>
     public async void GetLinkWithPropertiesSuccess()
     {
         GraphNode fromNode = new GraphNode { CollectionName = userCollection.CollectionName, Key = userKey };
-        GraphNode toNode = new GraphNode { CollectionName = productCollection.CollectionName, Key = productKey };
+        GraphNode toNode = new GraphNode { CollectionName = productCollection.CollectionName, Key = breadKey };
         dynamic properties = new ExpandoObject();
         properties.rating = "3 stars";
 
@@ -173,7 +234,7 @@ public class GetLinkTests : IClassFixture<GraphTestFixture>
         var application = new Application("HaHa");
         var client = new Client(application);
         var collection = client.GetCollection("collection");
-        GraphNode toNode = new GraphNode { CollectionName = productCollection.CollectionName, Key = productKey };
+        GraphNode toNode = new GraphNode { CollectionName = productCollection.CollectionName, Key = breadKey };
 
         var execption = await Assert.ThrowsAsync<RequestException>(
                                 () => collection.GetLinkAsync<Product>("1", "kind", toNode));

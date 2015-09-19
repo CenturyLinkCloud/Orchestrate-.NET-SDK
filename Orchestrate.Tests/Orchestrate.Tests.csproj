@@ -65,7 +65,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="HistoryOptionsTests.cs" />
+    <Compile Include="Options Tests\HistoryOptionsTests.cs" />
     <Compile Include="HttpUrlBuilderTests.cs" />
     <Compile Include="Integration Tests\CollectionTests.cs" />
     <Compile Include="Integration Tests\ConditionalMergeTests.cs" />
@@ -80,10 +80,11 @@
     <Compile Include="Integration Tests\HistoryTests.cs" />
     <Compile Include="Integration Tests\InclusiveListTests.cs" />
     <Compile Include="Integration Tests\SearchTests.cs" />
+    <Compile Include="Options Tests\LinkOptionsTests.cs" />
     <Compile Include="Models\Location.cs" />
     <Compile Include="Models\Product.cs" />
     <Compile Include="Models\User.cs" />
-    <Compile Include="SearchOptionsTests.cs" />
+    <Compile Include="Options Tests\SearchOptionsTests.cs" />
     <Compile Include="TestFixtures\GraphTestFixture.cs" />
     <Compile Include="TestFixtures\HistoryTestFixture.cs" />
     <Compile Include="TestFixtures\LocationTestFixture.cs" />

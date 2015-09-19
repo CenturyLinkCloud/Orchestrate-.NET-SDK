@@ -43,7 +43,7 @@ namespace Orchestrate.Io
                 return await httpClient.GetAsync<SearchResults<T>>(apiKey, uri);
         }
 
-        public async Task<ListResults<T>> GetLinkAsync<T>(string key, string kind)
+        public async Task<ListResults<T>> GetLinkAsync<T>(string key, string kind, LinkOptions opts = null)
         {
             Guard.ArgumentNotNullOrEmpty("key", key);
             Guard.ArgumentNotNullOrEmpty("kind", kind);
@@ -53,6 +53,12 @@ namespace Orchestrate.Io
                                                     .AppendPath(key)
                                                     .AppendPath("relations")
                                                     .AppendPath(kind);
+
+            if (opts != null)
+            {
+                uri.AddQuery("limit", opts.Limit.ToString());
+                uri.AddQuery("offset", opts.Offset.ToString());
+            }
 
             using (var httpClient = new HttpClient())
                 return await httpClient.GetAsync<ListResults<T>>(apiKey, uri);

@@ -55,8 +55,9 @@
     <Compile Include="Exceptions\NotFoundException.cs" />
     <Compile Include="Exceptions\PatchConflictException.cs" />
     <Compile Include="Exceptions\RequestException.cs" />
-    <Compile Include="HistoryOptions.cs" />
+    <Compile Include="Options\HistoryOptions.cs" />
     <Compile Include="IApplication.cs" />
+    <Compile Include="Options\LinkOptions.cs" />
     <Compile Include="Models\ListResults.cs" />
     <Compile Include="Models\ListItem.cs" />
     <Compile Include="Models\NotFoundData.cs" />
@@ -65,7 +66,7 @@
     <Compile Include="Models\PathMetadata.cs" />
     <Compile Include="Models\SearchItem.cs" />
     <Compile Include="Models\SearchResults.cs" />
-    <Compile Include="SearchOptions.cs" />
+    <Compile Include="Options\SearchOptions.cs" />
     <Compile Include="Utility\EnvironmentHelper.cs" />
     <Compile Include="Utility\HttpClientExtensions.cs" />
     <Compile Include="Utility\Guard.cs" />
