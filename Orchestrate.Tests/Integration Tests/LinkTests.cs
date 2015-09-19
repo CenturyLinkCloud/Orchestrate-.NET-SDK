@@ -159,6 +159,58 @@ public class LinkTests : IClassFixture<GraphTestFixture>
     }
 
     [Fact]
+    public async void LinkWithVersionReferenceSucceeds()
+    {
+        GraphNode fromNode = new GraphNode { CollectionName = testFixture.UserCollection.CollectionName, Key = testFixture.UserKey };
+        GraphNode toNode = new GraphNode { CollectionName = testFixture.Collection.CollectionName, Key = testFixture.ProductKey };
+        dynamic properties = new ExpandoObject();
+        properties.rating = "3 stars";
+
+        try
+        {
+            var kvMetadata = await testFixture.Client.LinkAsync(fromNode, "purchased", toNode, properties);
+
+            properties.rating = "4 stars";
+            await testFixture.Client.LinkAsync(fromNode, "purchased", toNode, properties, kvMetadata.VersionReference);
+
+            var linkProperties = await testFixture.UserCollection.GetLinkAsync<dynamic>("1", "purchased", toNode);
+
+            Assert.Equal((string)properties.rating, (string)linkProperties.rating);
+        }
+        finally
+        {
+            await testFixture.Client.UnlinkAsync(fromNode, "purchased", toNode);
+        }
+    }
+
+    [Fact]
+    public async void LinkWithVersionReferenceThrowsWithInvalidReference()
+    {
+        GraphNode fromNode = new GraphNode { CollectionName = testFixture.UserCollection.CollectionName, Key = testFixture.UserKey };
+        GraphNode toNode = new GraphNode { CollectionName = testFixture.Collection.CollectionName, Key = testFixture.ProductKey };
+        dynamic properties = new ExpandoObject();
+        properties.rating = "3 stars";
+
+        try
+        {
+            var kvMetadata = await testFixture.Client.LinkAsync(fromNode, "purchased", toNode, properties);
+
+            properties.rating = "4 stars";
+            await testFixture.Client.LinkAsync(fromNode, "purchased", toNode, properties);
+
+            properties.rating = "5 stars";
+            var exception = await Assert.ThrowsAsync<RequestException>(
+                    () => testFixture.Client.LinkAsync(fromNode, "purchased", toNode, properties, kvMetadata.VersionReference));
+
+            Assert.Equal(HttpStatusCode.PreconditionFailed, exception.StatusCode);
+        }
+        finally
+        {
+            await testFixture.Client.UnlinkAsync(fromNode, "purchased", toNode);
+        }
+    }
+
+    [Fact]
     public async void InvalidCredentialsThrowsRequestException()
     {
         var graphNode = new GraphNode { CollectionName = testFixture.Collection.CollectionName, Key = "key" };

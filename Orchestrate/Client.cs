@@ -109,7 +109,7 @@ namespace Orchestrate.Io
             return await LinkAsync<object>(fromNode, kind, toNode, null);
         }
 
-        public async Task<KvMetadata> LinkAsync<T>(GraphNode fromNode, string kind, GraphNode toNode, T properties)
+        public async Task<KvMetadata> LinkAsync<T>(GraphNode fromNode, string kind, GraphNode toNode, T properties, string reference = null)
         {
             Guard.ArgumentNotNull("fromNode", fromNode);
             Guard.ArgumentNotNullOrEmpty("kind", kind);
@@ -127,6 +127,9 @@ namespace Orchestrate.Io
             {
                 httpClient.AddAuthenticaion(application.Key);
                 HttpRequestMessage message = new HttpRequestMessage(HttpMethod.Put, uri.ToUri());
+
+                if (!string.IsNullOrEmpty(reference))
+                    message.AddIfMatch(reference);
 
                 if (properties != null)
                     message.AddContent(properties);
