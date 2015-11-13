@@ -332,7 +332,7 @@ namespace Orchestrate.Io
             using (var httpClient = new HttpClient())
             {
                 httpClient.AddAuthenticaion(apiKey);
-                message.AddContent(item);
+                message.AddContent(item, serializer);
 
                 var response = await httpClient.SendAsync(message);
 
@@ -401,7 +401,7 @@ namespace Orchestrate.Io
                 message.AddIfMatch(reference);
 
             if (item != null)
-                message.AddContent(item);
+                message.AddContent(item, serializer);
 
             using (var httpClient = new HttpClient())
             {

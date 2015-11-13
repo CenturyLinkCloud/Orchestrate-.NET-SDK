@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Dynamic;
 using System.Net;
+using Newtonsoft.Json.Linq;
 using Orchestrate.Io;
+using Orchestrate.Tests.Utility;
 using Xunit;
 
 public class MergeTests : IClassFixture<ProductTestFixture>
@@ -10,6 +12,7 @@ public class MergeTests : IClassFixture<ProductTestFixture>
     Collection collection;
     Product product;
     string productKey;
+    Application application;
 
     public MergeTests(ProductTestFixture testFixture)
     {
@@ -17,6 +20,7 @@ public class MergeTests : IClassFixture<ProductTestFixture>
         collection = testFixture.Client.GetCollection(testFixture.CollectionName);
         product = testFixture.Product;
         productKey = testFixture.Key;
+        application = testFixture.Application;
     }
 
     [Fact]
@@ -60,6 +64,31 @@ public class MergeTests : IClassFixture<ProductTestFixture>
     }
 
     [Fact]
+    public async void SupportsCustomSerialization()
+    {
+        var client = new Client(application, CustomSerializer.Create());
+        var collection = client.GetCollection(collectionName);
+
+        var productMetaData = await collection.GetAsync<Product>(productKey);
+
+        string dateTime = DateTime.UtcNow.ToString("s");
+        var mergeItem = new
+        {
+            origin = Origin.Moon
+        };
+
+        var kvMetaData = await collection.MergeAsync(productMetaData.Key, mergeItem);
+
+        Assert.Equal(collectionName, kvMetaData.CollectionName);
+        Assert.Contains(kvMetaData.Key, kvMetaData.Location);
+        Assert.True(kvMetaData.VersionReference.Length > 0);
+        Assert.Contains(kvMetaData.VersionReference, kvMetaData.Location);
+
+        var kvObject = await collection.GetAsync<JObject>(productKey);
+        Assert.Equal(Origin.Moon.ToString(), kvObject.Value["origin"].Value<string>());
+    }
+
+    [Fact]
     public async void NonExistentKeyThrowsNotFoundException()
     {
         var exception = await Assert.ThrowsAsync<NotFoundException>(
@@ -85,4 +114,11 @@ public class MergeTests : IClassFixture<ProductTestFixture>
         Assert.Equal(HttpStatusCode.Unauthorized, execption.StatusCode);
         Assert.Equal("Valid credentials are required.", execption.Message);
     }
+
+    private enum Origin
+    {
+        Earth,
+        Moon
+    }
 }
+
