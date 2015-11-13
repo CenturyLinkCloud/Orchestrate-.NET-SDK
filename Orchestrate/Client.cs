@@ -32,7 +32,7 @@ namespace Orchestrate.Io
 
             using (var httpClient = new HttpClient())
             {
-                httpClient.AddAuthenticaion(application.Key);
+                httpClient.AddAuthentication(application.Key);
 
                 HttpRequestMessage message = new HttpRequestMessage(HttpMethod.Head, uri.ToString());
                 var response = await httpClient.SendAsync(message);
@@ -59,7 +59,7 @@ namespace Orchestrate.Io
 
             using (var httpClient = new HttpClient())
             {
-                httpClient.AddAuthenticaion(application.Key);
+                httpClient.AddAuthentication(application.Key);
                 HttpRequestMessage message = new HttpRequestMessage(HttpMethod.Delete, uri.ToUri());
 
                 var response = await httpClient.SendAsync(message);
@@ -83,7 +83,7 @@ namespace Orchestrate.Io
 
             using (var httpClient = new HttpClient())
             {
-                httpClient.AddAuthenticaion(application.Key);
+                httpClient.AddAuthentication(application.Key);
                 var response = await httpClient.PutAsJsonAsync(uri.ToString(), item);
 
                 if (response.IsSuccessStatusCode)
@@ -103,7 +103,7 @@ namespace Orchestrate.Io
 
             using (var httpClient = new HttpClient())
             {
-                httpClient.AddAuthenticaion(application.Key);
+                httpClient.AddAuthentication(application.Key);
                 var response = await httpClient.DeleteAsync(uri.ToString());
 
                 if (!response.IsSuccessStatusCode)
@@ -132,7 +132,7 @@ namespace Orchestrate.Io
 
             using (var httpClient = new HttpClient())
             {
-                httpClient.AddAuthenticaion(application.Key);
+                httpClient.AddAuthentication(application.Key);
                 HttpRequestMessage message = new HttpRequestMessage(HttpMethod.Put, uri.ToUri());
 
                 if (!string.IsNullOrEmpty(reference))

@@ -136,7 +136,7 @@ namespace Orchestrate.Io
 
             using (var httpClient = new HttpClient())
             {
-                httpClient.AddAuthenticaion(apiKey);
+                httpClient.AddAuthentication(apiKey);
                 var response = await httpClient.PostAsJsonAsync(uri, item, serializer);
 
                 if (response.IsSuccessStatusCode)
@@ -208,7 +208,7 @@ namespace Orchestrate.Io
 
             using (var httpClient = new HttpClient())
             {
-                httpClient.AddAuthenticaion(apiKey);
+                httpClient.AddAuthentication(apiKey);
                 var response = await httpClient.SendAsync(message);
 
                 if (response.IsSuccessStatusCode)
@@ -236,7 +236,7 @@ namespace Orchestrate.Io
 
             using (var httpClient = new HttpClient())
             {
-                httpClient.AddAuthenticaion(apiKey);
+                httpClient.AddAuthentication(apiKey);
                 var response = await httpClient.SendAsync(message);
 
                 if (response.IsSuccessStatusCode)
@@ -266,7 +266,7 @@ namespace Orchestrate.Io
 
             using (var httpClient = new HttpClient())
             {
-                httpClient.AddAuthenticaion(apiKey);
+                httpClient.AddAuthentication(apiKey);
                 var response = await httpClient.SendAsync(message);
 
                 if (!response.IsSuccessStatusCode)
@@ -290,7 +290,7 @@ namespace Orchestrate.Io
 
             using (var httpClient = new HttpClient())
             {
-                httpClient.AddAuthenticaion(apiKey);
+                httpClient.AddAuthentication(apiKey);
                 var response = await httpClient.GetAsync(uri.ToString());
 
                 if (response.IsSuccessStatusCode)
@@ -324,7 +324,7 @@ namespace Orchestrate.Io
 
             using (var httpClient = new HttpClient())
             {
-                httpClient.AddAuthenticaion(apiKey);
+                httpClient.AddAuthentication(apiKey);
                 message.AddContent(item, serializer);
 
                 var response = await httpClient.SendAsync(message);
@@ -356,7 +356,7 @@ namespace Orchestrate.Io
 
             using (var httpClient = new HttpClient())
             {
-                httpClient.AddAuthenticaion(apiKey);
+                httpClient.AddAuthentication(apiKey);
                 message.AddContent(patchOperations.ToArray(), serializer);
 
                 var response = await httpClient.SendAsync(message);
@@ -398,7 +398,7 @@ namespace Orchestrate.Io
 
             using (var httpClient = new HttpClient())
             {
-                httpClient.AddAuthenticaion(apiKey);
+                httpClient.AddAuthentication(apiKey);
                 var response = await httpClient.SendAsync(message);
 
                 if (response.IsSuccessStatusCode)

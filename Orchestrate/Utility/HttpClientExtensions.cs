@@ -11,7 +11,7 @@ namespace Orchestrate.Io
 {
     internal static class HttpClientExtensions
     {
-        public static void AddAuthenticaion(this HttpClient httpClient, string apiKey)
+        public static void AddAuthentication(this HttpClient httpClient, string apiKey)
         {
             var authorization = Encoding.UTF8.GetBytes(string.Format("{0}:", apiKey));
             httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Basic", Convert.ToBase64String(authorization));
@@ -19,7 +19,7 @@ namespace Orchestrate.Io
 
         public async static Task<T> GetAsync<T>(this HttpClient httpClient, string apiKey, Uri uri, JsonSerializer serializer)
         {
-            httpClient.AddAuthenticaion(apiKey);
+            httpClient.AddAuthentication(apiKey);
             var response = await httpClient.GetAsync(uri.ToString());
 
             if (response.IsSuccessStatusCode)
