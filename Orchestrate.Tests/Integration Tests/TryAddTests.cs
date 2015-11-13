@@ -75,8 +75,8 @@ public class TryAddTests : IClassFixture<TestFixture>
 
         Assert.True(kvMetaData.VersionReference.Length > 0);
 
-        var kvObject = await collection.GetAsync<Product>(kvMetaData.Key);
-        Assert.Equal(ProductCategory.Widget.ToString(), JObject.Parse(kvObject.RawValue)["category"].Value<string>());
+        var kvObject = await collection.GetAsync<JObject>(kvMetaData.Key);
+        Assert.Equal(ProductCategory.Widget.ToString(), kvObject.Value["category"].Value<string>());
     }
 
     [Fact]

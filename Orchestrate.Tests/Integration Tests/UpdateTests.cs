@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Net;
+using Newtonsoft.Json.Linq;
 using Orchestrate.Io;
+using Orchestrate.Tests.Utility;
 using Xunit;
 
 public class UpdateTests : IClassFixture<ProductTestFixture>
@@ -9,6 +11,7 @@ public class UpdateTests : IClassFixture<ProductTestFixture>
     Collection collection;
     Product product;
     string productKey;
+    Application application;
 
     public UpdateTests(ProductTestFixture testFixture)
     {
@@ -16,6 +19,7 @@ public class UpdateTests : IClassFixture<ProductTestFixture>
         collection = testFixture.Client.GetCollection(testFixture.CollectionName);
         product = testFixture.Product;
         productKey = testFixture.Key;
+        application = testFixture.Application;
     }
 
     [Fact]
@@ -54,6 +58,27 @@ public class UpdateTests : IClassFixture<ProductTestFixture>
         kvObject = await collection.GetAsync<Product>(productKey);
         product = kvObject.Value;
         Assert.Equal("Updated Description!", product.Description);
+    }
+
+    [Fact]
+    public async void SupportsCustomSerialization()
+    {
+        var client = new Client(application, CustomSerializer.Create());
+        var collection = client.GetCollection(collectionName);
+        var existingKvObject = await collection.GetAsync<Product>(productKey);
+        var product = existingKvObject.Value;
+        product.Category = ProductCategory.Widget;
+
+        var kvMetaData = await collection.UpdateAsync(productKey, product);
+
+
+        Assert.Equal(collectionName, kvMetaData.CollectionName);
+        Assert.Equal(productKey, kvMetaData.Key);
+        Assert.True(kvMetaData.VersionReference.Length > 0);
+
+        var updatedKvObject = await collection.GetAsync<JObject>(kvMetaData.Key);
+
+        Assert.Equal(ProductCategory.Widget.ToString(), updatedKvObject.Value["category"].Value<string>());
     }
 
     [Fact]

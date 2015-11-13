@@ -88,9 +88,9 @@ public class AddOrUpdateTests : IClassFixture<ProductTestFixture>
         Assert.Equal(key, kvMetaData.Key);
         Assert.True(kvMetaData.VersionReference.Length > 0);
 
-        var kvObject = await collection.GetAsync<Product>(kvMetaData.Key);
+        var kvObject = await collection.GetAsync<JObject>(kvMetaData.Key);
 
-        Assert.Equal(ProductCategory.Widget.ToString(), JObject.Parse(kvObject.RawValue)["category"].Value<string>());
+        Assert.Equal(ProductCategory.Widget.ToString(), kvObject.Value["category"].Value<string>());
     }
 
     [Fact]

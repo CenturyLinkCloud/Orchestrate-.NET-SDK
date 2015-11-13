@@ -48,7 +48,7 @@ public class AddTests : IClassFixture<TestFixture>
     }
 
     [Fact]
-    public async void SupportsCustomSerializedContent()
+    public async void SupportsCustomSerialization()
     {
         var client = new Client(application, CustomSerializer.Create());
         var collection = client.GetCollection(collectionName);
@@ -61,11 +61,11 @@ public class AddTests : IClassFixture<TestFixture>
         Assert.True(kvMetaData.VersionReference.Length > 0);
         Assert.Contains(kvMetaData.VersionReference, kvMetaData.Location);
 
-        var kvObject = await collection.GetAsync<Product>(kvMetaData.Key);
+        var kvObject = await collection.GetAsync<JObject>(kvMetaData.Key);
 
-        Assert.Equal(ProductCategory.Widget.ToString(), JObject.Parse(kvObject.RawValue)["category"].Value<string>());
+        Assert.Equal(ProductCategory.Widget.ToString(), kvObject.Value["category"].Value<string>());
 
-        Product product = kvObject.Value;
+        var product = kvObject.Value.ToObject<Product>();
         Assert.Equal(3, product.Id);
         Assert.Equal("Bread", product.Name);
     }
