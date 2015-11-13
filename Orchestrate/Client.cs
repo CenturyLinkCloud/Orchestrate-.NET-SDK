@@ -139,7 +139,7 @@ namespace Orchestrate.Io
                     message.AddIfMatch(reference);
 
                 if (properties != null)
-                    message.AddContent(properties);
+                    message.AddContent(properties, serializer);
 
                 var response = await httpClient.SendAsync(message);
 

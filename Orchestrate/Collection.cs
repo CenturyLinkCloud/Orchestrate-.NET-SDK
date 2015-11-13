@@ -83,7 +83,7 @@ namespace Orchestrate.Io
                                                     .AppendPath(destinationNode.Key);
 
             using (var httpClient = new HttpClient())
-                return await httpClient.GetAsync<T>(apiKey, uri);
+                return await httpClient.GetAsync<T>(apiKey, uri, serializer);
         }
 
         public async Task<ListResults<T>> HistoryAsync<T>(string productKey, HistoryOptions opts = null)

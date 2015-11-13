@@ -1,16 +1,20 @@
 ﻿using System;
 using System.Dynamic;
 using System.Net;
+using Newtonsoft.Json.Linq;
 using Orchestrate.Io;
+using Orchestrate.Tests.Utility;
 using Xunit;
 
 public class LinkTests : IClassFixture<GraphTestFixture>
 {
     GraphTestFixture testFixture;
+    Application application;
 
     public LinkTests(GraphTestFixture testFixture)
     {
         this.testFixture = testFixture;
+        this.application = testFixture.Application;
     }
 
     [Fact]
@@ -81,6 +85,44 @@ public class LinkTests : IClassFixture<GraphTestFixture>
                                          toNode.CollectionName,
                                          toNode.Key);
             Assert.Equal(location, kvMetaData.Location);
+        }
+        finally
+        {
+            await testFixture.Client.UnlinkAsync(fromNode, "purchased", toNode);
+        }
+    }
+
+    [Fact]
+    public async void SupportsCustomSerializationForProperties()
+    {
+        var client = new Client(application, CustomSerializer.Create());
+        var collection = client.GetCollection(testFixture.UserCollection.CollectionName);
+
+        GraphNode fromNode = new GraphNode { CollectionName = testFixture.UserCollection.CollectionName, Key = testFixture.UserKey };
+        GraphNode toNode = new GraphNode { CollectionName = testFixture.Collection.CollectionName, Key = testFixture.BreadKey };
+
+        var properties = new
+        {
+            category = ProductCategory.Widget
+        };
+
+        try
+        {
+            var kvMetaData = await client.LinkAsync(fromNode, "purchased", toNode, properties);
+
+            Assert.Equal(fromNode.CollectionName, kvMetaData.CollectionName);
+            Assert.Equal(fromNode.Key, kvMetaData.Key);
+            Assert.True(kvMetaData.VersionReference.Length > 0);
+            var location = String.Format("/v0/{0}/{1}/relation/purchased/{2}/{3}",
+                                         fromNode.CollectionName,
+                                         fromNode.Key,
+                                         toNode.CollectionName,
+                                         toNode.Key);
+            Assert.Equal(location, kvMetaData.Location);
+
+            var kvObject = await collection.GetLinkAsync<JObject>(kvMetaData.Key, "purchased", toNode);
+
+            Assert.Equal(ProductCategory.Widget.ToString(), kvObject.Value<string>("category"));
         }
         finally
         {
