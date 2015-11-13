@@ -3,6 +3,7 @@ using System.Dynamic;
 using System.Net;
 using Newtonsoft.Json.Linq;
 using Orchestrate.Io;
+using Orchestrate.Tests.Models;
 using Orchestrate.Tests.Utility;
 using Xunit;
 
@@ -114,11 +115,4 @@ public class MergeTests : IClassFixture<ProductTestFixture>
         Assert.Equal(HttpStatusCode.Unauthorized, execption.StatusCode);
         Assert.Equal("Valid credentials are required.", execption.Message);
     }
-
-    private enum Origin
-    {
-        Earth,
-        Moon
-    }
 }
-

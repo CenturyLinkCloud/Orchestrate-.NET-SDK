@@ -364,7 +364,7 @@ namespace Orchestrate.Io
             using (var httpClient = new HttpClient())
             {
                 httpClient.AddAuthenticaion(apiKey);
-                message.AddContent(patchOperations.ToArray());
+                message.AddContent(patchOperations.ToArray(), serializer);
 
                 var response = await httpClient.SendAsync(message);
 
