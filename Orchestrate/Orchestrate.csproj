@@ -79,6 +79,7 @@
     <Compile Include="Utility\JsonSerializerExtensions.cs" />
     <Compile Include="Utility\RequestExceptionUtility.cs" />
     <Compile Include="DataCenter.cs" />
+    <Compile Include="Utility\RestClient.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />
