@@ -76,6 +76,7 @@
     <Compile Include="Models\KvObject.cs" />
     <Compile Include="Models\KvMetadata.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Utility\JsonSerializerExtensions.cs" />
     <Compile Include="Utility\RequestExceptionUtility.cs" />
     <Compile Include="DataCenter.cs" />
   </ItemGroup>

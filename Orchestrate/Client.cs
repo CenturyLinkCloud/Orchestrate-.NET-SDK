@@ -1,22 +1,29 @@
 ﻿using System.Net.Http;
 using System.Threading.Tasks;
+using Newtonsoft.Json;
 
 namespace Orchestrate.Io
 {
     public class Client
     {
         readonly IApplication application;
+        private JsonSerializer serializer;
 
-        public Client(IApplication application)
+        public Client(IApplication application) : this(application, JsonSerializer.CreateDefault())
+        {
+        }
+
+        public Client(IApplication application, JsonSerializer serializer)
         {
             this.application = application;
+            this.serializer = serializer;
         }
 
         public Collection GetCollection(string collectionName)
         {
             Guard.ArgumentNotNullOrEmpty("collectionName", collectionName);
 
-            return new Collection(collectionName, application.Key, application.HostUrl);
+            return new Collection(collectionName, application.Key, application.HostUrl, serializer);
         }
 
         public async Task PingAsync()

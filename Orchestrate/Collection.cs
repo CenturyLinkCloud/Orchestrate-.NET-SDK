@@ -3,22 +3,26 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
 using System.Threading.Tasks;
+using Newtonsoft.Json;
 
 namespace Orchestrate.Io
 {
     public class Collection
     {
         string host;
+        JsonSerializer serializer;
         string apiKey;
 
         public string CollectionName { get; private set; }
 
         public Collection(string collectionName, 
                           string apiKey,
-                          string host)
+                          string host,
+                          JsonSerializer serializer)
         {
             this.apiKey = apiKey;
             this.host = host;
+            this.serializer = serializer;
             CollectionName = collectionName; 
         }
 
@@ -38,8 +42,8 @@ namespace Orchestrate.Io
                 uri.AddQuery("limit", opts.Limit.ToString());
                 uri.AddQuery("offset", opts.Offset.ToString());
             }
-
-            using (var httpClient = new HttpClient())
+            
+            using (var httpClient = new HttpClient()) 
                 return await httpClient.GetAsync<SearchResults<T>>(apiKey, uri);
         }
 
@@ -138,7 +142,7 @@ namespace Orchestrate.Io
             using (var httpClient = new HttpClient())
             {
                 httpClient.AddAuthenticaion(apiKey);
-                var response = await httpClient.PostAsJsonAsync(uri.ToString(), item);
+                var response = await httpClient.PostAsJsonAsync(uri, item, serializer);
 
                 if (response.IsSuccessStatusCode)
                     return KvMetadata.Make(CollectionName, response);
@@ -301,7 +305,7 @@ namespace Orchestrate.Io
                     var eTag = (response.Headers.ETag != null) ? response.Headers.ETag.Tag : string.Empty;
                     var location = (response.Headers.Location != null) ? response.Headers.Location.ToString() : string.Empty;
                     string content = await response.Content.ReadAsStringAsync();
-                    return new KvObject<T>(content, CollectionName, key, eTag, location);
+                    return new KvObject<T>(content, CollectionName, key, eTag, location, serializer);
                 }
                 else
                     throw await RequestExceptionUtility.Make(response);

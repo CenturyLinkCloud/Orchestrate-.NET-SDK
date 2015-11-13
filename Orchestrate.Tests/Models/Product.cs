@@ -16,4 +16,7 @@ public class Product
 
     [JsonProperty("price")]
     public decimal Price { get; set; }
+
+    [JsonProperty("category")]
+    public ProductCategory Category { get; set; }
 }
