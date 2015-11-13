@@ -211,7 +211,7 @@ namespace Orchestrate.Io
                 message.AddIfMatch(reference);
 
             if (item != null)
-                message.AddContent(item);
+                message.AddContent(item, serializer);
 
             using (var httpClient = new HttpClient())
             {

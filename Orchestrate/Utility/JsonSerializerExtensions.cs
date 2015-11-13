@@ -18,5 +18,14 @@ namespace Orchestrate.Io.Utility
                 return serializer.Deserialize<T>(jsonTextReader);
             }
         }
+
+        public static string SerializeObject<T>(this JsonSerializer serializer, T obj)
+        {
+            using (var stringWriter = new StringWriter())
+            {
+                serializer.Serialize(stringWriter, obj);
+                return stringWriter.ToString();
+            }
+        }
     }
 }

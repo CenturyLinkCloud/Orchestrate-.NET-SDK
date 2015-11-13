@@ -4,6 +4,7 @@ using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
 using Newtonsoft.Json.Linq;
 using Orchestrate.Io;
+using Orchestrate.Tests.Utility;
 using Xunit;
 
 public class AddTests : IClassFixture<TestFixture>
@@ -49,10 +50,7 @@ public class AddTests : IClassFixture<TestFixture>
     [Fact]
     public async void SupportsCustomSerializedContent()
     {
-        var jsonSettings = new JsonSerializerSettings();
-        jsonSettings.Converters.Add(new StringEnumConverter());
-        var serializer = JsonSerializer.Create(jsonSettings);
-        var client = new Client(application, serializer);
+        var client = new Client(application, CustomSerializer.Create());
         var collection = client.GetCollection(collectionName);
 
         var item = new Product { Id = 3, Name = "Bread", Description = "Whole Grain Bread", Price = 2.75M, Rating = 3, Category = ProductCategory.Widget};
