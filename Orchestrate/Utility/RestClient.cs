@@ -7,43 +7,36 @@ namespace Orchestrate.Io.Utility
 {
     public class RestClient
     {
-        private readonly string collectionName;
         private readonly string apiKey;
         private readonly JsonSerializer serializer;
 
-        public RestClient(string collectionName, string apiKey, JsonSerializer serializer)
+        public RestClient(string apiKey, JsonSerializer serializer)
         {
-            this.collectionName = collectionName;
             this.apiKey = apiKey;
             this.serializer = serializer;
         }
 
         public async Task<T> GetAsync<T>(Uri uri)
         {
-            using (var httpClient = new HttpClient())
-                return await httpClient.GetAsync<T>(apiKey, uri, serializer);
+            var response = await GetAsync(uri);
+            return serializer.DeserializeObject<T>(response.Content);
         }
 
-        public async Task<KvObject<T>> GetAsync<T>(string key, Uri uri)
+        public async Task<RestResponse> GetAsync(Uri uri)
         {
             using (var httpClient = new HttpClient())
             {
                 httpClient.AddAuthentication(apiKey);
                 var response = await httpClient.GetAsync(uri);
 
-                if (response.IsSuccessStatusCode)
-                {
-                    var eTag = (response.Headers.ETag != null) ? response.Headers.ETag.Tag : string.Empty;
-                    var location = (response.Headers.Location != null) ? response.Headers.Location.ToString() : string.Empty;
-                    string content = await response.Content.ReadAsStringAsync();
-                    return new KvObject<T>(content, collectionName, key, eTag, location, serializer);
-                }
-                else
+                if (!response.IsSuccessStatusCode)
                     throw await RequestExceptionUtility.Make(response);
+
+                return await RestResponse.CreateAsync(response);
             }
         }
 
-        public Task<KvMetadata> SendIfMatchAsync<T>(Uri uri, HttpMethod method, T item, string reference)
+        public Task<RestResponse> SendIfMatchAsync<T>(Uri uri, HttpMethod method, T item, string reference)
         {
             var message = new HttpRequestMessage(method, uri.ToString());
 
@@ -53,7 +46,7 @@ namespace Orchestrate.Io.Utility
             return SendAsync(message, method, item);
         }
 
-        public Task<KvMetadata> SendIfNoneMatchAsync<T>(Uri uri, HttpMethod method, T item)
+        public Task<RestResponse> SendIfNoneMatchAsync<T>(Uri uri, HttpMethod method, T item)
         {
             var message = new HttpRequestMessage(method, uri.ToString());
             message.AddIfNoneMatch();
@@ -61,17 +54,17 @@ namespace Orchestrate.Io.Utility
             return SendAsync(message, method, item);
         }
 
-        public Task<KvMetadata> SendAsync<T>(Uri uri, HttpMethod method, T item)
+        public Task<RestResponse> SendAsync<T>(Uri uri, HttpMethod method, T item)
         {
             var message = new HttpRequestMessage(method, uri.ToString());
 
             return SendAsync(message, method, item);
         }
 
-        public async Task<KvMetadata> SendAsync<T>(HttpRequestMessage message, HttpMethod method, T item)
+        public async Task<RestResponse> SendAsync<T>(HttpRequestMessage message, HttpMethod method, T content)
         {
-            if (item != null)
-                message.AddContent(item, serializer);
+            if (content != null)
+                message.AddContent(content, serializer);
 
             using (var httpClient = new HttpClient())
             {
@@ -79,7 +72,7 @@ namespace Orchestrate.Io.Utility
                 var response = await httpClient.SendAsync(message);
 
                 if (response.IsSuccessStatusCode)
-                    return KvMetadata.Make(collectionName, response);
+                    return await RestResponse.CreateAsync(response);
                 else
                     throw await RequestExceptionUtility.Make(response);
             }

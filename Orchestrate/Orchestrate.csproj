@@ -80,6 +80,7 @@
     <Compile Include="Utility\RequestExceptionUtility.cs" />
     <Compile Include="DataCenter.cs" />
     <Compile Include="Utility\RestClient.cs" />
+    <Compile Include="Utility\RestResponse.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />

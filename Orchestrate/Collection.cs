@@ -26,7 +26,7 @@ namespace Orchestrate.Io
             this.host = host;
             this.serializer = serializer;
             CollectionName = collectionName;
-            restClient = new RestClient(collectionName, apiKey, serializer);
+            restClient = new RestClient(apiKey, serializer);
         }
 
         public Task<SearchResults<T>> SearchAsync<T>(string query, SearchOptions opts = null)
@@ -130,14 +130,15 @@ namespace Orchestrate.Io
             return restClient.GetAsync<ListResults<T>>(uri);
         }
 
-        public Task<KvMetadata> AddAsync<T>(T item)
+        public async Task<KvMetadata> AddAsync<T>(T item)
         {
             Guard.ArgumentNotNull("item", item);
 
             HttpUrlBuilder uri = new HttpUrlBuilder(host)
                                         .AppendPath(CollectionName);
 
-            return restClient.SendAsync(uri, HttpMethod.Post, item);
+            var response = await restClient.SendAsync(uri, HttpMethod.Post, item);
+            return KvMetadata.Make(CollectionName, response);
         }
 
         public Task<ListResults<T>> ExclusiveListAsync<T>(int limit = 100,
@@ -181,7 +182,7 @@ namespace Orchestrate.Io
             return restClient.GetAsync<ListResults<T>>(uri);
         }
 
-        public Task<KvMetadata> AddOrUpdateAsync<T>(string key,
+        public async Task<KvMetadata> AddOrUpdateAsync<T>(string key,
                                                           T item, 
                                                           string reference = null)
         {
@@ -192,10 +193,12 @@ namespace Orchestrate.Io
                                         .AppendPath(CollectionName)
                                         .AppendPath(key);
 
-            return restClient.SendIfMatchAsync(uri, HttpMethod.Put, item, reference);
+            var response = await restClient.SendIfMatchAsync(uri, HttpMethod.Put, item, reference);
+            return KvMetadata.Make(CollectionName, response);
+
         }
 
-        public Task<KvMetadata> TryAddAsync<T>(string key,
+        public async Task<KvMetadata> TryAddAsync<T>(string key,
                                                      T item)
         {
             Guard.ArgumentNotNullOrEmpty("key", key);
@@ -205,7 +208,8 @@ namespace Orchestrate.Io
                                         .AppendPath(CollectionName)
                                         .AppendPath(key);
 
-            return restClient.SendIfNoneMatchAsync(uri, HttpMethod.Put, item);
+            var response = await restClient.SendIfNoneMatchAsync(uri, HttpMethod.Put, item);
+            return KvMetadata.Make(CollectionName, response);
         }
 
 
@@ -221,7 +225,7 @@ namespace Orchestrate.Io
             return restClient.SendIfMatchAsync(uri, HttpMethod.Delete, (object) null, reference);
         }
 
-        public Task<KvObject<T>> GetAsync<T>(string key, string versionReference = null)
+        public async Task<KvObject<T>> GetAsync<T>(string key, string versionReference = null)
         {
             Guard.ArgumentNotNullOrEmpty("key", key);
 
@@ -235,10 +239,11 @@ namespace Orchestrate.Io
                    .AppendPath(versionReference);
             }
 
-            return restClient.GetAsync<T>(key, uri);
+            var response = await restClient.GetAsync(uri);
+            return new KvObject<T>(response.Content, CollectionName, key, response.ETag, response.Location, serializer);
         }
 
-        public Task<KvMetadata> MergeAsync<T>(string key,
+        public async Task<KvMetadata> MergeAsync<T>(string key,
                                                     T item, 
                                                     string reference = null)
         {
@@ -249,11 +254,12 @@ namespace Orchestrate.Io
                                         .AppendPath(CollectionName)
                                         .AppendPath(key);
 
-            return restClient.SendIfMatchAsync(uri, new HttpMethod("PATCH"), item, reference);
+            var response = await restClient.SendIfMatchAsync(uri, new HttpMethod("PATCH"), item, reference);
+            return KvMetadata.Make(CollectionName, response);
         }
 
 
-        public Task<KvMetadata> PatchAsync(string key,
+        public async Task<KvMetadata> PatchAsync(string key,
                                                  IEnumerable<PatchOperation> patchOperations, 
                                                  string reference = null)
         {
@@ -264,7 +270,8 @@ namespace Orchestrate.Io
                                         .AppendPath(CollectionName)
                                         .AppendPath(key);
 
-            return restClient.SendIfMatchAsync(uri, new HttpMethod("PATCH"), patchOperations.ToArray(), reference);
+            var response = await restClient.SendIfMatchAsync(uri, new HttpMethod("PATCH"), patchOperations.ToArray(), reference);
+            return KvMetadata.Make(CollectionName, response);
         }
 
         public async Task<KvMetadata> UpdateAsync<T>(string key,
@@ -287,7 +294,8 @@ namespace Orchestrate.Io
                                         .AppendPath(CollectionName)
                                         .AppendPath(key);
 
-            return await restClient.SendIfMatchAsync(uri, HttpMethod.Put, item, reference);
+            var response = await restClient.SendIfMatchAsync(uri, HttpMethod.Put, item, reference);
+            return KvMetadata.Make(CollectionName, response);
         }
     }
 }

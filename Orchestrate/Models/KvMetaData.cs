@@ -1,16 +1,15 @@
 ﻿using System.Net.Http;
+using Orchestrate.Io.Utility;
 
 namespace Orchestrate.Io
 {
     public class KvMetadata
     {
-        public static KvMetadata Make(string collectionName, HttpResponseMessage response)
+        public static KvMetadata Make(string collectionName, RestResponse response)
         {
-            var eTag = (response.Headers.ETag != null) ? response.Headers.ETag.Tag : string.Empty;
-            var reference = eTag.Replace("\"", "");
-            var location = (response.Headers.Location != null) ? response.Headers.Location.ToString() : string.Empty;
-            var key = ExtractKeyFromLocation(location);
-            return new KvMetadata(collectionName, key, reference, location);
+            var reference = response.ETag.Replace("\"", "");
+            var key = ExtractKeyFromLocation(response.Location);
+            return new KvMetadata(collectionName, key, reference, response.Location);
         }
 
         public string CollectionName { get; private set; }
