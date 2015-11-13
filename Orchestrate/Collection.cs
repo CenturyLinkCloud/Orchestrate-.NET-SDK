@@ -134,16 +134,7 @@ namespace Orchestrate.Io
             HttpUrlBuilder uri = new HttpUrlBuilder(host)
                                         .AppendPath(CollectionName);
 
-            using (var httpClient = new HttpClient())
-            {
-                httpClient.AddAuthentication(apiKey);
-                var response = await httpClient.PostAsJsonAsync(uri, item, serializer);
-
-                if (response.IsSuccessStatusCode)
-                    return KvMetadata.Make(CollectionName, response);
-                else
-                    throw await RequestExceptionUtility.Make(response);
-            }
+            return await HttpSendAsync(uri, HttpMethod.Post, item);
         }
 
         public async Task<ListResults<T>> ExclusiveListAsync<T>(int limit = 100,
@@ -198,24 +189,7 @@ namespace Orchestrate.Io
                                         .AppendPath(CollectionName)
                                         .AppendPath(key);
 
-            var message = new HttpRequestMessage(HttpMethod.Put, uri.ToString());
-
-            if (!string.IsNullOrEmpty(reference))
-                message.AddIfMatch(reference);
-
-            if (item != null)
-                message.AddContent(item, serializer);
-
-            using (var httpClient = new HttpClient())
-            {
-                httpClient.AddAuthentication(apiKey);
-                var response = await httpClient.SendAsync(message);
-
-                if (response.IsSuccessStatusCode)
-                    return KvMetadata.Make(CollectionName, response);
-                else
-                    throw await RequestExceptionUtility.Make(response);
-            }
+            return await HttpSendIfMatchAsync(uri, HttpMethod.Put, item, reference);
         }
 
         public async Task<KvMetadata> TryAddAsync<T>(string key,
@@ -228,22 +202,7 @@ namespace Orchestrate.Io
                                         .AppendPath(CollectionName)
                                         .AppendPath(key);
 
-            var message = new HttpRequestMessage(HttpMethod.Put, uri.ToString());
-            message.AddIfNoneMatch();
-
-            if (item != null)
-                message.AddContent(item, serializer);
-
-            using (var httpClient = new HttpClient())
-            {
-                httpClient.AddAuthentication(apiKey);
-                var response = await httpClient.SendAsync(message);
-
-                if (response.IsSuccessStatusCode)
-                    return KvMetadata.Make(CollectionName, response);
-                else
-                    throw await RequestExceptionUtility.Make(response);
-            }
+            return await HttpSendIfNoneMatchAsync(uri, HttpMethod.Put, item);
         }
 
 
@@ -253,28 +212,13 @@ namespace Orchestrate.Io
 
             HttpUrlBuilder uri = new HttpUrlBuilder(host)
                                         .AppendPath(CollectionName)
-                                        .AppendPath(key);
-            if (purge)
-                uri.AddQuery("purge", "true");
-            else
-                uri.AddQuery("purge", "false");
+                                        .AppendPath(key)
+                                        .AddQuery("purge", purge ? "true" : "false");
 
-            var message = new HttpRequestMessage(HttpMethod.Delete, uri.ToString());
-
-            if (!string.IsNullOrEmpty(reference))
-                message.AddIfMatch(reference);
-
-            using (var httpClient = new HttpClient())
-            {
-                httpClient.AddAuthentication(apiKey);
-                var response = await httpClient.SendAsync(message);
-
-                if (!response.IsSuccessStatusCode)
-                    throw await RequestExceptionUtility.Make(response);
-            }
+            await HttpSendIfMatchAsync(uri, HttpMethod.Delete, (object) null, reference);
         }
 
-        public async Task<KvObject<T>> GetAsync<T>(string key, string versionReference = null)
+        public Task<KvObject<T>> GetAsync<T>(string key, string versionReference = null)
         {
             Guard.ArgumentNotNullOrEmpty("key", key);
 
@@ -288,23 +232,8 @@ namespace Orchestrate.Io
                    .AppendPath(versionReference);
             }
 
-            using (var httpClient = new HttpClient())
-            {
-                httpClient.AddAuthentication(apiKey);
-                var response = await httpClient.GetAsync(uri.ToString());
-
-                if (response.IsSuccessStatusCode)
-                {
-                    var eTag = (response.Headers.ETag != null) ? response.Headers.ETag.Tag : string.Empty;
-                    var location = (response.Headers.Location != null) ? response.Headers.Location.ToString() : string.Empty;
-                    string content = await response.Content.ReadAsStringAsync();
-                    return new KvObject<T>(content, CollectionName, key, eTag, location, serializer);
-                }
-                else
-                    throw await RequestExceptionUtility.Make(response);
-            }
+            return HttpGetAsync<T>(key, uri);
         }
-
 
         public async Task<KvMetadata> MergeAsync<T>(string key,
                                                     T item, 
@@ -317,23 +246,7 @@ namespace Orchestrate.Io
                                         .AppendPath(CollectionName)
                                         .AppendPath(key);
 
-            var patchMethod = new HttpMethod("PATCH");
-            HttpRequestMessage message = new HttpRequestMessage(patchMethod, uri.ToString());
-            if (!string.IsNullOrEmpty(reference))
-                message.AddIfMatch(reference);
-
-            using (var httpClient = new HttpClient())
-            {
-                httpClient.AddAuthentication(apiKey);
-                message.AddContent(item, serializer);
-
-                var response = await httpClient.SendAsync(message);
-
-                if (response.IsSuccessStatusCode)
-                    return KvMetadata.Make(CollectionName, response);
-                else
-                    throw await RequestExceptionUtility.Make(response);
-            }
+            return await HttpSendIfMatchAsync(uri, new HttpMethod("PATCH"), item, reference);
         }
 
 
@@ -348,24 +261,7 @@ namespace Orchestrate.Io
                                         .AppendPath(CollectionName)
                                         .AppendPath(key);
 
-            var patchMethod = new HttpMethod("PATCH");
-            HttpRequestMessage message = new HttpRequestMessage(patchMethod, uri.ToString());
-
-            if(!string.IsNullOrEmpty(reference))
-                message.AddIfMatch(reference);
-
-            using (var httpClient = new HttpClient())
-            {
-                httpClient.AddAuthentication(apiKey);
-                message.AddContent(patchOperations.ToArray(), serializer);
-
-                var response = await httpClient.SendAsync(message);
-
-                if (response.IsSuccessStatusCode)
-                    return KvMetadata.Make(CollectionName, response);
-                else
-                    throw await RequestExceptionUtility.Make(response);
-            }
+            return await HttpSendIfMatchAsync(uri, new HttpMethod("PATCH"), patchOperations.ToArray(), reference);
         }
 
         public async Task<KvMetadata> UpdateAsync<T>(string key,
@@ -388,11 +284,42 @@ namespace Orchestrate.Io
                                         .AppendPath(CollectionName)
                                         .AppendPath(key);
 
-            var message = new HttpRequestMessage(HttpMethod.Put, uri.ToString());
+            return await HttpSendIfMatchAsync(uri, HttpMethod.Put, item, reference);
+        }
+
+        private async Task<T> HttpGetAsync<T>(Uri uri)
+        {
+            using (var httpClient = new HttpClient())
+                return await httpClient.GetAsync<T>(apiKey, uri, serializer);
+        }
+
+        private Task<KvMetadata> HttpSendIfMatchAsync<T>(Uri uri, HttpMethod method, T item, string reference)
+        {
+            var message = new HttpRequestMessage(method, uri.ToString());
 
             if (!string.IsNullOrEmpty(reference))
                 message.AddIfMatch(reference);
 
+            return HttpSendAsync(message, method, item);
+        }
+
+        private Task<KvMetadata> HttpSendIfNoneMatchAsync<T>(Uri uri, HttpMethod method, T item)
+        {
+            var message = new HttpRequestMessage(method, uri.ToString());
+            message.AddIfNoneMatch();
+
+            return HttpSendAsync(message, method, item);
+        }
+
+        private Task<KvMetadata> HttpSendAsync<T>(Uri uri, HttpMethod method, T item)
+        {
+            var message = new HttpRequestMessage(method, uri.ToString());
+
+            return HttpSendAsync(message, method, item);
+        }
+
+        private async Task<KvMetadata> HttpSendAsync<T>(HttpRequestMessage message, HttpMethod method, T item)
+        {
             if (item != null)
                 message.AddContent(item, serializer);
 
@@ -408,10 +335,26 @@ namespace Orchestrate.Io
             }
         }
 
-        private async Task<T> HttpGetAsync<T>(Uri uri)
+        private async Task<KvObject<T>> HttpGetAsync<T>(string key, Uri uri)
         {
             using (var httpClient = new HttpClient())
-                return await httpClient.GetAsync<T>(apiKey, uri, serializer);
+            {
+                httpClient.AddAuthentication(apiKey);
+                var response = await httpClient.GetAsync(uri);
+
+                if (response.IsSuccessStatusCode)
+                {
+                    var eTag = (response.Headers.ETag != null) ? response.Headers.ETag.Tag : string.Empty;
+                    var location = (response.Headers.Location != null) ? response.Headers.Location.ToString() : string.Empty;
+                    string content = await response.Content.ReadAsStringAsync();
+                    return new KvObject<T>(content, CollectionName, key, eTag, location, serializer);
+                }
+                else
+                    throw await RequestExceptionUtility.Make(response);
+            }
         }
+
+
+
     }
 }
