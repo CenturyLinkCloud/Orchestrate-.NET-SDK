@@ -42,9 +42,8 @@ namespace Orchestrate.Io
                 uri.AddQuery("limit", opts.Limit.ToString());
                 uri.AddQuery("offset", opts.Offset.ToString());
             }
-            
-            using (var httpClient = new HttpClient()) 
-                return await httpClient.GetAsync<SearchResults<T>>(apiKey, uri, serializer);
+
+            return await HttpGetAsync<SearchResults<T>>(uri);
         }
 
         public async Task<ListResults<T>> GetLinkAsync<T>(string key, string kind, LinkOptions opts = null)
@@ -64,8 +63,7 @@ namespace Orchestrate.Io
                 uri.AddQuery("offset", opts.Offset.ToString());
             }
 
-            using (var httpClient = new HttpClient())
-                return await httpClient.GetAsync<ListResults<T>>(apiKey, uri);
+            return await HttpGetAsync<ListResults<T>>(uri);
         }
 
         public async Task<T> GetLinkAsync<T>(string key, string kind, GraphNode destinationNode)
@@ -82,8 +80,7 @@ namespace Orchestrate.Io
                                                     .AppendPath(destinationNode.CollectionName)
                                                     .AppendPath(destinationNode.Key);
 
-            using (var httpClient = new HttpClient())
-                return await httpClient.GetAsync<T>(apiKey, uri, serializer);
+            return await HttpGetAsync<T>(uri);
         }
 
         public async Task<ListResults<T>> HistoryAsync<T>(string productKey, HistoryOptions opts = null)
@@ -104,8 +101,7 @@ namespace Orchestrate.Io
                 uri.AddQuery("offset", opts.Offset.ToString());
             }
 
-            using (var httpClient = new HttpClient())
-                return await httpClient.GetAsync<ListResults<T>>(apiKey, uri);
+            return await HttpGetAsync<ListResults<T>>(uri);
         }
 
         public Task<SearchResults<T>> SearchAsync<T>(string field, decimal latitude, decimal longitude, string distance)
@@ -128,8 +124,7 @@ namespace Orchestrate.Io
                                                    .AppendPath(CollectionName)
                                                    .AddQuery("limit", limit.ToString());
 
-            using (var httpClient = new HttpClient())
-                return await httpClient.GetAsync<ListResults<T>>(apiKey, uri);
+            return await HttpGetAsync<ListResults<T>>(uri);
         }
 
         public async Task<KvMetadata> AddAsync<T>(T item)
@@ -168,8 +163,7 @@ namespace Orchestrate.Io
             if (!string.IsNullOrEmpty(afterKey))
                 uri.AddQuery("afterKey", afterKey);
 
-            using (var httpClient = new HttpClient())
-                return await httpClient.GetAsync<ListResults<T>>(apiKey, uri);
+            return await HttpGetAsync<ListResults<T>>(uri);
         }
 
 
@@ -190,8 +184,7 @@ namespace Orchestrate.Io
             if (!string.IsNullOrEmpty(endKey))
                 uri.AddQuery("endKey", endKey);
 
-            using (var httpClient = new HttpClient())
-                return await httpClient.GetAsync<ListResults<T>>(apiKey, uri);
+            return await HttpGetAsync<ListResults<T>>(uri);
         }
 
         public async Task<KvMetadata> AddOrUpdateAsync<T>(string key,
@@ -413,6 +406,12 @@ namespace Orchestrate.Io
                 else
                     throw await RequestExceptionUtility.Make(response);
             }
+        }
+
+        private async Task<T> HttpGetAsync<T>(Uri uri)
+        {
+            using (var httpClient = new HttpClient())
+                return await httpClient.GetAsync<T>(apiKey, uri, serializer);
         }
     }
 }

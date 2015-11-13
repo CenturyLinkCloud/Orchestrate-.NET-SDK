@@ -87,9 +87,9 @@ public class SearchTests : IClassFixture<ListTestFixture>
 
         try
         {
-            await collection.AddOrUpdateAsync(key, new Product {Category = ProductCategory.Sprocket, Id = 1337});
+            await collection.AddOrUpdateAsync(key, new Product {Category = ProductCategory.Sprocket, Id = 1});
 
-            var searchResult = await collection.SearchAsync<JObject>("value.id: 1337");
+            var searchResult = await collection.SearchAsync<JObject>("value.id: 1");
 
             Assert.Collection(searchResult.Items,
                 result =>

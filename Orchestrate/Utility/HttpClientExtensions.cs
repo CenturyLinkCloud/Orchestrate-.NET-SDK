@@ -17,19 +17,6 @@ namespace Orchestrate.Io
             httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Basic", Convert.ToBase64String(authorization));
         }
 
-        [Obsolete]
-        public async static Task<T> GetAsync<T>(this HttpClient httpClient, string apiKey, Uri uri)
-        {
-            httpClient.AddAuthenticaion(apiKey);
-            var response = await httpClient.GetAsync(uri.ToString());
-
-            if (response.IsSuccessStatusCode)
-                return await response.Content.ReadAsAsync<T>();
-            else
-                throw await RequestExceptionUtility.Make(response);
-
-        }
-
         public async static Task<T> GetAsync<T>(this HttpClient httpClient, string apiKey, Uri uri, JsonSerializer serializer)
         {
             httpClient.AddAuthenticaion(apiKey);

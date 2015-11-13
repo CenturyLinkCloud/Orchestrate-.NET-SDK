@@ -1,7 +1,10 @@
 ﻿using System;
 using System.Dynamic;
+using System.IO;
 using System.Net;
+using Newtonsoft.Json.Linq;
 using Orchestrate.Io;
+using Orchestrate.Tests.Utility;
 using Xunit;
 
 public class GetLinkTests : IClassFixture<GraphTestFixture>
@@ -14,10 +17,12 @@ public class GetLinkTests : IClassFixture<GraphTestFixture>
     Product bread;
     Product milk;
     string milkKey;
+    Application application;
 
     public GetLinkTests(GraphTestFixture testFixture)
     {
         client = testFixture.Client;
+        application = testFixture.Application;
         userCollection = testFixture.UserCollection;
         userKey = testFixture.UserKey;
         productCollection = testFixture.Collection;
@@ -89,6 +94,41 @@ public class GetLinkTests : IClassFixture<GraphTestFixture>
         finally
         {
             await client.UnlinkAsync(fromNode, "purchased", toNode);
+        }
+    }
+
+    [Fact]
+    public async void SupportsCustomSerialization()
+    {
+        var client = new Client(application, CustomSerializer.Create());
+        var productsName = Path.GetRandomFileName();
+        var usersName = Path.GetRandomFileName();
+        var productCollection = client.GetCollection(productsName);
+        var userCollection = client.GetCollection(usersName);
+
+        var productKey = Guid.NewGuid().ToString();
+        var userKey = Guid.NewGuid().ToString();
+
+        await productCollection.AddOrUpdateAsync(productKey, new Product {Id = 1, Category = ProductCategory.Sprocket});
+        await userCollection.AddOrUpdateAsync(userKey, new User() {Id = 1, Name = "Wayne Gretzky"});
+
+        GraphNode fromNode = new GraphNode { CollectionName = usersName, Key = userKey };
+        GraphNode toNode = new GraphNode { CollectionName = productsName, Key = productKey };
+
+        try
+        {
+            await client.LinkAsync(fromNode, "purchased", toNode);
+
+            var retrievedProducts = await userCollection.GetLinkAsync<Product>(userKey, "purchased");
+
+            Assert.Equal(1, retrievedProducts.Count);
+            Assert.Equal(ProductCategory.Sprocket, retrievedProducts.Items[0].Value.Category);
+        }
+        finally
+        {
+            await client.UnlinkAsync(fromNode, "purchased", toNode);
+            await client.DeleteCollectionAsync(productsName);
+            await client.DeleteCollectionAsync(usersName);
         }
     }
 
