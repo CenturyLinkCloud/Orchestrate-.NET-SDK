@@ -1,18 +1,23 @@
 ﻿using System;
+using System.IO;
 using System.Linq;
 using System.Net;
+using Newtonsoft.Json.Linq;
 using Orchestrate.Io;
+using Orchestrate.Tests.Utility;
 using Xunit;
 
 public class SearchTests : IClassFixture<ListTestFixture>
 {
     Collection collection;
     string collectionName;
+    Application application;
 
     public SearchTests(ListTestFixture listTestFixture)
     {
         collection = listTestFixture.Collection;
         collectionName = listTestFixture.CollectionName;
+        application = listTestFixture.Application;
     }
 
     [Fact]
@@ -70,6 +75,36 @@ public class SearchTests : IClassFixture<ListTestFixture>
         );
 
         Assert.Equal(1, searchResult.TotalCount);
+    }
+
+    [Fact]
+    public async void SupportsCustomSerialization()
+    {
+        var client = new Client(application, CustomSerializer.Create());
+        var collectionName = Path.GetRandomFileName();
+        var collection = client.GetCollection(collectionName);
+        var key = Guid.NewGuid().ToString();
+
+        try
+        {
+            await collection.AddOrUpdateAsync(key, new Product {Category = ProductCategory.Sprocket, Id = 1337});
+
+            var searchResult = await collection.SearchAsync<JObject>("value.id: 1337");
+
+            Assert.Collection(searchResult.Items,
+                result =>
+                {
+                    Assert.Equal(key, result.PathMetadata.Key);
+                    Assert.Equal(ProductCategory.Sprocket.ToString(), result.Value.Value<string>("category"));
+                }
+                );
+
+            Assert.Equal(1, searchResult.TotalCount);
+        }
+        finally
+        {
+            await client.DeleteCollectionAsync(collectionName);
+        }
     }
 
     [Fact]

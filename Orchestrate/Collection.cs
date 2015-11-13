@@ -44,7 +44,7 @@ namespace Orchestrate.Io
             }
             
             using (var httpClient = new HttpClient()) 
-                return await httpClient.GetAsync<SearchResults<T>>(apiKey, uri);
+                return await httpClient.GetAsync<SearchResults<T>>(apiKey, uri, serializer);
         }
 
         public async Task<ListResults<T>> GetLinkAsync<T>(string key, string kind, LinkOptions opts = null)
