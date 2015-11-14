@@ -222,7 +222,7 @@ namespace Orchestrate.Io
                                         .AppendPath(key)
                                         .AddQuery("purge", purge ? "true" : "false");
 
-            return restClient.SendIfMatchAsync(uri, HttpMethod.Delete, (object) null, reference);
+            return restClient.SendIfMatchAsync(uri, HttpMethod.Delete, reference);
         }
 
         public async Task<KvObject<T>> GetAsync<T>(string key, string versionReference = null)
