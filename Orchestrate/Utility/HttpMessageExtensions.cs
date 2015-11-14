@@ -3,6 +3,7 @@ using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Text;
 using Newtonsoft.Json;
+using Orchestrate.Io.Utility;
 
 namespace Orchestrate.Io
 {
@@ -14,15 +15,15 @@ namespace Orchestrate.Io
             message.Headers.IfMatch.Add(new EntityTagHeaderValue(quotedRef));
         }
 
-        public static void AddContent<T>(this HttpRequestMessage message, T item)
-        {
-            var json = JsonConvert.SerializeObject(item);
-            message.Content = new StringContent(json, Encoding.UTF8, "application/json");
-        }
-
         public static void AddIfNoneMatch(this HttpRequestMessage message)
         {
             message.Headers.IfNoneMatch.Add(new EntityTagHeaderValue("\"*\""));
+        }
+
+        public static void AddContent<T>(this HttpRequestMessage message, T item, JsonSerializer serializer)
+        {
+            var json = serializer.SerializeObject(item);
+            message.Content = new StringContent(json, Encoding.UTF8, "application/json");
         }
     }
 }

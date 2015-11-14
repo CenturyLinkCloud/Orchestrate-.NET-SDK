@@ -1,41 +1,41 @@
 ﻿using System.Net.Http;
 using System.Threading.Tasks;
+using Newtonsoft.Json;
+using Orchestrate.Io.Utility;
 
 namespace Orchestrate.Io
 {
     public class Client
     {
         readonly IApplication application;
+        JsonSerializer serializer;
+        RestClient restClient;
 
-        public Client(IApplication application)
+        public Client(IApplication application) : this(application, JsonSerializer.CreateDefault())
+        {
+        }
+
+        public Client(IApplication application, JsonSerializer serializer)
         {
             this.application = application;
+            this.serializer = serializer;
+            this.restClient = new RestClient(application.Key, serializer);
         }
 
         public Collection GetCollection(string collectionName)
         {
             Guard.ArgumentNotNullOrEmpty("collectionName", collectionName);
 
-            return new Collection(collectionName, application.Key, application.HostUrl);
+            return new Collection(collectionName, application.Key, application.HostUrl, serializer);
         }
 
-        public async Task PingAsync()
+        public Task PingAsync()
         {
             HttpUrlBuilder uri = new HttpUrlBuilder(application.HostUrl);
-
-            using (var httpClient = new HttpClient())
-            {
-                httpClient.AddAuthenticaion(application.Key);
-
-                HttpRequestMessage message = new HttpRequestMessage(HttpMethod.Head, uri.ToString());
-                var response = await httpClient.SendAsync(message);
-
-                if (!response.IsSuccessStatusCode)
-                    throw await RequestExceptionUtility.Make(response);
-            }
+            return restClient.SendAsync(uri, HttpMethod.Head);
         }
 
-        public async Task UnlinkAsync(GraphNode fromNode, string kind, GraphNode toNode)
+        public Task UnlinkAsync(GraphNode fromNode, string kind, GraphNode toNode)
         {
             Guard.ArgumentNotNull("fromNode", fromNode);
             Guard.ArgumentNotNullOrEmpty("kind", kind);
@@ -50,16 +50,7 @@ namespace Orchestrate.Io
                                                     .AppendPath(toNode.Key)
                                                     .AddQuery("purge", "true");
 
-            using (var httpClient = new HttpClient())
-            {
-                httpClient.AddAuthenticaion(application.Key);
-                HttpRequestMessage message = new HttpRequestMessage(HttpMethod.Delete, uri.ToUri());
-
-                var response = await httpClient.SendAsync(message);
-
-                if (!response.IsSuccessStatusCode)
-                    throw await RequestExceptionUtility.Make(response);
-            }
+            return restClient.SendAsync(uri, HttpMethod.Delete);
         }
 
         public async Task<KvMetadata> CreateCollectionAsync<T>(string collectionName, 
@@ -74,19 +65,11 @@ namespace Orchestrate.Io
                                         .AppendPath(collectionName)
                                         .AppendPath(key);
 
-            using (var httpClient = new HttpClient())
-            {
-                httpClient.AddAuthenticaion(application.Key);
-                var response = await httpClient.PutAsJsonAsync(uri.ToString(), item);
-
-                if (response.IsSuccessStatusCode)
-                    return KvMetadata.Make(collectionName, response);
-                else
-                    throw await RequestExceptionUtility.Make(response);
-            }
+            var response = await restClient.SendAsync(uri, HttpMethod.Put, item);
+            return KvMetadata.Make(collectionName, response);
         }
 
-        public async Task DeleteCollectionAsync(string collectionName)
+        public Task DeleteCollectionAsync(string collectionName)
         {
             Guard.ArgumentNotNullOrEmpty("collectionName", collectionName);
 
@@ -94,14 +77,7 @@ namespace Orchestrate.Io
                                         .AppendPath(collectionName)
                                         .AddQuery("force", "true");
 
-            using (var httpClient = new HttpClient())
-            {
-                httpClient.AddAuthenticaion(application.Key);
-                var response = await httpClient.DeleteAsync(uri.ToString());
-
-                if (!response.IsSuccessStatusCode)
-                    throw await RequestExceptionUtility.Make(response);
-            }
+            return restClient.SendAsync(uri, HttpMethod.Delete);
         }
 
         public async Task<KvMetadata> LinkAsync(GraphNode fromNode, string kind, GraphNode toNode)
@@ -123,24 +99,8 @@ namespace Orchestrate.Io
                                                     .AppendPath(toNode.CollectionName)
                                                     .AppendPath(toNode.Key);
 
-            using (var httpClient = new HttpClient())
-            {
-                httpClient.AddAuthenticaion(application.Key);
-                HttpRequestMessage message = new HttpRequestMessage(HttpMethod.Put, uri.ToUri());
-
-                if (!string.IsNullOrEmpty(reference))
-                    message.AddIfMatch(reference);
-
-                if (properties != null)
-                    message.AddContent(properties);
-
-                var response = await httpClient.SendAsync(message);
-
-                if (response.IsSuccessStatusCode)
-                    return KvMetadata.Make(fromNode.CollectionName, response);
-                else
-                    throw await RequestExceptionUtility.Make(response);
-            }
+            var response = await restClient.SendIfMatchAsync(uri, HttpMethod.Put, properties, reference);
+            return KvMetadata.Make(fromNode.CollectionName, response);
         }
     }
 }

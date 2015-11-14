@@ -68,7 +68,6 @@
     <Compile Include="Models\SearchResults.cs" />
     <Compile Include="Options\SearchOptions.cs" />
     <Compile Include="Utility\EnvironmentHelper.cs" />
-    <Compile Include="Utility\HttpClientExtensions.cs" />
     <Compile Include="Utility\Guard.cs" />
     <Compile Include="Utility\HttpMessageExtensions.cs" />
     <Compile Include="Utility\HttpUrlBuilder.cs" />
@@ -76,8 +75,11 @@
     <Compile Include="Models\KvObject.cs" />
     <Compile Include="Models\KvMetadata.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Utility\JsonSerializerExtensions.cs" />
     <Compile Include="Utility\RequestExceptionUtility.cs" />
     <Compile Include="DataCenter.cs" />
+    <Compile Include="Utility\RestClient.cs" />
+    <Compile Include="Utility\RestResponse.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />

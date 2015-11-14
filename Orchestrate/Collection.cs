@@ -3,26 +3,33 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
 using System.Threading.Tasks;
+using Newtonsoft.Json;
+using Orchestrate.Io.Utility;
 
 namespace Orchestrate.Io
 {
     public class Collection
     {
         string host;
+        JsonSerializer serializer;
         string apiKey;
+        RestClient restClient;
 
         public string CollectionName { get; private set; }
 
         public Collection(string collectionName, 
                           string apiKey,
-                          string host)
+                          string host,
+                          JsonSerializer serializer)
         {
             this.apiKey = apiKey;
             this.host = host;
-            CollectionName = collectionName; 
+            this.serializer = serializer;
+            CollectionName = collectionName;
+            restClient = new RestClient(apiKey, serializer);
         }
 
-        public async Task<SearchResults<T>> SearchAsync<T>(string query, SearchOptions opts = null)
+        public Task<SearchResults<T>> SearchAsync<T>(string query, SearchOptions opts = null)
         {
             Guard.ArgumentNotNullOrEmpty("query", query);
 
@@ -39,11 +46,10 @@ namespace Orchestrate.Io
                 uri.AddQuery("offset", opts.Offset.ToString());
             }
 
-            using (var httpClient = new HttpClient())
-                return await httpClient.GetAsync<SearchResults<T>>(apiKey, uri);
+            return restClient.GetAsync<SearchResults<T>>(uri);
         }
 
-        public async Task<ListResults<T>> GetLinkAsync<T>(string key, string kind, LinkOptions opts = null)
+        public Task<ListResults<T>> GetLinkAsync<T>(string key, string kind, LinkOptions opts = null)
         {
             Guard.ArgumentNotNullOrEmpty("key", key);
             Guard.ArgumentNotNullOrEmpty("kind", kind);
@@ -60,11 +66,10 @@ namespace Orchestrate.Io
                 uri.AddQuery("offset", opts.Offset.ToString());
             }
 
-            using (var httpClient = new HttpClient())
-                return await httpClient.GetAsync<ListResults<T>>(apiKey, uri);
+            return restClient.GetAsync<ListResults<T>>(uri);
         }
 
-        public async Task<T> GetLinkAsync<T>(string key, string kind, GraphNode destinationNode)
+        public Task<T> GetLinkAsync<T>(string key, string kind, GraphNode destinationNode)
         {
             Guard.ArgumentNotNullOrEmpty("key", key);
             Guard.ArgumentNotNullOrEmpty("kind", kind);
@@ -78,11 +83,10 @@ namespace Orchestrate.Io
                                                     .AppendPath(destinationNode.CollectionName)
                                                     .AppendPath(destinationNode.Key);
 
-            using (var httpClient = new HttpClient())
-                return await httpClient.GetAsync<T>(apiKey, uri);
+            return restClient.GetAsync<T>(uri);
         }
 
-        public async Task<ListResults<T>> HistoryAsync<T>(string productKey, HistoryOptions opts = null)
+        public Task<ListResults<T>> HistoryAsync<T>(string productKey, HistoryOptions opts = null)
         {
             Guard.ArgumentNotNullOrEmpty("key", productKey);
 
@@ -100,8 +104,7 @@ namespace Orchestrate.Io
                 uri.AddQuery("offset", opts.Offset.ToString());
             }
 
-            using (var httpClient = new HttpClient())
-                return await httpClient.GetAsync<ListResults<T>>(apiKey, uri);
+            return restClient.GetAsync<ListResults<T>>(uri);
         }
 
         public Task<SearchResults<T>> SearchAsync<T>(string field, decimal latitude, decimal longitude, string distance)
@@ -115,7 +118,7 @@ namespace Orchestrate.Io
             return SearchAsync<T>(luceneQuery);
         }
 
-        public async Task<ListResults<T>> ListAsync<T>(int limit = 100)
+        public Task<ListResults<T>> ListAsync<T>(int limit = 100)
         {
             if (limit < 1 || limit > 100)
                 throw new ArgumentOutOfRangeException("limit", "limit must be between 1 and 100");
@@ -124,8 +127,7 @@ namespace Orchestrate.Io
                                                    .AppendPath(CollectionName)
                                                    .AddQuery("limit", limit.ToString());
 
-            using (var httpClient = new HttpClient())
-                return await httpClient.GetAsync<ListResults<T>>(apiKey, uri);
+            return restClient.GetAsync<ListResults<T>>(uri);
         }
 
         public async Task<KvMetadata> AddAsync<T>(T item)
@@ -135,19 +137,11 @@ namespace Orchestrate.Io
             HttpUrlBuilder uri = new HttpUrlBuilder(host)
                                         .AppendPath(CollectionName);
 
-            using (var httpClient = new HttpClient())
-            {
-                httpClient.AddAuthenticaion(apiKey);
-                var response = await httpClient.PostAsJsonAsync(uri.ToString(), item);
-
-                if (response.IsSuccessStatusCode)
-                    return KvMetadata.Make(CollectionName, response);
-                else
-                    throw await RequestExceptionUtility.Make(response);
-            }
+            var response = await restClient.SendAsync(uri, HttpMethod.Post, item);
+            return KvMetadata.Make(CollectionName, response);
         }
 
-        public async Task<ListResults<T>> ExclusiveListAsync<T>(int limit = 100,
+        public Task<ListResults<T>> ExclusiveListAsync<T>(int limit = 100,
                                                                 string afterKey = null,
                                                                 string beforeKey = null)
         {
@@ -164,12 +158,11 @@ namespace Orchestrate.Io
             if (!string.IsNullOrEmpty(afterKey))
                 uri.AddQuery("afterKey", afterKey);
 
-            using (var httpClient = new HttpClient())
-                return await httpClient.GetAsync<ListResults<T>>(apiKey, uri);
+            return restClient.GetAsync<ListResults<T>>(uri);
         }
 
 
-        public async Task<ListResults<T>> InclusiveListAsync<T>(int limit = 100, 
+        public Task<ListResults<T>> InclusiveListAsync<T>(int limit = 100, 
                                                                 string startKey = null, 
                                                                 string endKey = null)
         {
@@ -186,8 +179,7 @@ namespace Orchestrate.Io
             if (!string.IsNullOrEmpty(endKey))
                 uri.AddQuery("endKey", endKey);
 
-            using (var httpClient = new HttpClient())
-                return await httpClient.GetAsync<ListResults<T>>(apiKey, uri);
+            return restClient.GetAsync<ListResults<T>>(uri);
         }
 
         public async Task<KvMetadata> AddOrUpdateAsync<T>(string key,
@@ -201,24 +193,9 @@ namespace Orchestrate.Io
                                         .AppendPath(CollectionName)
                                         .AppendPath(key);
 
-            var message = new HttpRequestMessage(HttpMethod.Put, uri.ToString());
+            var response = await restClient.SendIfMatchAsync(uri, HttpMethod.Put, item, reference);
+            return KvMetadata.Make(CollectionName, response);
 
-            if (!string.IsNullOrEmpty(reference))
-                message.AddIfMatch(reference);
-
-            if (item != null)
-                message.AddContent(item);
-
-            using (var httpClient = new HttpClient())
-            {
-                httpClient.AddAuthenticaion(apiKey);
-                var response = await httpClient.SendAsync(message);
-
-                if (response.IsSuccessStatusCode)
-                    return KvMetadata.Make(CollectionName, response);
-                else
-                    throw await RequestExceptionUtility.Make(response);
-            }
         }
 
         public async Task<KvMetadata> TryAddAsync<T>(string key,
@@ -231,50 +208,21 @@ namespace Orchestrate.Io
                                         .AppendPath(CollectionName)
                                         .AppendPath(key);
 
-            var message = new HttpRequestMessage(HttpMethod.Put, uri.ToString());
-            message.AddIfNoneMatch();
-
-            if (item != null)
-                message.AddContent(item);
-
-            using (var httpClient = new HttpClient())
-            {
-                httpClient.AddAuthenticaion(apiKey);
-                var response = await httpClient.SendAsync(message);
-
-                if (response.IsSuccessStatusCode)
-                    return KvMetadata.Make(CollectionName, response);
-                else
-                    throw await RequestExceptionUtility.Make(response);
-            }
+            var response = await restClient.SendIfNoneMatchAsync(uri, HttpMethod.Put, item);
+            return KvMetadata.Make(CollectionName, response);
         }
 
 
-        public async Task DeleteAsync(string key, bool purge = true, string reference = null)
+        public Task DeleteAsync(string key, bool purge = true, string reference = null)
         {
             Guard.ArgumentNotNullOrEmpty("key", key);
 
             HttpUrlBuilder uri = new HttpUrlBuilder(host)
                                         .AppendPath(CollectionName)
-                                        .AppendPath(key);
-            if (purge)
-                uri.AddQuery("purge", "true");
-            else
-                uri.AddQuery("purge", "false");
+                                        .AppendPath(key)
+                                        .AddQuery("purge", purge ? "true" : "false");
 
-            var message = new HttpRequestMessage(HttpMethod.Delete, uri.ToString());
-
-            if (!string.IsNullOrEmpty(reference))
-                message.AddIfMatch(reference);
-
-            using (var httpClient = new HttpClient())
-            {
-                httpClient.AddAuthenticaion(apiKey);
-                var response = await httpClient.SendAsync(message);
-
-                if (!response.IsSuccessStatusCode)
-                    throw await RequestExceptionUtility.Make(response);
-            }
+            return restClient.SendIfMatchAsync(uri, HttpMethod.Delete, reference);
         }
 
         public async Task<KvObject<T>> GetAsync<T>(string key, string versionReference = null)
@@ -291,23 +239,9 @@ namespace Orchestrate.Io
                    .AppendPath(versionReference);
             }
 
-            using (var httpClient = new HttpClient())
-            {
-                httpClient.AddAuthenticaion(apiKey);
-                var response = await httpClient.GetAsync(uri.ToString());
-
-                if (response.IsSuccessStatusCode)
-                {
-                    var eTag = (response.Headers.ETag != null) ? response.Headers.ETag.Tag : string.Empty;
-                    var location = (response.Headers.Location != null) ? response.Headers.Location.ToString() : string.Empty;
-                    string content = await response.Content.ReadAsStringAsync();
-                    return new KvObject<T>(content, CollectionName, key, eTag, location);
-                }
-                else
-                    throw await RequestExceptionUtility.Make(response);
-            }
+            var response = await restClient.GetAsync(uri);
+            return new KvObject<T>(response.Content, CollectionName, key, response.ETag, response.Location, serializer);
         }
-
 
         public async Task<KvMetadata> MergeAsync<T>(string key,
                                                     T item, 
@@ -320,23 +254,8 @@ namespace Orchestrate.Io
                                         .AppendPath(CollectionName)
                                         .AppendPath(key);
 
-            var patchMethod = new HttpMethod("PATCH");
-            HttpRequestMessage message = new HttpRequestMessage(patchMethod, uri.ToString());
-            if (!string.IsNullOrEmpty(reference))
-                message.AddIfMatch(reference);
-
-            using (var httpClient = new HttpClient())
-            {
-                httpClient.AddAuthenticaion(apiKey);
-                message.AddContent(item);
-
-                var response = await httpClient.SendAsync(message);
-
-                if (response.IsSuccessStatusCode)
-                    return KvMetadata.Make(CollectionName, response);
-                else
-                    throw await RequestExceptionUtility.Make(response);
-            }
+            var response = await restClient.SendIfMatchAsync(uri, new HttpMethod("PATCH"), item, reference);
+            return KvMetadata.Make(CollectionName, response);
         }
 
 
@@ -351,24 +270,8 @@ namespace Orchestrate.Io
                                         .AppendPath(CollectionName)
                                         .AppendPath(key);
 
-            var patchMethod = new HttpMethod("PATCH");
-            HttpRequestMessage message = new HttpRequestMessage(patchMethod, uri.ToString());
-
-            if(!string.IsNullOrEmpty(reference))
-                message.AddIfMatch(reference);
-
-            using (var httpClient = new HttpClient())
-            {
-                httpClient.AddAuthenticaion(apiKey);
-                message.AddContent(patchOperations.ToArray());
-
-                var response = await httpClient.SendAsync(message);
-
-                if (response.IsSuccessStatusCode)
-                    return KvMetadata.Make(CollectionName, response);
-                else
-                    throw await RequestExceptionUtility.Make(response);
-            }
+            var response = await restClient.SendIfMatchAsync(uri, new HttpMethod("PATCH"), patchOperations.ToArray(), reference);
+            return KvMetadata.Make(CollectionName, response);
         }
 
         public async Task<KvMetadata> UpdateAsync<T>(string key,
@@ -391,24 +294,8 @@ namespace Orchestrate.Io
                                         .AppendPath(CollectionName)
                                         .AppendPath(key);
 
-            var message = new HttpRequestMessage(HttpMethod.Put, uri.ToString());
-
-            if (!string.IsNullOrEmpty(reference))
-                message.AddIfMatch(reference);
-
-            if (item != null)
-                message.AddContent(item);
-
-            using (var httpClient = new HttpClient())
-            {
-                httpClient.AddAuthenticaion(apiKey);
-                var response = await httpClient.SendAsync(message);
-
-                if (response.IsSuccessStatusCode)
-                    return KvMetadata.Make(CollectionName, response);
-                else
-                    throw await RequestExceptionUtility.Make(response);
-            }
+            var response = await restClient.SendIfMatchAsync(uri, HttpMethod.Put, item, reference);
+            return KvMetadata.Make(CollectionName, response);
         }
     }
 }

@@ -1,7 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Net;
+using Newtonsoft.Json.Linq;
 using Orchestrate.Io;
+using Orchestrate.Tests.Models;
+using Orchestrate.Tests.Utility;
 using Xunit;
 
 public class PatchTests : IClassFixture<ProductTestFixture>
@@ -10,6 +13,7 @@ public class PatchTests : IClassFixture<ProductTestFixture>
     Collection collection;
     Product product;
     string productKey;
+    Application application;
 
     public PatchTests(ProductTestFixture testFixture)
     {
@@ -17,6 +21,7 @@ public class PatchTests : IClassFixture<ProductTestFixture>
         collection = testFixture.Client.GetCollection(testFixture.CollectionName);
         product = testFixture.Product;
         productKey = testFixture.Key;
+        application = testFixture.Application;
     }
 
     [Fact]
@@ -56,6 +61,28 @@ public class PatchTests : IClassFixture<ProductTestFixture>
         var kvObject = await collection.GetAsync<dynamic>(productKey);
         var product = kvObject.Value;
         Assert.Equal(dateTime, product.releaseDate.ToString("s"));
+    }
+
+    [Fact]
+    public async void SupportsCustomSerialzation()
+    {
+        var client = new Client(application, CustomSerializer.Create());
+        var collection = client.GetCollection(collectionName);
+
+        string dateTime = DateTime.UtcNow.ToString("s");
+        List<PatchOperation> patchOperations = new List<PatchOperation>();
+        patchOperations.Add(new PatchOperation<Origin>
+        { Operation = "add", Path = "/origin", Value = Origin.Moon });
+
+        var kvMetaData = await collection.PatchAsync(productKey, patchOperations);
+
+        Assert.Equal(collectionName, kvMetaData.CollectionName);
+        Assert.Contains(kvMetaData.Key, kvMetaData.Location);
+        Assert.True(kvMetaData.VersionReference.Length > 0);
+        Assert.Contains(kvMetaData.VersionReference, kvMetaData.Location);
+
+        var kvObject = await collection.GetAsync<JObject>(productKey);
+        Assert.Equal(Origin.Moon.ToString(), kvObject.Value.Value<string>("origin"));
     }
 
     [Fact]
