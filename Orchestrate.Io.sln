@@ -7,6 +7,15 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Orchestrate", "Orchestrate\
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Orchestrate.Tests", "Orchestrate.Tests\Orchestrate.Tests.csproj", "{2CABA886-8B8B-4522-8FEC-17E577F406C8}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{A9213193-3AE1-4B41-A4DB-A63EA3A4B429}"
+	ProjectSection(SolutionItems) = preProject
+		.gitignore = .gitignore
+		build.bat = build.bat
+		build\build.proj = build\build.proj
+		NuGet.Config = NuGet.Config
+		README.md = README.md
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU

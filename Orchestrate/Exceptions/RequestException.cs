@@ -4,7 +4,7 @@ using Newtonsoft.Json.Linq;
 
 namespace Orchestrate.Io
 {
-    public class RequestException : ApplicationException
+    public class RequestException : Exception
     {
         string rawJson;
         dynamic jsonData;

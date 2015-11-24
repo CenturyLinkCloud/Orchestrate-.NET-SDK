@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Web;
 
 namespace Orchestrate.Io
 {
@@ -11,11 +10,11 @@ namespace Orchestrate.Io
 
         public HttpUrlBuilder(string baseUrl)
             : this(baseUrl, UriKind.RelativeOrAbsolute)
-        {}
+        { }
 
         public HttpUrlBuilder(string baseUrl, UriKind kind)
             : this(new Uri(baseUrl, kind))
-        {}
+        { }
 
         public HttpUrlBuilder(Uri baseUrl)
         {
@@ -63,7 +62,7 @@ namespace Orchestrate.Io
 
         public HttpUrlBuilder AddQuery(string name, string value)
         {
-            var query = String.Join("=", HttpUtility.UrlEncode(name), HttpUtility.UrlEncode(value));
+            var query = String.Join("=", Uri.EscapeDataString(name), Uri.EscapeDataString(value));
 
             return AddRawQuery(query);
         }
@@ -86,7 +85,7 @@ namespace Orchestrate.Io
 
         public HttpUrlBuilder AppendFragment(string fragmentFormat, params string[] args)
         {
-            var fragment = HttpUtility.UrlPathEncode(String.Format(fragmentFormat, args));
+            var fragment = Uri.EscapeUriString(String.Format(fragmentFormat, args));
             fragment = CombinePaths(builder.Fragment, fragment);
 
             if (fragment.StartsWith("#"))
@@ -100,7 +99,7 @@ namespace Orchestrate.Io
 
         public HttpUrlBuilder AppendPath(string pathFormat, params string[] args)
         {
-            var path = HttpUtility.UrlPathEncode(String.Format(pathFormat, args));
+            var path = Uri.EscapeUriString(String.Format(pathFormat, args));
             builder.Path = CombinePaths(builder.Path, path);
             return this;
         }
@@ -128,7 +127,7 @@ namespace Orchestrate.Io
 
         public HttpUrlBuilder WithPath(string pathFormat, params string[] args)
         {
-            var path = HttpUtility.UrlPathEncode(String.Format(pathFormat, args));
+            var path = Uri.EscapeUriString(String.Format(pathFormat, args));
             builder.Path = path;
             return this;
         }
@@ -186,7 +185,7 @@ namespace Orchestrate.Io
             return false;
         }
 
-        public static explicit operator string(HttpUrlBuilder httpUrl)
+        public static explicit operator string (HttpUrlBuilder httpUrl)
         {
             return httpUrl.ToString();
         }

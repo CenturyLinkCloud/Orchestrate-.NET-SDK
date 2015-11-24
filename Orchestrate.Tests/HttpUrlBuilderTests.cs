@@ -100,7 +100,7 @@ public class HttpUrlBuilderTests
 
             builder.AddQuery("na/me", "value");
 
-            Assert.Equal("?na%2fme=value", builder.ToUri().Query);
+            Assert.Equal("?na%2Fme=value", builder.ToUri().Query);
         }
 
         [Fact]
@@ -110,7 +110,7 @@ public class HttpUrlBuilderTests
 
             builder.AddQuery("name", "va/lue");
 
-            Assert.Equal("?name=va%2flue", builder.ToUri().Query);
+            Assert.Equal("?name=va%2Flue", builder.ToUri().Query);
         }
     }
 

@@ -12,12 +12,13 @@
     <licenseUrl>https://raw.githubusercontent.com/CenturyLinkCloud/Orchestrate-.NET-SDK/master/LICENSE</licenseUrl>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <dependencies>
-      <dependency id="Microsoft.AspNet.WebApi.Client" version="5.2.3" />
       <dependency id="Newtonsoft.Json" version="7.0.1" />
     </dependencies>
   </metadata>
   <files>
-    <file src="bin\Release\Orchestrate.dll" target="lib\net45\" />
-    <file src="bin\Release\Orchestrate.pdb" target="lib\net45\" />
+    <file src="bin\Release\Orchestrate.dll" target="lib\portable-net45+win+wpa81\" />
+    <file src="bin\Release\Orchestrate.pdb" target="lib\portable-net45+win+wpa81\" />
+    <file src="bin\Release\Orchestrate.dll" target="lib\dotnet\" />
+    <file src="bin\Release\Orchestrate.pdb" target="lib\dotnet\" />
   </files>
 </package>
