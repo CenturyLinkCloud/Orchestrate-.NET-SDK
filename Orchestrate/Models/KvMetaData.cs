@@ -1,7 +1,4 @@
-﻿using System.Net.Http;
-using Orchestrate.Io.Utility;
-
-namespace Orchestrate.Io
+﻿namespace Orchestrate.Io
 {
     public class KvMetadata
     {

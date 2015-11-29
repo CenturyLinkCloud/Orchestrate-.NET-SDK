@@ -5,7 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
 
-namespace Orchestrate.Io.Utility
+namespace Orchestrate.Io
 {
     public class RestClient
     {
