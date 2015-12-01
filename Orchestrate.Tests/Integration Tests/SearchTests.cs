@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Net;
@@ -168,6 +169,7 @@ public class SearchTests : IClassFixture<ListTestFixture>
         Assert.Equal(3, searchResult.TotalCount);
         Assert.Contains("offset=2", searchResult.Next);
         Assert.Null(searchResult.Prev);
+        Assert.True(searchResult.HasNext());
     }
 
     [Fact]
@@ -180,8 +182,42 @@ public class SearchTests : IClassFixture<ListTestFixture>
         Assert.Equal(3, searchResult.TotalCount);
         Assert.Null(searchResult.Next);
         Assert.Contains("offset=0", searchResult.Prev);
+        Assert.False(searchResult.HasNext());
     }
 
+    [Fact]
+    public async void SearchAllowsPagination()
+    {
+        var totalResults = new List<Product>();
+
+        SearchOptions options = new SearchOptions(limit: 1);
+
+        var searchResult = await collection.SearchAsync<Product>("*", options);
+        totalResults.AddRange(searchResult);
+
+        while (searchResult.HasNext())
+        {
+            searchResult = await searchResult.GetNextAsync();
+            totalResults.AddRange(searchResult);
+        }
+        
+        Assert.Collection(totalResults.OrderBy(r => r.Id),
+            r => Assert.Equal(1, r.Id),
+            r => Assert.Equal(2, r.Id),
+            r => Assert.Equal(3, r.Id)
+        );
+    }
+
+    [Fact]
+    public async void ThrowsWhenNextPageNotAvailable()
+    {
+        SearchOptions options = new SearchOptions(limit: 100);
+
+        var searchResult = await collection.SearchAsync<Product>("*", options);
+
+        var ex = await Assert.ThrowsAsync<InvalidOperationException>(() => searchResult.GetNextAsync());
+        Assert.Equal("There are no more items available in the search results.", ex.Message);
+    }
 
     [Fact]
     public async void SearchSucceedsWithInvalidSort()

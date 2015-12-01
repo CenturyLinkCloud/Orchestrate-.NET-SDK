@@ -28,7 +28,7 @@ namespace Orchestrate.Io
             restClient = new RestClient(apiKey, serializer);
         }
 
-        public Task<SearchResults<T>> SearchAsync<T>(string query, SearchOptions opts = null)
+        public async Task<SearchResults<T>> SearchAsync<T>(string query, SearchOptions opts = null)
         {
             Guard.ArgumentNotNullOrEmpty("query", query);
 
@@ -45,7 +45,8 @@ namespace Orchestrate.Io
                 uri.AddQuery("offset", opts.Offset.ToString());
             }
 
-            return restClient.GetAsync<SearchResults<T>>(uri);
+            var response = await restClient.GetAsync<SearchResultsResponse<T>>(uri);
+            return response.ToResults(host, restClient);
         }
 
         public Task<ListResults<T>> GetLinkAsync<T>(string key, string kind, LinkOptions opts = null)
