@@ -48,6 +48,8 @@
     <Compile Include="Exceptions\NotFoundException.cs" />
     <Compile Include="Exceptions\PatchConflictException.cs" />
     <Compile Include="Exceptions\RequestException.cs" />
+    <Compile Include="Models\ListResultsResponse.cs" />
+    <Compile Include="Models\SearchResultsResponse.cs" />
     <Compile Include="Options\HistoryOptions.cs" />
     <Compile Include="IApplication.cs" />
     <Compile Include="Options\LinkOptions.cs" />

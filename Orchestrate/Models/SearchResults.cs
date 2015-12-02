@@ -1,27 +1,36 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using Newtonsoft.Json;
+using System.Threading.Tasks;
 
 namespace Orchestrate.Io
 {
-    [JsonObject]
     public class SearchResults<T> : IEnumerable<T>
     {
-        [JsonProperty("count")]
-        public int Count { get; set; }
+        private readonly RestClient restClient;
+        private readonly Uri host;
 
-        [JsonProperty("results")]
-        public List<SearchItem<T>> Items { get; set; }
+        public int Count { get; }
 
-        [JsonProperty("total_count")]
-        public int TotalCount { get; set; }
+        public IReadOnlyList<SearchItem<T>> Items { get; }
 
-        [JsonProperty("next")]
-        public string Next { get; set; }
+        public int TotalCount { get; }
 
-        [JsonProperty("prev")]
-        public string Prev { get; set; }
+        public string Next { get; }
+
+        public string Prev { get; }
+
+        public SearchResults(int count, IReadOnlyList<SearchItem<T>> items, int totalCount, string next, string prev, Uri host, RestClient restClient)
+        {
+            this.host = host;
+            this.restClient = restClient;
+            Count = count;
+            Items = items;
+            TotalCount = totalCount;
+            Next = next;
+            Prev = prev;
+        }
 
         public IEnumerator<T> GetEnumerator()
         {
@@ -29,6 +38,24 @@ namespace Orchestrate.Io
         }
 
         IEnumerator IEnumerable.GetEnumerator()
-        { return GetEnumerator(); }
+        {
+            return GetEnumerator();
+        }
+
+        public bool HasNext()
+        {
+            return Next != null;
+        }
+
+        public async Task<SearchResults<T>> GetNextAsync()
+        {
+            if (!HasNext())
+                throw new InvalidOperationException("There are no more items available in the search results.");
+
+            var nextUri = new Uri(host, Next);
+            
+            var response = await restClient.GetAsync<SearchResultsResponse<T>>(nextUri);
+            return response.ToResults(host, restClient);
+        }
     }
 }

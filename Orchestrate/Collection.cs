@@ -28,7 +28,7 @@ namespace Orchestrate.Io
             restClient = new RestClient(apiKey, serializer);
         }
 
-        public Task<SearchResults<T>> SearchAsync<T>(string query, SearchOptions opts = null)
+        public async Task<SearchResults<T>> SearchAsync<T>(string query, SearchOptions opts = null)
         {
             Guard.ArgumentNotNullOrEmpty("query", query);
 
@@ -45,10 +45,11 @@ namespace Orchestrate.Io
                 uri.AddQuery("offset", opts.Offset.ToString());
             }
 
-            return restClient.GetAsync<SearchResults<T>>(uri);
+            var response = await restClient.GetAsync<SearchResultsResponse<T>>(uri);
+            return response.ToResults(new Uri(host), restClient);
         }
 
-        public Task<ListResults<T>> GetLinkAsync<T>(string key, string kind, LinkOptions opts = null)
+        public async Task<ListResults<T>> GetLinkAsync<T>(string key, string kind, LinkOptions opts = null)
         {
             Guard.ArgumentNotNullOrEmpty("key", key);
             Guard.ArgumentNotNullOrEmpty("kind", kind);
@@ -65,7 +66,8 @@ namespace Orchestrate.Io
                 uri.AddQuery("offset", opts.Offset.ToString());
             }
 
-            return restClient.GetAsync<ListResults<T>>(uri);
+            var response = await restClient.GetAsync<ListResultsResponse<T>>(uri);
+            return response.ToResults(new Uri(host), restClient);
         }
 
         public Task<T> GetLinkAsync<T>(string key, string kind, GraphNode destinationNode)
@@ -85,7 +87,7 @@ namespace Orchestrate.Io
             return restClient.GetAsync<T>(uri);
         }
 
-        public Task<ListResults<T>> HistoryAsync<T>(string productKey, HistoryOptions opts = null)
+        public async Task<ListResults<T>> HistoryAsync<T>(string productKey, HistoryOptions opts = null)
         {
             Guard.ArgumentNotNullOrEmpty("key", productKey);
 
@@ -103,7 +105,8 @@ namespace Orchestrate.Io
                 uri.AddQuery("offset", opts.Offset.ToString());
             }
 
-            return restClient.GetAsync<ListResults<T>>(uri);
+            var response = await restClient.GetAsync<ListResultsResponse<T>>(uri);
+            return response.ToResults(new Uri(host), restClient);
         }
 
         public Task<SearchResults<T>> SearchAsync<T>(string field, decimal latitude, decimal longitude, string distance)
@@ -117,7 +120,7 @@ namespace Orchestrate.Io
             return SearchAsync<T>(luceneQuery);
         }
 
-        public Task<ListResults<T>> ListAsync<T>(int limit = 100)
+        public async Task<ListResults<T>> ListAsync<T>(int limit = 100)
         {
             if (limit < 1 || limit > 100)
                 throw new ArgumentOutOfRangeException("limit", "limit must be between 1 and 100");
@@ -126,7 +129,8 @@ namespace Orchestrate.Io
                                                    .AppendPath(CollectionName)
                                                    .AddQuery("limit", limit.ToString());
 
-            return restClient.GetAsync<ListResults<T>>(uri);
+            var response = await restClient.GetAsync<ListResultsResponse<T>>(uri);
+            return response.ToResults(new Uri(host), restClient);
         }
 
         public async Task<KvMetadata> AddAsync<T>(T item)
@@ -140,7 +144,7 @@ namespace Orchestrate.Io
             return KvMetadata.Make(CollectionName, response);
         }
 
-        public Task<ListResults<T>> ExclusiveListAsync<T>(int limit = 100,
+        public async Task<ListResults<T>> ExclusiveListAsync<T>(int limit = 100,
                                                                 string afterKey = null,
                                                                 string beforeKey = null)
         {
@@ -157,11 +161,12 @@ namespace Orchestrate.Io
             if (!string.IsNullOrEmpty(afterKey))
                 uri.AddQuery("afterKey", afterKey);
 
-            return restClient.GetAsync<ListResults<T>>(uri);
+            var response = await restClient.GetAsync<ListResultsResponse<T>>(uri);
+            return response.ToResults(new Uri(host), restClient);
         }
 
 
-        public Task<ListResults<T>> InclusiveListAsync<T>(int limit = 100, 
+        public async Task<ListResults<T>> InclusiveListAsync<T>(int limit = 100, 
                                                                 string startKey = null, 
                                                                 string endKey = null)
         {
@@ -178,7 +183,8 @@ namespace Orchestrate.Io
             if (!string.IsNullOrEmpty(endKey))
                 uri.AddQuery("endKey", endKey);
 
-            return restClient.GetAsync<ListResults<T>>(uri);
+            var response = await restClient.GetAsync<ListResultsResponse<T>>(uri);
+            return response.ToResults(new Uri(host), restClient);
         }
 
         public async Task<KvMetadata> AddOrUpdateAsync<T>(string key,

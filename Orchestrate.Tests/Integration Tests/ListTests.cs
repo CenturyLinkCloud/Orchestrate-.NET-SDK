@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Net;
 using Orchestrate.Io;
 using Xunit;
@@ -61,6 +62,36 @@ public class ListTests : IClassFixture<ListTestFixture>
         );
 
         Assert.Contains("afterKey=2", listResult.Next);
+    }
+
+    [Fact]
+    public async void AllowsPagination()
+    {
+        var totalResults = new List<Product>();
+
+        var listResult = await collection.ListAsync<Product>(1);
+        totalResults.AddRange(listResult);
+
+        while (listResult.HasNext())
+        {
+            listResult = await listResult.GetNextAsync();
+            totalResults.AddRange(listResult);
+        }
+
+        Assert.Collection(totalResults, 
+            r => Assert.Equal(1, r.Id),
+            r => Assert.Equal(2, r.Id),
+            r => Assert.Equal(3, r.Id)
+        );
+    }
+
+    [Fact]
+    public async void GetNextThrowsWhenNoPagesAreAvailable()
+    {
+        var result = await collection.ListAsync<Product>(100);
+
+        var ex = await Assert.ThrowsAsync<InvalidOperationException>(() => result.GetNextAsync());
+        Assert.Equal("There are no more items available in the list results.", ex.Message);
     }
 
     [Fact]
