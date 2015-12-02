@@ -9,7 +9,7 @@ namespace Orchestrate.Io
     public class SearchResults<T> : IEnumerable<T>
     {
         private readonly RestClient restClient;
-        private readonly string host;
+        private readonly Uri host;
 
         public int Count { get; }
 
@@ -21,7 +21,7 @@ namespace Orchestrate.Io
 
         public string Prev { get; }
 
-        public SearchResults(int count, IReadOnlyList<SearchItem<T>> items, int totalCount, string next, string prev, string host, RestClient restClient)
+        public SearchResults(int count, IReadOnlyList<SearchItem<T>> items, int totalCount, string next, string prev, Uri host, RestClient restClient)
         {
             this.host = host;
             this.restClient = restClient;
@@ -52,7 +52,7 @@ namespace Orchestrate.Io
             if (!HasNext())
                 throw new InvalidOperationException("There are no more items available in the search results.");
 
-            var nextUri = new Uri(new Uri(host), Next);
+            var nextUri = new Uri(host, Next);
             
             var response = await restClient.GetAsync<SearchResultsResponse<T>>(nextUri);
             return response.ToResults(host, restClient);

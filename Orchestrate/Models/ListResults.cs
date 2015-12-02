@@ -1,21 +1,30 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using Newtonsoft.Json;
+using System.Threading.Tasks;
 
 namespace Orchestrate.Io
 {
-    [JsonObject]
     public class ListResults<T> : IEnumerable<T>
     {
-        [JsonProperty("count")]
-        public int Count { get; set; }
+        private readonly Uri host;
+        private readonly RestClient restClient;
 
-        [JsonProperty("results")]
-        public List<ListItem<T>> Items { get; set; }
+        public int Count { get; }
 
-        [JsonProperty("next")]
-        public string Next { get; set; }
+        public IReadOnlyList<ListItem<T>> Items { get; }
+
+        public string Next { get; }
+
+        public ListResults(int count, IReadOnlyList<ListItem<T>> items, string next, Uri host, RestClient restClient)
+        {
+            this.host = host;
+            this.restClient = restClient;
+            Count = count;
+            Items = items;
+            Next = next;
+        }
 
         public IEnumerator<T> GetEnumerator()
         {
@@ -24,5 +33,21 @@ namespace Orchestrate.Io
 
         IEnumerator IEnumerable.GetEnumerator()
         { return GetEnumerator(); }
+
+        public bool HasNext()
+        {
+            return Next != null;
+        }
+
+        public async Task<ListResults<T>> GetNextAsync()
+        {
+            if (!HasNext())
+                throw new InvalidOperationException("There are no more items available in the list results.");
+
+            var nextUri = new Uri(host, Next);
+
+            var response = await restClient.GetAsync<ListResultsResponse<T>>(nextUri);
+            return response.ToResults(host, restClient);
+        }
     }
 }

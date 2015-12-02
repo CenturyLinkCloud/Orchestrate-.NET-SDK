@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using Newtonsoft.Json;
 
 namespace Orchestrate.Io
@@ -21,7 +22,7 @@ namespace Orchestrate.Io
         [JsonProperty("prev")]
         public string Prev { get; set; }
 
-        public SearchResults<T> ToResults(string host, RestClient restClient)
+        public SearchResults<T> ToResults(Uri host, RestClient restClient)
         {
             return new SearchResults<T>(Count, Items, TotalCount, Next, Prev, host, restClient);
         }
