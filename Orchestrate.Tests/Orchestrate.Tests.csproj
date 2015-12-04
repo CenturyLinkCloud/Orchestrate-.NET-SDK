@@ -65,8 +65,10 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Integration Tests\AddEventTests.cs" />
     <Compile Include="Models\Origin.cs" />
     <Compile Include="Models\ProductCategory.cs" />
+    <Compile Include="Models\ProductSale.cs" />
     <Compile Include="Options Tests\HistoryOptionsTests.cs" />
     <Compile Include="HttpUrlBuilderTests.cs" />
     <Compile Include="Integration Tests\CollectionTests.cs" />
@@ -87,6 +89,7 @@
     <Compile Include="Models\Product.cs" />
     <Compile Include="Models\User.cs" />
     <Compile Include="Options Tests\SearchOptionsTests.cs" />
+    <Compile Include="TestFixtures\EventTestFixture.cs" />
     <Compile Include="TestFixtures\GraphTestFixture.cs" />
     <Compile Include="TestFixtures\HistoryTestFixture.cs" />
     <Compile Include="TestFixtures\LocationTestFixture.cs" />

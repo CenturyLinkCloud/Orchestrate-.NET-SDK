@@ -302,5 +302,24 @@ namespace Orchestrate.Io
             var response = await restClient.SendIfMatchAsync(uri, HttpMethod.Put, item, reference);
             return KvMetadata.Make(CollectionName, response);
         }
+
+        public async Task<EventMetaData> AddEventAsync<T>(string key, string eventType, T @event, DateTimeOffset? timestamp = null)
+        {
+            Guard.ArgumentNotNullOrEmpty(nameof(key), key);
+            Guard.ArgumentNotNullOrEmpty(nameof(eventType), eventType);
+            Guard.ArgumentNotNull(nameof(@event), @event);
+
+            HttpUrlBuilder uri = new HttpUrlBuilder(host)
+                                        .AppendPath(CollectionName)
+                                        .AppendPath(key)
+                                        .AppendPath("events")
+                                        .AppendPath(eventType);
+
+            if (timestamp.HasValue)
+                uri.AppendPath(timestamp.Value.ToUnixTime().ToString());
+
+            var response = await restClient.SendAsync(uri, HttpMethod.Post, @event);
+            return EventMetaData.Make(response);
+        }
     }
 }
