@@ -11,11 +11,17 @@ namespace Orchestrate.Io
     {
         private readonly string apiKey;
         private readonly JsonSerializer serializer;
+        private readonly TimeSpan timeout; 
 
         public RestClient(string apiKey, JsonSerializer serializer)
+            : this(apiKey, serializer, TimeSpan.FromSeconds(100))
+        { }
+
+        public RestClient(string apiKey, JsonSerializer serializer, TimeSpan timeout)
         {
             this.apiKey = apiKey;
             this.serializer = serializer;
+            this.timeout = timeout; 
         }
 
         public async Task<T> GetAsync<T>(Uri uri)
@@ -66,6 +72,8 @@ namespace Orchestrate.Io
 
         public async Task<RestResponse> SendAsync<T>(HttpRequestMessage message, HttpMethod method, T content)
         {
+            message.AddUserAgent();
+
             if (content != null)
                 message.AddContent(content, serializer);
 
@@ -85,6 +93,9 @@ namespace Orchestrate.Io
             var httpClient = new HttpClient();
             var authorization = Convert.ToBase64String(Encoding.UTF8.GetBytes($"{apiKey}:"));
             httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Basic", authorization);
+
+            httpClient.Timeout = timeout;
+
             return httpClient;
         }
     }

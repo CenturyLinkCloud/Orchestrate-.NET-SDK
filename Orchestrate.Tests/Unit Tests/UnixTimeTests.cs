@@ -27,7 +27,7 @@ public class UnixTimeTests
         }
     }
 
-    public class ToString
+    public class ToStringTests
     {
         [Fact]
         public void ReturnsValueAsString()

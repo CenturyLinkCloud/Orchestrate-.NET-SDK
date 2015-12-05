@@ -2,7 +2,6 @@
 using System.Dynamic;
 using System.IO;
 using System.Net;
-using Newtonsoft.Json.Linq;
 using Orchestrate.Io;
 using Orchestrate.Tests.Utility;
 using Xunit;
@@ -109,8 +108,8 @@ public class GetLinkTests : IClassFixture<GraphTestFixture>
         var productKey = Guid.NewGuid().ToString();
         var userKey = Guid.NewGuid().ToString();
 
-        await productCollection.AddOrUpdateAsync(productKey, new Product {Id = 1, Category = ProductCategory.Sprocket});
-        await userCollection.AddOrUpdateAsync(userKey, new User() {Id = 1, Name = "Wayne Gretzky"});
+        await productCollection.AddOrUpdateAsync(productKey, new Product { Id = 1, Category = ProductCategory.Sprocket });
+        await userCollection.AddOrUpdateAsync(userKey, new User() { Id = 1, Name = "Wayne Gretzky" });
 
         GraphNode fromNode = new GraphNode { CollectionName = usersName, Key = userKey };
         GraphNode toNode = new GraphNode { CollectionName = productsName, Key = productKey };

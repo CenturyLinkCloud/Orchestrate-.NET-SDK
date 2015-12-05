@@ -89,6 +89,7 @@ public class SearchTests : IClassFixture<ListTestFixture>
         try
         {
             await collection.AddOrUpdateAsync(key, new Product {Category = ProductCategory.Sprocket, Id = 1});
+            await SearchHelper.WaitForConsistency(collection, "*", 1);
 
             var searchResult = await collection.SearchAsync<JObject>("value.id: 1");
 
