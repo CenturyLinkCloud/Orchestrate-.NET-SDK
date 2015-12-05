@@ -1,4 +1,5 @@
-﻿using Newtonsoft.Json;
+﻿using System;
+using Newtonsoft.Json;
 
 namespace Orchestrate.Io
 {
@@ -17,9 +18,20 @@ namespace Orchestrate.Io
         public string VersionReference { get; set; }
 
         [JsonProperty("reftime")]
-        public object ReferenceTime { get; set; }
+        [JsonConverter(typeof(UnixTimeJsonConverter))]
+        public DateTimeOffset ReferenceTime { get; set; }
 
         [JsonProperty("tombstone")]
         public bool Tombstone { get; set; }
+
+        [JsonProperty("timestamp")]
+        [JsonConverter(typeof(UnixTimeJsonConverter))]
+        public DateTimeOffset Timestamp { get; set; }
+
+        [JsonProperty("ordinal")]
+        public long Ordinal { get; set; }
+
+        [JsonProperty("ordinal_str")]
+        public string OrdinalString { get; set; }
     }
 }

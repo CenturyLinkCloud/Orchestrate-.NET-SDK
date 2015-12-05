@@ -48,8 +48,15 @@
     <Compile Include="Exceptions\NotFoundException.cs" />
     <Compile Include="Exceptions\PatchConflictException.cs" />
     <Compile Include="Exceptions\RequestException.cs" />
+    <Compile Include="Models\EventItem.cs" />
+    <Compile Include="Models\EventMetaData.cs" />
+    <Compile Include="Models\EventResults.cs" />
+    <Compile Include="Models\EventResultsResponse.cs" />
     <Compile Include="Models\ListResultsResponse.cs" />
     <Compile Include="Models\SearchResultsResponse.cs" />
+    <Compile Include="Models\UnixTime.cs" />
+    <Compile Include="Models\UnixTimeJsonConverter.cs" />
+    <Compile Include="Options\EventsOptions.cs" />
     <Compile Include="Options\HistoryOptions.cs" />
     <Compile Include="IApplication.cs" />
     <Compile Include="Options\LinkOptions.cs" />
