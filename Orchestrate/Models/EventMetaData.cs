@@ -12,7 +12,7 @@ namespace Orchestrate.Io
             var collectionName = locationParts[2];
             var key = locationParts[3];
             var eventType = locationParts[5];
-            var timestamp = DateTimeOffsetExtensions.FromUnixTimeUtc(long.Parse(locationParts[6]));
+            var timestamp = new UnixTime(long.Parse(locationParts[6])).ToDateTimeOffsetUtc();
             var ordinal = long.Parse(locationParts[7]);
 
             return new EventMetaData(collectionName, key, eventType, timestamp, ordinal);

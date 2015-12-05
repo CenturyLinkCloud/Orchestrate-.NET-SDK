@@ -66,6 +66,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Integration Tests\AddEventTests.cs" />
+    <Compile Include="Integration Tests\GetEventsTests.cs" />
     <Compile Include="Models\Origin.cs" />
     <Compile Include="Models\ProductCategory.cs" />
     <Compile Include="Models\ProductSale.cs" />
@@ -111,6 +112,8 @@
     <Compile Include="Integration Tests\AddTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Integration Tests\AddOrUpdateTests.cs" />
+    <Compile Include="Unit Tests\UnixTimeJsonConverterTests.cs" />
+    <Compile Include="Unit Tests\UnixTimeTests.cs" />
     <Compile Include="Utility\CustomSerializer.cs" />
     <Compile Include="Utility\EnvironmentHelper.cs" />
     <Compile Include="Utility\SearchHelper.cs" />

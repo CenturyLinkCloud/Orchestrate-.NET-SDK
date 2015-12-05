@@ -316,10 +316,30 @@ namespace Orchestrate.Io
                                         .AppendPath(eventType);
 
             if (timestamp.HasValue)
-                uri.AppendPath(timestamp.Value.ToUnixTime().ToString());
+                uri.AppendPath(UnixTime.FromDateTimeOffset(timestamp.Value).ToString());
 
             var response = await restClient.SendAsync(uri, HttpMethod.Post, @event);
             return EventMetaData.Make(response);
+        }
+
+        public async Task<EventResults<T>> GetEventsAsync<T>(string key, string eventType, EventsOptions options = null)
+        {
+            Guard.ArgumentNotNullOrEmpty(nameof(key), key);
+            Guard.ArgumentNotNullOrEmpty(nameof(eventType), eventType);
+
+            HttpUrlBuilder uri = new HttpUrlBuilder(host)
+                                        .AppendPath(CollectionName)
+                                        .AppendPath(key)
+                                        .AppendPath("events")
+                                        .AppendPath(eventType);
+
+            if (options != null)
+            {
+                uri.AddQuery("limit", options.Limit.ToString());
+            }
+
+            var response = await restClient.GetAsync<EventResultsResponse<T>>(uri);
+            return response.ToResults(new Uri(host), restClient);
         }
     }
 }
