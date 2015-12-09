@@ -67,6 +67,7 @@
   <ItemGroup>
     <Compile Include="HttpMessageExtensionsTests.cs" />
     <Compile Include="Integration Tests\AddEventTests.cs" />
+    <Compile Include="Integration Tests\DeleteEventTests.cs" />
     <Compile Include="Integration Tests\GetEventsTests.cs" />
     <Compile Include="Models\Origin.cs" />
     <Compile Include="Models\ProductCategory.cs" />
