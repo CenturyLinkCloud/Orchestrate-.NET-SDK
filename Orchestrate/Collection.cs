@@ -341,5 +341,22 @@ namespace Orchestrate.Io
             var response = await restClient.GetAsync<EventResultsResponse<T>>(uri);
             return response.ToResults(new Uri(host), restClient);
         }
+
+        public Task DeleteEventAsync(string key, string eventType, DateTimeOffset timestamp, long ordinal)
+        {
+            Guard.ArgumentNotNullOrEmpty(nameof(key), key);
+            Guard.ArgumentNotNullOrEmpty(nameof(eventType), eventType);
+
+            HttpUrlBuilder uri = new HttpUrlBuilder(host)
+                                    .AppendPath(CollectionName)
+                                    .AppendPath(key)
+                                    .AppendPath("events")
+                                    .AppendPath(eventType)
+                                    .AppendPath(UnixTime.FromDateTimeOffset(timestamp).ToString())
+                                    .AppendPath(ordinal.ToString())
+                                    .AddQuery("purge", "true");
+
+            return restClient.SendAsync(uri, HttpMethod.Delete);
+        }
     }
 }
